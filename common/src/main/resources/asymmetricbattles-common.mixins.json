@@ -1,0 +1,13 @@
+{
+    "required": true,
+    "package": "com.necro.asymmetric.battles.common.mixin",
+    "compatibilityLevel": "JAVA_21",
+    "mixins": [
+        "BattleBuilderMixin",
+        "DebugMixin",
+        "GraalShowdownUnbundlerMixin"
+    ],
+    "injectors": {
+        "defaultRequire": 1
+    }
+}
