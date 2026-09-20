@@ -1041,18 +1041,14 @@ class Battle {
     return pokemonList;
   }
   makeRequest(type) {
-    console.log('1');
     if (type) {
       this.requestState = type;
-        console.log('2');
       for (const side of this.sides) {
         side.clearChoice();
       }
     } else {
-        console.log('3');
       type = this.requestState;
     }
-    console.log('4');
     for (const side of this.sides) {
       side.activeRequest = null;
     }
@@ -1060,12 +1056,10 @@ class Battle {
       const pickedTeamSize = this.ruleTable.pickedTeamSize;
       this.add("teampreview" + (pickedTeamSize ? "|" + pickedTeamSize : ""));
     }
-    console.log('5');
     const requests = this.getRequests(type);
     for (let i = 0; i < this.sides.length; i++) {
       this.sides[i].emitRequest(requests[i]);
     }
-    console.log('6');
     if (this.sides.every((side) => side.isChoiceDone())) {
       throw new Error(`Choices are done immediately after a request`);
     }

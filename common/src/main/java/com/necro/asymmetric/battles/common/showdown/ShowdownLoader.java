@@ -18,7 +18,7 @@ public class ShowdownLoader {
         try {
             Files.createDirectories(showdown_sim);
             yoink("assets/asymmetricbattles/showdown/battle.js", showdown_sim.resolve("battle.js"));
-            yoink("assets/asymmetricbattles/showdown/battle-actions.js", showdown_sim.resolve("battle-actions.js"));
+            yoink("assets/asymmetricbattles/showdown/side.js", showdown_sim.resolve("side.js"));
         } catch (IOException e) {
             AsymmetricBattlesAPI.LOGGER.error("Failed to load showdown files: {}", e.getMessage());
         }
