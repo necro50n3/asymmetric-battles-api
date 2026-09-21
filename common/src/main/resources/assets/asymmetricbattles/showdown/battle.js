@@ -107,7 +107,7 @@ class Battle {
     this.gameType = format.gameType || "singles";
     this.field = new import_field.Field(this);
     this.sides = Array(format.playerCount).fill(null);
-    // Modify variable for new game types
+    // ABA: Modify variable for new game types
     if (this.gameType === "sextuples") this.activePerHalf = 6;
     else if (this.gameType === "pentuples") this.activePerHalf = 5;
     else if (this.gameType === "quadruples") this.activePerHalf = 4;

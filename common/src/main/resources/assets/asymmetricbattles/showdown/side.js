@@ -67,7 +67,7 @@ class Side {
       this.pokemon.push(new import_pokemon.Pokemon(this.team[i], this));
       this.pokemon[i].position = i;
     }
-    // Dynamic array sizes for double, triple and rotation battles, custom battles for 4-6 active pokemon
+    // ABA: Dynamic array sizes for double, triple and rotation battles, custom battles for 4-6 active pokemon
     switch (this.battle.gameType) {
       case "doubles":
         this.active = Array(Math.min(this.pokemon.length, 2)).fill(null);
