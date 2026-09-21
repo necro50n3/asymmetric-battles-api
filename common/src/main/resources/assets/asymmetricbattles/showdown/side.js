@@ -67,7 +67,7 @@ class Side {
       this.pokemon.push(new import_pokemon.Pokemon(this.team[i], this));
       this.pokemon[i].position = i;
     }
-    // ABA: Dynamic array sizes for double, triple and rotation battles, custom battles for 4-6 active pokemon
+    // ABA: Dynamic array sizes for battles, custom battles for 4-6 active pokemon
     switch (this.battle.gameType) {
       case "doubles":
         this.active = Array(Math.min(this.pokemon.length, 2)).fill(null);
@@ -86,7 +86,7 @@ class Side {
         this.active = Array(Math.min(this.pokemon.length, 6)).fill(null);
         break;
       default:
-        this.active = [null];
+        this.active = Array(Math.min(this.pokemon.length, 1)).fill(null);
     }
     this.pokemonLeft = this.pokemon.filter((pk) => !pk.fainted).length;
     this.faintedLastTurn = null;
