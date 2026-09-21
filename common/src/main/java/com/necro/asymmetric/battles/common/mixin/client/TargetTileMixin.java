@@ -18,7 +18,7 @@ public class TargetTileMixin {
             ordinal = 0
         )
     )
-    private static void crd_allowNullBattlePokemon(Object object) {}
+    private static void allowNullBattlePokemon(Object object) {}
 
     @Redirect(
         method = "<init>",
@@ -27,7 +27,7 @@ public class TargetTileMixin {
             target = "Lcom/cobblemon/mod/common/client/battle/ClientBattlePokemon;getUuid()Ljava/util/UUID;"
         )
     )
-    private UUID crd_allowNullUUID(ClientBattlePokemon pokemon) {
+    private UUID allowNullUUID(ClientBattlePokemon pokemon) {
         return pokemon == null ? null : pokemon.getUuid();
     }
 }
