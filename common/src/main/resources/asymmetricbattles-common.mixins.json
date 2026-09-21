@@ -4,8 +4,8 @@
     "compatibilityLevel": "JAVA_21",
     "mixins": [
         "BattleBuilderMixin",
-        "DebugMixin",
-        "GraalShowdownUnbundlerMixin"
+        "BattleFormatMixin",
+        "DebugMixin"
     ],
     "injectors": {
         "defaultRequire": 1
