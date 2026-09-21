@@ -14,19 +14,16 @@ import java.util.UUID;
 public class DebugMixin {
     @Inject(method = "sendFromShowdown", at = @At("HEAD"), remap = false)
     private void debugSendFrom(String battleId, String message, CallbackInfo ci) {
-        AsymmetricBattlesAPI.LOGGER.info("Sending From Showdown");
         AsymmetricBattlesAPI.LOGGER.info(message);
     }
 
     @Inject(method = "sendToShowdown", at = @At("HEAD"), remap = false)
     private void debugSendTo(UUID battleId, String[] messages, CallbackInfo ci) {
-        AsymmetricBattlesAPI.LOGGER.info("Sending To Showdown");
         for (String message : messages) AsymmetricBattlesAPI.LOGGER.info(message);
     }
 
     @Inject(method = "startBattle", at = @At("HEAD"), remap = false)
     private void debugStartBattle(PokemonBattle battle, String[] messages, CallbackInfo ci) {
-        AsymmetricBattlesAPI.LOGGER.info("Starting Battle");
         for (String message : messages) AsymmetricBattlesAPI.LOGGER.info(message);
     }
 }

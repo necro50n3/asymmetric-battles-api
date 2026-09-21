@@ -107,7 +107,13 @@ class Battle {
     this.gameType = format.gameType || "singles";
     this.field = new import_field.Field(this);
     this.sides = Array(format.playerCount).fill(null);
-    this.activePerHalf = this.gameType === "triples" ? 3 : format.playerCount > 2 || this.gameType === "doubles" ? 2 : 1;
+    // Modify variable for new game types
+    if (this.gameType === "sextuples") this.activePerHalf = 6;
+    else if (this.gameType === "pentuples") this.activePerHalf = 5;
+    else if (this.gameType === "quadruples") this.activePerHalf = 4;
+    else if (this.gameType === "triples") this.activePerHalf = 3;
+    else if (this.gameType === "doubles") this.activePerHalf = 2;
+    else this.activePerHalf = 1;
     this.prng = options.prng || new import_prng.PRNG(options.seed || void 0);
     this.prngSeed = this.prng.startingSeed.slice();
     this.rated = options.rated || !!options.rated;
