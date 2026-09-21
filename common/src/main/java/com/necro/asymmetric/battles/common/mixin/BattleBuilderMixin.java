@@ -7,6 +7,7 @@ import com.cobblemon.mod.common.battles.InsufficientPokemonError;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.necro.asymmetric.battles.common.AsymmetricBattlesAPI;
+import com.necro.asymmetric.battles.common.api.ExtraBattleFormats;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
@@ -24,7 +25,7 @@ public class BattleBuilderMixin {
     )
     private BattleFormat modifyBattleFormat(BattleFormat battleFormat) {
         return BattleFormat.Companion.getGEN_9_DOUBLES();
-        // return ExtraBattleFormats.GEN_9_SEXTUPLES;
+        // return ExtraBattleFormats.GEN_9_QUADRUPLES;
     }
 
     @WrapOperation(method = { "pvp1v1*", "pvp2v2*", "pve*", "pvn*" }, at = @At(value = "INVOKE", target = "Ljava/util/Collection;add(Ljava/lang/Object;)Z"))

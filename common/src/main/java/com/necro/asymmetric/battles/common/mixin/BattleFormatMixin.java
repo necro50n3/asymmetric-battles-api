@@ -13,8 +13,8 @@ import java.util.Set;
 public class BattleFormatMixin {
     @Inject(method = "fromFormatIdentifier", at = @At("HEAD"), remap = false, cancellable = true)
     private void fromFormatIdentifierInject(String id, CallbackInfoReturnable<BattleFormat> cir) {
-        if (Set.of("quadruple_battle", "quadruple", "quadruples").contains(id)) cir.setReturnValue(ExtraBattleFormats.GEN_9_QUADRUPLES);
-        else if (Set.of("pentuple_battle", "pentuple", "pentuples").contains(id)) cir.setReturnValue(ExtraBattleFormats.GEN_9_PENTUPLES);
-        else if (Set.of("sextuple_battle", "sextuple", "sextuples").contains(id)) cir.setReturnValue(ExtraBattleFormats.GEN_9_SEXTUPLES);
+//        if (Set.of("quadruple_battle", "quadruple", "quadruples").contains(id)) cir.setReturnValue(ExtraBattleFormats.GEN_9_QUADRUPLES);
+//        else if (Set.of("pentuple_battle", "pentuple", "pentuples").contains(id)) cir.setReturnValue(ExtraBattleFormats.GEN_9_PENTUPLES);
+//        else if (Set.of("sextuple_battle", "sextuple", "sextuples").contains(id)) cir.setReturnValue(ExtraBattleFormats.GEN_9_SEXTUPLES);
     }
 }
