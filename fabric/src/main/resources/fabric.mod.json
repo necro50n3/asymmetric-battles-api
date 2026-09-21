@@ -16,7 +16,8 @@
     ]
   },
   "mixins": [
-    "${archives_name}-common.mixins.json"
+    "${archives_name}-common.mixins.json",
+      "${archives_name}-fabric.mixins.json"
   ],
   "depends": {
     "minecraft": "${minecraft_version}",
