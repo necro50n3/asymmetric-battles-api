@@ -3,11 +3,16 @@ package com.necro.asymmetric.battles.common.mixin.client;
 import com.cobblemon.mod.common.api.battles.model.actor.ActorType;
 import com.cobblemon.mod.common.battles.FleeAttemptActionResponse;
 import com.cobblemon.mod.common.client.CobblemonClient;
+import com.cobblemon.mod.common.client.battle.ActiveClientBattlePokemon;
 import com.cobblemon.mod.common.client.battle.ClientBattle;
 import com.cobblemon.mod.common.client.battle.ClientBattleActor;
 import com.cobblemon.mod.common.client.battle.SingleActionRequest;
 import com.cobblemon.mod.common.client.gui.battle.BattleGUI;
 import com.cobblemon.mod.common.client.gui.battle.subscreen.BattleGeneralActionSelection;
+import com.cobblemon.mod.common.client.gui.battle.widgets.BattleOptionTile;
+import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
+import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 import net.minecraft.client.Minecraft;
@@ -15,14 +20,12 @@ import net.minecraft.client.sounds.SoundManager;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
+import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.List;
-import java.util.concurrent.atomic.AtomicInteger;
 
 import static com.cobblemon.mod.common.util.LocalizationUtilsKt.battleLang;
 
@@ -34,25 +37,30 @@ public abstract class BattleGeneralActionSelectionMixin {
     @Shadow
     public abstract void playDownSound(@NotNull SoundManager soundManager);
 
-    @Inject(method = "<init>",
+    @Shadow
+    @Final
+    private List<BattleOptionTile> tiles;
+
+    @WrapOperation(method = "<init>",
         at = @At(
             value = "INVOKE",
             target = "Lcom/cobblemon/mod/common/client/CobblemonClient;getBattle()Lcom/cobblemon/mod/common/client/battle/ClientBattle;"
         ),
-        cancellable = true
+        remap = false
     )
-    private void fixWildActionButtons(BattleGUI battleGUI, SingleActionRequest request, CallbackInfo ci) {
-        ClientBattle battle = CobblemonClient.INSTANCE.getBattle();
-        if (battle == null) return;
+    private ClientBattle fixWildActionButtons(CobblemonClient instance, Operation<ClientBattle> original, @Local(argsOnly = true) BattleGUI battleGUI, @Local(argsOnly = true) SingleActionRequest request) {
+        ClientBattle battle = original.call(instance);
+        if (battle == null) return null;
         List<ClientBattleActor> wildActors = battle.getSide2().getActors();
-        if (wildActors.isEmpty() || wildActors.getFirst().getType() != ActorType.WILD) return;
+        if (wildActors.isEmpty() || wildActors.getFirst().getType() != ActorType.WILD) return battle;
 
-        AtomicInteger active = new AtomicInteger();
-        battle.getSide2().getActiveClientBattlePokemon().forEach(pokemon -> active.getAndIncrement());
+        int tempActive = 0;
+        for (ActiveClientBattlePokemon ignored : battle.getSide2().getActiveClientBattlePokemon()) tempActive++;
+        int active = tempActive;
 
         addOption(2, battleLang("ui.capture"), BattleGUI.Companion.getBagResource(), () -> {
             battle.setMinimised(true);
-            String prompt = active.get() == 1 ? "throw_pokeball_prompt" : "pokeball_not_alone";
+            String prompt = active == 1 ? "throw_pokeball_prompt" : "pokeball_not_alone";
             if (Minecraft.getInstance().player != null) Minecraft.getInstance().player.displayClientMessage(battleLang(prompt), false);
             this.playDownSound(Minecraft.getInstance().getSoundManager());
             return Unit.INSTANCE;
@@ -65,6 +73,6 @@ public abstract class BattleGeneralActionSelectionMixin {
             return Unit.INSTANCE;
         });
 
-        ci.cancel();
+        return null;
     }
 }

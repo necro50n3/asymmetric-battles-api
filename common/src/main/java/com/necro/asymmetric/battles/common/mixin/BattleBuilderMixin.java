@@ -35,13 +35,11 @@ public class BattleBuilderMixin {
     private void pveMulti(ServerPlayer player, PokemonEntity pokemonEntity, UUID leadingPokemon, BattleFormat battleFormat, boolean cloneParties, boolean healFirst, float fleeDistance, PartyStore party, CallbackInfoReturnable<BattleStartResult> cir) {
         cir.setReturnValue(AsymmetricBattleBuilder.multiBattle(
             BattleParticipant.player(player, leadingPokemon),
-            BattleParticipant.dummy(),
-            BattleParticipant.wild(pokemonEntity),
-            BattleParticipant.dummy())
+            BattleParticipant.wild(pokemonEntity))
         );
     }
 
-    @WrapOperation(method = { "pvp1v1*", "pvp2v2*", "pve*", "pvn*" }, at = @At(value = "INVOKE", target = "Ljava/util/Collection;add(Ljava/lang/Object;)Z"))
+    @WrapOperation(method = { "pvp1v1*", "pvp2v2*", "pve*", "pvn*" }, at = @At(value = "INVOKE", target = "Ljava/util/Collection;add(Ljava/lang/Object;)Z"), remap = false)
     private static boolean cancelInsufficientPokemonError(Collection<BattleStartError> set, Object error, Operation<Boolean> original) {
         if (aba_shouldCancel(error)) return false;
         return original.call(set, error);

@@ -23,20 +23,29 @@ public class AsymmetricBattleBuilder {
     public static BattleStartResult multiBattle(BattleParticipant p1, BattleParticipant p2, BattleParticipant p3, BattleParticipant p4) {
         return multiBattle(p1, p2, p3, p4, -1);
     }
+    public static BattleStartResult multiBattle(BattleParticipant p1, BattleParticipant p4, int adjustLevel) {
+        return multiBattleCommon(p1.toActor(), BattleParticipant.dummy().toActor(), BattleParticipant.dummy().toActor(), p4.toActor(), adjustLevel);
+    }
+
+    public static BattleStartResult multiBattle(BattleParticipant p1, BattleParticipant p4) {
+        return multiBattle(p1, p4, -1);
+    }
 
     private static BattleStartResult multiBattleCommon(BattleActor p1, BattleActor p2, BattleActor p3, BattleActor p4, int adjustLevel) {
         List<PlayerPartyStore> battlePartyStores = new ArrayList<>();
         ErroredBattleStart errors = new ErroredBattleStart();
 
+        // TODO: Check that P1 and P4 are not dummy actors
+
         ResourceLocation side1Theme = getBattleTheme(p1);
-        ResourceLocation side2Theme = getBattleTheme(p3);
+        ResourceLocation side2Theme = getBattleTheme(p4);
         checkPlayerActor(p1, errors, side2Theme, adjustLevel, battlePartyStores);
         checkPlayerActor(p2, errors, side2Theme, adjustLevel, battlePartyStores);
         checkPlayerActor(p3, errors, side1Theme, adjustLevel, battlePartyStores);
         checkPlayerActor(p4, errors, side1Theme, adjustLevel, battlePartyStores);
 
         if (errors.isEmpty()) {
-            return BattleRegistry.startBattle(BattleFormat.Companion.getGEN_9_MULTI(), new BattleSide(p1, p2), new BattleSide(p3, p4), true)
+            return BattleRegistry.startBattle(BattleFormat.Companion.getGEN_9_MULTI(), new BattleSide(p1, p3), new BattleSide(p2, p4), true)
                 .ifSuccessful(battle -> {
                     battle.getBattlePartyStores().addAll(battlePartyStores);
                     return Unit.INSTANCE;

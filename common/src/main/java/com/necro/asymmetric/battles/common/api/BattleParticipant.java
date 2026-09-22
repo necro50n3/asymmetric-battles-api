@@ -9,6 +9,7 @@ import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.npc.NPCBattleActor;
 import com.cobblemon.mod.common.entity.npc.NPCEntity;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
+import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.util.PlayerExtensionsKt;
 import com.necro.asymmetric.battles.common.actor.DummyBattleActor;
 import kotlin.Unit;
@@ -42,9 +43,13 @@ public interface BattleParticipant {
     }
 
     static BattleParticipant wild(PokemonEntity pokemonEntity) {
+        return wild(pokemonEntity.getPokemon());
+    }
+
+    static BattleParticipant wild(Pokemon pokemon) {
         return () -> new PokemonBattleActor(
-            pokemonEntity.getPokemon().getUuid(),
-            new BattlePokemon(pokemonEntity.getPokemon(), pokemonEntity.getPokemon(), p -> Unit.INSTANCE),
+            pokemon.getUuid(),
+            new BattlePokemon(pokemon, pokemon, p -> Unit.INSTANCE),
             Cobblemon.config.getDefaultFleeDistance(),
             new RandomBattleAI()
         );

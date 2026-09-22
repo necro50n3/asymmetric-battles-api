@@ -1612,8 +1612,13 @@ class Battle {
       if (subFormat.onBegin)
         subFormat.onBegin.call(this);
     }
-    // ABA: Lifted check to only check sides 0 and 1.
-    if (!this.sides[0].pokemon[0] || !this.sides[1].pokemon[0]) {
+    // ABA: Lifted check to only check side 0, and side 3 if multi battle.
+    if (this.gameType === "multi") {
+      if (!this.sides[0].pokemon[0] || !this.sides[3].pokemon[0]) {
+        throw new Error("Battle not started: A player has an empty team.");
+      }
+    }
+    else if (!this.sides[0].pokemon[0] || !this.sides[1].pokemon[0]) {
       throw new Error("Battle not started: A player has an empty team.");
     }
     if (this.debugMode) {
@@ -2041,14 +2046,37 @@ class Battle {
       return true;
     const numSlots = this.activePerHalf;
     const sourceLoc = source.getLocOf(source);
-    if (Math.abs(targetLoc) > numSlots)
+    // ABA: Added targeting modifier for horde-like battles and multi battles (hopefully nothing breaks).
+    if (Math.abs(targetLoc) > numSlots && !this.isHordeBattleLike() && this.gameType !== "multi") {
       return false;
+    }
+    else if (Math.abs(targetLoc) > numSlots && this.isHordeBattleLike() || this.gameType === "multi") {
+      if (sourceLoc > 0) targetLoc = -numSlots;
+      else if (sourceLoc < 0) targetLoc = numSlots;
+    }
+    this.hint(`sourceLoc == ${sourceLoc} | targetLoc == ${targetLoc}`);
     const isSelf = sourceLoc === targetLoc;
     const isFoe = this.gameType === "freeforall" ? !isSelf : targetLoc > 0;
     const acrossFromTargetLoc = -(numSlots + 1 - targetLoc);
     const isAdjacent = targetLoc > 0 ? Math.abs(acrossFromTargetLoc - sourceLoc) <= 1 : Math.abs(targetLoc - sourceLoc) === 1;
     if (this.gameType === "freeforall" && targetType === "adjacentAlly") {
       return isAdjacent;
+    }
+    // ABA: Added targeting exceptions for horde-like battles.
+    if (this.isHordeBattleLike()) {
+      switch (targetType) {
+        case "adjacentAlly":
+          return !isFoe;
+        case "adjacentAllyOrSelf":
+          return !isFoe || isSelf;
+        case "adjacentFoe":
+          return isFoe;
+        case "randomNormal":
+        case "scripted":
+        case "normal":
+        case "any":
+          return !isSelf;
+      }
     }
     switch (targetType) {
       case "randomNormal":

@@ -16,7 +16,8 @@ public class TargetTileMixin {
             value = "INVOKE",
             target = "Lkotlin/jvm/internal/Intrinsics;checkNotNull(Ljava/lang/Object;)V",
             ordinal = 0
-        )
+        ),
+        remap = false
     )
     private static void allowNullBattlePokemon(Object object) {}
 
@@ -25,7 +26,8 @@ public class TargetTileMixin {
         at = @At(
             value = "INVOKE",
             target = "Lcom/cobblemon/mod/common/client/battle/ClientBattlePokemon;getUuid()Ljava/util/UUID;"
-        )
+        ),
+        remap = false
     )
     private UUID allowNullUUID(ClientBattlePokemon pokemon) {
         return pokemon == null ? null : pokemon.getUuid();

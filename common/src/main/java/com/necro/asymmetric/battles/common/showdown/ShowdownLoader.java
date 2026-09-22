@@ -20,6 +20,7 @@ public abstract class ShowdownLoader {
 
         String battleJs = "assets/asymmetricbattles/showdown/battle.js";
         String sideJs = "assets/asymmetricbattles/showdown/side.js";
+        String teamsJs = "assets/asymmetricbattles/showdown/teams.js";
         if (this.isMegaShowdownLoaded()) {
             battleJs = "assets/asymmetricbattles/showdown/mega_showdown/battle.js";
             sideJs = "assets/asymmetricbattles/showdown/mega_showdown/side.js";
@@ -32,6 +33,7 @@ public abstract class ShowdownLoader {
             Files.createDirectories(showdown_sim);
             yoink(battleJs, showdown_sim.resolve("battle.js"));
             yoink(sideJs, showdown_sim.resolve("side.js"));
+            yoink(teamsJs, showdown_sim.resolve("teams.js"));
         } catch (IOException e) {
             AsymmetricBattlesAPI.LOGGER.error("Failed to load showdown files: {}", e.getMessage());
         }
