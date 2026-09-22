@@ -6,6 +6,7 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.necro.asymmetric.battles.common.api.AsymmetricBattleBuilder;
+import com.necro.asymmetric.battles.common.api.BattleParticipant;
 import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
@@ -32,7 +33,12 @@ public class BattleBuilderMixin {
 
     @Inject(method = "pve*", at = @At("HEAD"), remap = false, cancellable = true)
     private void pveMulti(ServerPlayer player, PokemonEntity pokemonEntity, UUID leadingPokemon, BattleFormat battleFormat, boolean cloneParties, boolean healFirst, float fleeDistance, PartyStore party, CallbackInfoReturnable<BattleStartResult> cir) {
-        cir.setReturnValue(AsymmetricBattleBuilder.pveMulti1v1(player, UUID.randomUUID(), pokemonEntity, UUID.randomUUID(), leadingPokemon));
+        cir.setReturnValue(AsymmetricBattleBuilder.multiBattle(
+            BattleParticipant.player(player, leadingPokemon),
+            BattleParticipant.dummy(),
+            BattleParticipant.wild(pokemonEntity),
+            BattleParticipant.dummy())
+        );
     }
 
     @WrapOperation(method = { "pvp1v1*", "pvp2v2*", "pve*", "pvn*" }, at = @At(value = "INVOKE", target = "Ljava/util/Collection;add(Ljava/lang/Object;)Z"))

@@ -1,41 +1,72 @@
 package com.necro.asymmetric.battles.common.api;
 
-import com.cobblemon.mod.common.Cobblemon;
+import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
+import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
 import com.cobblemon.mod.common.battles.*;
 import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
 import com.cobblemon.mod.common.battles.actor.PokemonBattleActor;
-import com.cobblemon.mod.common.battles.ai.RandomBattleAI;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
-import com.cobblemon.mod.common.util.PlayerExtensionsKt;
-import com.necro.asymmetric.battles.common.actor.DummyBattleActor;
+import com.cobblemon.mod.common.entity.npc.NPCBattleActor;
 import kotlin.Unit;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.Comparator;
+import java.util.ArrayList;
 import java.util.List;
-import java.util.UUID;
 
 public class AsymmetricBattleBuilder {
-    // Start a 1v1 wild battle in a Multi Battle format.
-    public static BattleStartResult pveMulti1v1(ServerPlayer player, UUID dummyAlly, PokemonEntity pokemonEntity, UUID dummyFoe, @Nullable UUID leadingPokemon) {
-        List<BattlePokemon> battleTeam = PlayerExtensionsKt.party(player).toBattleTeam(false, false, leadingPokemon);
-        battleTeam.sort(Comparator.comparing(pokemon -> pokemon.getHealth() <= 0));
-        PlayerBattleActor playerActor = new PlayerBattleActor(player.getUUID(), battleTeam);
-        PokemonBattleActor wildActor = new PokemonBattleActor(
-            pokemonEntity.getPokemon().getUuid(),
-            new BattlePokemon(pokemonEntity.getPokemon(), pokemonEntity.getPokemon(), p -> Unit.INSTANCE),
-            Cobblemon.config.getDefaultFleeDistance(),
-            new RandomBattleAI()
-        );
-        BattleFormat battleFormat = BattleFormat.Companion.getGEN_9_MULTI();
+    public static BattleStartResult multiBattle(BattleParticipant p1, BattleParticipant p2, BattleParticipant p3, BattleParticipant p4, int adjustLevel) {
+        return multiBattleCommon(p1.toActor(), p2.toActor(), p3.toActor(), p4.toActor(), adjustLevel);
+    }
+
+    public static BattleStartResult multiBattle(BattleParticipant p1, BattleParticipant p2, BattleParticipant p3, BattleParticipant p4) {
+        return multiBattle(p1, p2, p3, p4, -1);
+    }
+
+    private static BattleStartResult multiBattleCommon(BattleActor p1, BattleActor p2, BattleActor p3, BattleActor p4, int adjustLevel) {
+        List<PlayerPartyStore> battlePartyStores = new ArrayList<>();
         ErroredBattleStart errors = new ErroredBattleStart();
+
+        ResourceLocation side1Theme = getBattleTheme(p1);
+        ResourceLocation side2Theme = getBattleTheme(p3);
+        checkPlayerActor(p1, errors, side2Theme, adjustLevel, battlePartyStores);
+        checkPlayerActor(p2, errors, side2Theme, adjustLevel, battlePartyStores);
+        checkPlayerActor(p3, errors, side1Theme, adjustLevel, battlePartyStores);
+        checkPlayerActor(p4, errors, side1Theme, adjustLevel, battlePartyStores);
+
+        if (errors.isEmpty()) {
+            return BattleRegistry.startBattle(BattleFormat.Companion.getGEN_9_MULTI(), new BattleSide(p1, p2), new BattleSide(p3, p4), true)
+                .ifSuccessful(battle -> {
+                    battle.getBattlePartyStores().addAll(battlePartyStores);
+                    return Unit.INSTANCE;
+                });
+        }
+        else return errors;
+    }
+
+    private static void checkPlayerActor(BattleActor actor, ErroredBattleStart errors, @Nullable ResourceLocation battleTheme, int adjustLevel, List<PlayerPartyStore> battlePartyStores) {
+        if (!(actor instanceof PlayerBattleActor playerActor)) return;
+        ServerPlayer player = playerActor.getEntity();
+        if (player == null) return;
+
+        List<BattlePokemon> battleTeam = playerActor.getPokemonList();
+
+        if (adjustLevel > 0) {
+            PlayerPartyStore tempStore = new PlayerPartyStore(player.getUUID());
+            for (int i = 0; i < battleTeam.size(); i++) {
+                BattlePokemon battlePokemon = battleTeam.get(i);
+                battlePokemon.getEffectedPokemon().setLevel(adjustLevel);
+                battlePokemon.getEffectedPokemon().heal();
+                tempStore.set(i, battlePokemon.getEffectedPokemon());
+            }
+            battlePartyStores.add(tempStore);
+        }
 
         if (!battleTeam.isEmpty() && battleTeam.getFirst().getHealth() <= 0) {
             errors.getParticipantErrors().get(playerActor).add(BattleStartError.Companion.insufficientPokemon(
                 player,
-                battleFormat.getBattleType().getSlotsPerActor(),
+                BattleFormat.Companion.getGEN_9_MULTI().getBattleType().getSlotsPerActor(),
                 playerActor.getPokemonList().size()
             ));
         }
@@ -48,16 +79,15 @@ public class AsymmetricBattleBuilder {
             errors.getParticipantErrors().get(playerActor).add(BattleStartError.Companion.alreadyInBattle(playerActor));
         }
 
-        playerActor.setBattleTheme(pokemonEntity.getBattleTheme());
+        if (battleTheme != null) playerActor.setBattleTheme(battleTheme);
+    }
 
-        if (errors.isEmpty()) {
-            return BattleRegistry.startBattle(
-                battleFormat,
-                new BattleSide(playerActor, new DummyBattleActor(dummyAlly)),
-                new BattleSide(wildActor, new DummyBattleActor(dummyFoe)),
-                true
-            );
-        }
-        else return errors;
+    private static ResourceLocation getBattleTheme(BattleActor actor) {
+        return switch (actor) {
+            case PlayerBattleActor playerActor -> playerActor.getBattleTheme();
+            case PokemonBattleActor pokemonActor when pokemonActor.getEntity() != null -> pokemonActor.getEntity().getBattleTheme();
+            case NPCBattleActor npcActor -> npcActor.getEntity().getBattleTheme();
+            case null, default -> null;
+        };
     }
 }
