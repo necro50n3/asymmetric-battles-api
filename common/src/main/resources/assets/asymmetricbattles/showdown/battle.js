@@ -108,7 +108,7 @@ class Battle {
     this.field = new import_field.Field(this);
     this.sides = Array(format.playerCount).fill(null);
     // ABA: Modify variable for new game types
-    if (this.gameType === "sextuples" || this.gameType === "horde") this.activePerHalf = 6;
+    if (this.gameType === "sextuples") this.activePerHalf = 6;
     else if (this.gameType === "pentuples") this.activePerHalf = 5;
     else if (this.gameType === "quadruples") this.activePerHalf = 4;
     else if (this.gameType === "triples") this.activePerHalf = 3;
@@ -1231,7 +1231,6 @@ class Battle {
     if (this.gameType === "quadruples") return true;
     else if (this.gameType === "pentuples") return true;
     else if (this.gameType === "sextuples") return true;
-    else if (this.gameType === "horde") return true;
     return false;
   }
   swapPosition(pokemon, newPosition, attributes) {
@@ -1404,60 +1403,60 @@ class Battle {
       }
     }
     // ABA: Add swap-to-centre logic for special battles
-    else if (this.sides.any((side) => side.active.length == 4 && side.pokemonLeft <= 2)) {
-      const actives = this.getAllActive();
-      const side1 = this.sides[0].active.filter(pokemon => pokemon != null);
-      const side2 = this.sides[1].active.filter(pokemon => pokemon != null);
-      if (side1.length >= 1 && side2.length >= 1) {
-        if (this.sides[0].active.length > 2) {
-          this.swapPosition(side1[0], 1, "[silent]");
-          this.swapPosition(side1[1], 2, "[silent]");
-        }
-
-        if (this.sides[1].active.length > 2) {
-          this.swapPosition(side2[0], 1, "[silent]");
-          this.swapPosition(side2[1], 2, "[silent]");
-        }
-      }
-    }
-    else if (this.sides.any((side) => side.active.length == 5 && side.pokemonLeft <= 3)) {
-      const actives = this.getAllActive();
-      const side1 = this.sides[0].active.filter(pokemon => pokemon != null);
-      const side2 = this.sides[1].active.filter(pokemon => pokemon != null);
-      if (side1.length >= 1 && side2.length >= 1) {
-        if (this.sides[0].active.length > 3) {
-          this.swapPosition(side1[0], 1, "[silent]");
-          this.swapPosition(side1[1], 2, "[silent]");
-          this.swapPosition(side1[2], 3, "[silent]");
-        }
-
-        if (this.sides[1].active.length > 3) {
-          this.swapPosition(side2[0], 1, "[silent]");
-          this.swapPosition(side2[1], 2, "[silent]");
-          this.swapPosition(side2[2], 3, "[silent]");
-        }
-      }
-    }
-    else if (this.sides.any((side) => side.active.length == 6 && side.pokemonLeft <= 4)) {
-      const actives = this.getAllActive();
-      const side1 = this.sides[0].active.filter(pokemon => pokemon != null);
-      const side2 = this.sides[1].active.filter(pokemon => pokemon != null);
-      if (side1.length >= 1 && side2.length >= 1) {
-        if (this.sides[0].active.length > 4) {
-          this.swapPosition(side1[0], 1, "[silent]");
-          this.swapPosition(side1[0], 2, "[silent]");
-          this.swapPosition(side1[2], 3, "[silent]");
-          this.swapPosition(side1[3], 4, "[silent]");
-        }
-
-        if (this.sides[1].active.length > 4) {
-          this.swapPosition(side2[0], 1, "[silent]");
-          this.swapPosition(side2[0], 2, "[silent]");
-          this.swapPosition(side2[2], 3, "[silent]");
-          this.swapPosition(side2[3], 4, "[silent]");
-        }
-      }
-    }
+//    else if (this.gameType === "quadruples" && this.sides.any((side) => side.pokemonLeft <= 2)) {
+//      const actives = this.getAllActive();
+//      const side1 = this.sides[0].active.filter(pokemon => pokemon != null);
+//      const side2 = this.sides[1].active.filter(pokemon => pokemon != null);
+//      if (side1.length >= 1 && side2.length >= 1) {
+//        if (this.sides[0].active.length > 2) {
+//          this.swapPosition(side1[0], 1, "[silent]");
+//          this.swapPosition(side1[1], 2, "[silent]");
+//        }
+//
+//        if (this.sides[1].active.length > 2) {
+//          this.swapPosition(side2[0], 1, "[silent]");
+//          this.swapPosition(side2[1], 2, "[silent]");
+//        }
+//      }
+//    }
+//    else if (this.gameType === "pentuples" && this.sides.any((side) => side.pokemonLeft <= 3)) {
+//      const actives = this.getAllActive();
+//      const side1 = this.sides[0].active.filter(pokemon => pokemon != null);
+//      const side2 = this.sides[1].active.filter(pokemon => pokemon != null);
+//      if (side1.length >= 1 && side2.length >= 1) {
+//        if (this.sides[0].active.length > 3) {
+//          this.swapPosition(side1[0], 1, "[silent]");
+//          this.swapPosition(side1[1], 2, "[silent]");
+//          this.swapPosition(side1[2], 3, "[silent]");
+//        }
+//
+//        if (this.sides[1].active.length > 3) {
+//          this.swapPosition(side2[0], 1, "[silent]");
+//          this.swapPosition(side2[1], 2, "[silent]");
+//          this.swapPosition(side2[2], 3, "[silent]");
+//        }
+//      }
+//    }
+//    else if (this.gameType === "sextuples" && this.sides.any((side) => side.pokemonLeft <= 4)) {
+//      const actives = this.getAllActive();
+//      const side1 = this.sides[0].active.filter(pokemon => pokemon != null);
+//      const side2 = this.sides[1].active.filter(pokemon => pokemon != null);
+//      if (side1.length >= 1 && side2.length >= 1) {
+//        if (this.sides[0].active.length > 4) {
+//          this.swapPosition(side1[0], 1, "[silent]");
+//          this.swapPosition(side1[0], 2, "[silent]");
+//          this.swapPosition(side1[2], 3, "[silent]");
+//          this.swapPosition(side1[3], 4, "[silent]");
+//        }
+//
+//        if (this.sides[1].active.length > 4) {
+//          this.swapPosition(side2[0], 1, "[silent]");
+//          this.swapPosition(side2[0], 2, "[silent]");
+//          this.swapPosition(side2[2], 3, "[silent]");
+//          this.swapPosition(side2[3], 4, "[silent]");
+//        }
+//      }
+//    }
     this.add("turn", this.turn);
     if (this.gameType === "multi") {
       for (const side of this.sides) {
@@ -2052,10 +2051,9 @@ class Battle {
       return false;
     }
     else if (Math.abs(targetLoc) > numSlots && this.isHordeBattleLike() || this.gameType === "multi") {
-      if (sourceLoc > 0) targetLoc = -numSlots;
-      else if (sourceLoc < 0) targetLoc = numSlots;
+      if (targetLoc > 0) targetLoc = numSlots;
+      else if (targetLoc < 0) targetLoc = -numSlots;
     }
-    this.hint(`sourceLoc == ${sourceLoc} | targetLoc == ${targetLoc}`);
     const isSelf = sourceLoc === targetLoc;
     const isFoe = this.gameType === "freeforall" ? !isSelf : targetLoc > 0;
     const acrossFromTargetLoc = -(numSlots + 1 - targetLoc);

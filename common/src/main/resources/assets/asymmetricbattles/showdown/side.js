@@ -88,6 +88,7 @@ class Side {
       case "horde":
         if (this.n == 0) this.active = [null];
         else this.active = Array(Math.min(this.pokemon.length, 6)).fill(null);
+        break;
       default:
         this.active = Array(Math.min(this.pokemon.length, 1)).fill(null);
     }

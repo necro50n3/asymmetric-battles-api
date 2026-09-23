@@ -6,7 +6,9 @@
         "BattleBuilderMixin",
         "BattleFormatMixin",
         "DebugMixin",
-        "EmptyPokeBallEntityMixin"
+        "EmptyPokeBallEntityMixin",
+        "PokemonBattleMixin",
+        "WinInstructionMixin"
     ],
     "injectors": {
         "defaultRequire": 1

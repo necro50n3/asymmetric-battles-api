@@ -3,6 +3,8 @@ package com.necro.asymmetric.battles.common.mixin;
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.api.battles.model.actor.ActorType;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
+import com.cobblemon.mod.common.api.events.CobblemonEvents;
+import com.cobblemon.mod.common.api.events.pokeball.ThrownPokeballHitEvent;
 import com.cobblemon.mod.common.battles.ActiveBattlePokemon;
 import com.cobblemon.mod.common.battles.BattleCaptureAction;
 import com.cobblemon.mod.common.battles.ForcePassActionResponse;
@@ -14,8 +16,8 @@ import com.cobblemon.mod.common.pokeball.PokeBall;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.necro.asymmetric.battles.common.AsymmetricBattlesAPI;
 import com.necro.asymmetric.battles.common.actor.DummyBattleActor;
+import kotlin.Unit;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;
 import net.minecraft.world.entity.EntityType;
@@ -23,6 +25,7 @@ import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.entity.projectile.ThrowableItemProjectile;
 import net.minecraft.world.level.Level;
 import net.minecraft.world.phys.EntityHitResult;
+import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.Unique;
@@ -44,6 +47,15 @@ public abstract class EmptyPokeBallEntityMixin extends ThrowableItemProjectile {
 
     @Shadow
     public abstract Set<String> getAspects();
+
+    @Shadow
+    public abstract void setCapturingPokemon(@Nullable PokemonEntity _set___);
+
+    @Shadow
+    protected abstract void drop();
+
+    @Shadow
+    protected abstract void attemptCatch(PokemonEntity pokemonEntity);
 
     @Unique
     private boolean aba_bypassChecks = false;
@@ -111,6 +123,21 @@ public abstract class EmptyPokeBallEntityMixin extends ThrowableItemProjectile {
         );
         battle.sendUpdate(new BattleCaptureStartPacket(this.getPokeBall().getName(), this.getAspects(), hitBattlePokemon.getPNX()));
         throwerActor.forceChoose(new ForcePassActionResponse());
+
+        this.setCapturingPokemon(pokemonEntity);
+        this.entityData.set(EmptyPokeBallEntity.Companion.getHIT_VELOCITY(), this.getDeltaMovement().normalize());
+        this.entityData.set(EmptyPokeBallEntity.Companion.getHIT_TARGET_POSITION(), hitResult.getLocation());
+        CobblemonEvents.THROWN_POKEBALL_HIT.postThen(
+            new ThrownPokeballHitEvent((EmptyPokeBallEntity) (Object) this, pokemonEntity),
+            event -> {
+                this.drop();
+                return Unit.INSTANCE;
+            },
+            event -> {
+                this.attemptCatch(pokemonEntity);
+                return Unit.INSTANCE;
+            }
+        );
     }
 
     @WrapOperation(
