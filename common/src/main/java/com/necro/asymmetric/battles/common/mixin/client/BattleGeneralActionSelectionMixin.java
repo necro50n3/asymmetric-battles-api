@@ -9,7 +9,6 @@ import com.cobblemon.mod.common.client.battle.ClientBattleActor;
 import com.cobblemon.mod.common.client.battle.SingleActionRequest;
 import com.cobblemon.mod.common.client.gui.battle.BattleGUI;
 import com.cobblemon.mod.common.client.gui.battle.subscreen.BattleGeneralActionSelection;
-import com.cobblemon.mod.common.client.gui.battle.widgets.BattleOptionTile;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
@@ -17,10 +16,10 @@ import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.sounds.SoundManager;
+import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
-import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -37,14 +36,11 @@ public abstract class BattleGeneralActionSelectionMixin {
     @Shadow
     public abstract void playDownSound(@NotNull SoundManager soundManager);
 
-    @Shadow
-    @Final
-    private List<BattleOptionTile> tiles;
-
     @WrapOperation(method = "<init>",
         at = @At(
             value = "INVOKE",
-            target = "Lcom/cobblemon/mod/common/client/CobblemonClient;getBattle()Lcom/cobblemon/mod/common/client/battle/ClientBattle;"
+            target = "Lcom/cobblemon/mod/common/client/CobblemonClient;getBattle()Lcom/cobblemon/mod/common/client/battle/ClientBattle;",
+            ordinal = 1
         ),
         remap = false
     )
@@ -52,16 +48,21 @@ public abstract class BattleGeneralActionSelectionMixin {
         ClientBattle battle = original.call(instance);
         if (battle == null) return null;
         List<ClientBattleActor> wildActors = battle.getSide2().getActors();
-        if (wildActors.isEmpty() || wildActors.getFirst().getType() != ActorType.WILD) return battle;
+        if (wildActors.isEmpty() || wildActors.stream().noneMatch(actor -> actor.getType() == ActorType.WILD)) return battle;
 
         int tempActive = 0;
-        for (ActiveClientBattlePokemon ignored : battle.getSide2().getActiveClientBattlePokemon()) tempActive++;
+        for (ActiveClientBattlePokemon pokemon : battle.getSide2().getActiveClientBattlePokemon()) {
+            if (pokemon.getBattlePokemon() != null) tempActive++;
+        }
         int active = tempActive;
 
         addOption(2, battleLang("ui.capture"), BattleGUI.Companion.getBagResource(), () -> {
             battle.setMinimised(true);
             String prompt = active == 1 ? "throw_pokeball_prompt" : "pokeball_not_alone";
-            if (Minecraft.getInstance().player != null) Minecraft.getInstance().player.displayClientMessage(battleLang(prompt), false);
+            if (Minecraft.getInstance().player != null) {
+                Minecraft.getInstance().player.displayClientMessage(battleLang(prompt), false);
+                Minecraft.getInstance().player.displayClientMessage(Component.literal(String.valueOf(active)), false);
+            }
             this.playDownSound(Minecraft.getInstance().getSoundManager());
             return Unit.INSTANCE;
         });
