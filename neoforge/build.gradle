@@ -41,6 +41,8 @@ dependencies {
         exclude group: "net.neoforged.fancymodloader", module: "loader"
     }
 
+    modImplementation "curse.maven:radical-cobblemon-trainers-api-1152792:8876921"
+
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
     shadowBundle project(path: ':common', configuration: 'transformProductionNeoForge')
 }

@@ -2,6 +2,7 @@ package com.necro.asymmetric.battles.common.api;
 
 import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
+import com.cobblemon.mod.common.api.battles.model.ai.BattleAI;
 import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
 import com.cobblemon.mod.common.battles.actor.PokemonBattleActor;
 import com.cobblemon.mod.common.battles.ai.RandomBattleAI;
@@ -24,6 +25,8 @@ import java.util.UUID;
 public interface BattleParticipant {
     BattleActor toActor();
 
+    // For in-built RCT API compatibility use RCTBattleParticipant.
+
     static BattleParticipant player(ServerPlayer player, @Nullable UUID leadingPokemon, boolean cloneParties, boolean healFirst, int adjustLevel) {
         List<BattlePokemon> battleTeam = PlayerExtensionsKt.party(player).toBattleTeam(cloneParties || adjustLevel > 0, healFirst, leadingPokemon);
         battleTeam.sort(Comparator.comparing(pokemon -> pokemon.getHealth() <= 0));
@@ -43,15 +46,23 @@ public interface BattleParticipant {
     }
 
     static BattleParticipant wild(PokemonEntity pokemonEntity) {
-        return wild(pokemonEntity.getPokemon());
+        return wild(pokemonEntity, new RandomBattleAI());
     }
 
     static BattleParticipant wild(Pokemon pokemon) {
+        return wild(pokemon, new RandomBattleAI());
+    }
+
+    static BattleParticipant wild(PokemonEntity pokemonEntity, BattleAI battleAI) {
+        return wild(pokemonEntity.getPokemon(), battleAI);
+    }
+
+    static BattleParticipant wild(Pokemon pokemon, BattleAI battleAI) {
         return () -> new PokemonBattleActor(
             pokemon.getUuid(),
             new BattlePokemon(pokemon, pokemon, p -> Unit.INSTANCE),
             Cobblemon.config.getDefaultFleeDistance(),
-            new RandomBattleAI()
+            battleAI
         );
     }
 
