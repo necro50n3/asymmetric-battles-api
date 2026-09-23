@@ -13,6 +13,7 @@ public class AsymmetricBattleFormats {
     public static final BattleType QUADRUPLES = BattleTypes.INSTANCE.makeBattleType("quadruples", Component.literal("asymmetricbattles.battle.types.quadruples"), 1, 4);
     public static final BattleType PENTUPLES = BattleTypes.INSTANCE.makeBattleType("pentuples", Component.literal("asymmetricbattles.battle.types.pentuples"), 1, 5);
     public static final BattleType SEXTUPLES = BattleTypes.INSTANCE.makeBattleType("sextuples", Component.literal("asymmetricbattles.battle.types.sextuples"), 1, 6);
+    public static final BattleType HORDE = BattleTypes.INSTANCE.makeBattleType("horde", Component.literal("asymmetricbattles.battle.types.sextuples"), 1, 6);
 
     public static final BattleFormat GEN_9_QUADRUPLES = new BattleFormat(
         "cobblemon",
@@ -31,6 +32,13 @@ public class AsymmetricBattleFormats {
     public static final BattleFormat GEN_9_SEXTUPLES = new BattleFormat(
         "cobblemon",
         SEXTUPLES,
+        new HashSet<>(Set.of(BattleRules.OBTAINABLE, BattleRules.PAST, BattleRules.UNOBTAINABLE)),
+        9,
+        -1
+    );
+    public static final BattleFormat GEN_9_HORDE = new BattleFormat(
+        "cobblemon",
+        HORDE,
         new HashSet<>(Set.of(BattleRules.OBTAINABLE, BattleRules.PAST, BattleRules.UNOBTAINABLE)),
         9,
         -1

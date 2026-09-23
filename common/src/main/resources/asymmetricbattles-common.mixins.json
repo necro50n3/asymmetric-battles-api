@@ -5,7 +5,8 @@
     "mixins": [
         "BattleBuilderMixin",
         "BattleFormatMixin",
-        "DebugMixin"
+        "DebugMixin",
+        "EmptyPokeBallEntityMixin"
     ],
     "injectors": {
         "defaultRequire": 1

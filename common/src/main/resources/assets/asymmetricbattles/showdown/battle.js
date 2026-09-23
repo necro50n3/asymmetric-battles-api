@@ -108,7 +108,7 @@ class Battle {
     this.field = new import_field.Field(this);
     this.sides = Array(format.playerCount).fill(null);
     // ABA: Modify variable for new game types
-    if (this.gameType === "sextuples") this.activePerHalf = 6;
+    if (this.gameType === "sextuples" || this.gameType === "horde") this.activePerHalf = 6;
     else if (this.gameType === "pentuples") this.activePerHalf = 5;
     else if (this.gameType === "quadruples") this.activePerHalf = 4;
     else if (this.gameType === "triples") this.activePerHalf = 3;
@@ -1231,6 +1231,7 @@ class Battle {
     if (this.gameType === "quadruples") return true;
     else if (this.gameType === "pentuples") return true;
     else if (this.gameType === "sextuples") return true;
+    else if (this.gameType === "horde") return true;
     return false;
   }
   swapPosition(pokemon, newPosition, attributes) {
@@ -1403,7 +1404,7 @@ class Battle {
       }
     }
     // ABA: Add swap-to-centre logic for special battles
-    else if (this.gameType === "quadruples" && this.sides.any((side) => side.pokemonLeft <= 2)) {
+    else if (this.sides.any((side) => side.active.length == 4 && side.pokemonLeft <= 2)) {
       const actives = this.getAllActive();
       const side1 = this.sides[0].active.filter(pokemon => pokemon != null);
       const side2 = this.sides[1].active.filter(pokemon => pokemon != null);
@@ -1419,7 +1420,7 @@ class Battle {
         }
       }
     }
-    else if (this.gameType === "pentuples" && this.sides.any((side) => side.pokemonLeft <= 3)) {
+    else if (this.sides.any((side) => side.active.length == 5 && side.pokemonLeft <= 3)) {
       const actives = this.getAllActive();
       const side1 = this.sides[0].active.filter(pokemon => pokemon != null);
       const side2 = this.sides[1].active.filter(pokemon => pokemon != null);
@@ -1437,7 +1438,7 @@ class Battle {
         }
       }
     }
-    else if (this.gameType === "sextuples" && this.sides.any((side) => side.pokemonLeft <= 4)) {
+    else if (this.sides.any((side) => side.active.length == 6 && side.pokemonLeft <= 4)) {
       const actives = this.getAllActive();
       const side1 = this.sides[0].active.filter(pokemon => pokemon != null);
       const side2 = this.sides[1].active.filter(pokemon => pokemon != null);

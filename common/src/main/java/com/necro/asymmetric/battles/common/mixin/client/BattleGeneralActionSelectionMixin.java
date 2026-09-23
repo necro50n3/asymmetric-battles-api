@@ -16,7 +16,6 @@ import kotlin.Unit;
 import kotlin.jvm.functions.Function0;
 import net.minecraft.client.Minecraft;
 import net.minecraft.client.sounds.SoundManager;
-import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
 import net.minecraft.resources.ResourceLocation;
 import org.jetbrains.annotations.NotNull;
@@ -61,7 +60,6 @@ public abstract class BattleGeneralActionSelectionMixin {
             String prompt = active == 1 ? "throw_pokeball_prompt" : "pokeball_not_alone";
             if (Minecraft.getInstance().player != null) {
                 Minecraft.getInstance().player.displayClientMessage(battleLang(prompt), false);
-                Minecraft.getInstance().player.displayClientMessage(Component.literal(String.valueOf(active)), false);
             }
             this.playDownSound(Minecraft.getInstance().getSoundManager());
             return Unit.INSTANCE;
