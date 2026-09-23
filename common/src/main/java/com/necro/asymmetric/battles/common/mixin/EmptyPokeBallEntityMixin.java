@@ -16,7 +16,7 @@ import com.cobblemon.mod.common.pokeball.PokeBall;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.necro.asymmetric.battles.common.battle.DummyBattleActor;
+import com.necro.asymmetric.battles.common.api.actor.DummyBattleActor;
 import kotlin.Unit;
 import net.minecraft.ChatFormatting;
 import net.minecraft.network.chat.Component;

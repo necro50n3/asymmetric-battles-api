@@ -11,7 +11,7 @@ import com.cobblemon.mod.common.entity.npc.NPCEntity;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.util.PlayerExtensionsKt;
-import com.necro.asymmetric.battles.common.battle.DummyBattleActor;
+import com.necro.asymmetric.battles.common.api.actor.DummyBattleActor;
 import kotlin.Unit;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;

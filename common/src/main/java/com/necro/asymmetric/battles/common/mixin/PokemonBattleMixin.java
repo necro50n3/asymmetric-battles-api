@@ -3,7 +3,7 @@ package com.necro.asymmetric.battles.common.mixin;
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.api.battles.model.actor.ActorType;
 import com.cobblemon.mod.common.battles.BattleSide;
-import com.necro.asymmetric.battles.common.battle.DummyBattleActor;
+import com.necro.asymmetric.battles.common.api.actor.DummyBattleActor;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
