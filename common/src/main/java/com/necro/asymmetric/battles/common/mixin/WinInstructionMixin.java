@@ -11,7 +11,7 @@ import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
 import com.llamalad7.mixinextras.sugar.Local;
-import com.necro.asymmetric.battles.common.actor.DummyBattleActor;
+import com.necro.asymmetric.battles.common.battle.DummyBattleActor;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;

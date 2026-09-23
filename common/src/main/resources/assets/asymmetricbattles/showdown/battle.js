@@ -1612,13 +1612,8 @@ class Battle {
       if (subFormat.onBegin)
         subFormat.onBegin.call(this);
     }
-    // ABA: Lifted check to only check side 0, and side 3 if multi battle.
-    if (this.gameType === "multi") {
-      if (!this.sides[0].pokemon[0] || !this.sides[3].pokemon[0]) {
-        throw new Error("Battle not started: A player has an empty team.");
-      }
-    }
-    else if (!this.sides[0].pokemon[0] || !this.sides[1].pokemon[0]) {
+    // ABA: Lifted check to only check side 0 and 1.
+    if (!this.sides[0].pokemon[0] || !this.sides[1].pokemon[0]) {
       throw new Error("Battle not started: A player has an empty team.");
     }
     if (this.debugMode) {

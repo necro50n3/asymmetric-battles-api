@@ -1,4 +1,4 @@
-package com.necro.asymmetric.battles.common.actor;
+package com.necro.asymmetric.battles.common.battle;
 
 import com.cobblemon.mod.common.api.battles.model.actor.ActorType;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;

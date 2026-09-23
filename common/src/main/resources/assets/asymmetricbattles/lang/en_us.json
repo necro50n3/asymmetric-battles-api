@@ -2,5 +2,6 @@
     "asymmetricbattles.battle.types.quadruples": "Quadruple Battle",
     "asymmetricbattles.battle.types.pentuples": "Pentuple Battle",
     "asymmetricbattles.battle.types.sextuples": "Sextuple Battle",
+    "cobblemon.battle.invalid_dummy": "Attempted to start a battle without a non-dummy actor on one side.",
     "cobblemon.battle.pokeball_not_alone": "You can only capture wild Pokémon when it's alone!"
 }

@@ -7,6 +7,8 @@ import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
 import com.cobblemon.mod.common.battles.actor.PokemonBattleActor;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.npc.NPCBattleActor;
+import com.necro.asymmetric.battles.common.battle.InvalidDummyActorError;
+import com.necro.asymmetric.battles.common.battle.DummyBattleActor;
 import kotlin.Unit;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -24,25 +26,28 @@ public class AsymmetricBattleBuilder {
         return multiBattle(p1, p2, p3, p4, -1);
     }
     public static BattleStartResult multiBattle(BattleParticipant p1, BattleParticipant p4, int adjustLevel) {
-        return multiBattleCommon(p1.toActor(), BattleParticipant.dummy().toActor(), BattleParticipant.dummy().toActor(), p4.toActor(), adjustLevel);
+        return multiBattleCommon(p1.toActor(), p4.toActor(), BattleParticipant.dummy().toActor(), BattleParticipant.dummy().toActor(), adjustLevel);
     }
 
-    public static BattleStartResult multiBattle(BattleParticipant p1, BattleParticipant p4) {
-        return multiBattle(p1, p4, -1);
+    public static BattleStartResult multiBattle(BattleParticipant p1, BattleParticipant p2) {
+        return multiBattle(p1, p2, -1);
     }
 
     private static BattleStartResult multiBattleCommon(BattleActor p1, BattleActor p2, BattleActor p3, BattleActor p4, int adjustLevel) {
         List<PlayerPartyStore> battlePartyStores = new ArrayList<>();
         ErroredBattleStart errors = new ErroredBattleStart();
 
-        // TODO: Check that P1 and P4 are not dummy actors
-
-        ResourceLocation side1Theme = getBattleTheme(p1);
-        ResourceLocation side2Theme = getBattleTheme(p4);
-        checkPlayerActor(p1, errors, side2Theme, adjustLevel, battlePartyStores);
-        checkPlayerActor(p2, errors, side2Theme, adjustLevel, battlePartyStores);
-        checkPlayerActor(p3, errors, side1Theme, adjustLevel, battlePartyStores);
-        checkPlayerActor(p4, errors, side1Theme, adjustLevel, battlePartyStores);
+        if (p1 instanceof DummyBattleActor || p2 instanceof DummyBattleActor) {
+            errors.getGeneralErrors().add(new InvalidDummyActorError());
+        }
+        else {
+            ResourceLocation side1Theme = getBattleTheme(p1);
+            ResourceLocation side2Theme = getBattleTheme(p2);
+            checkPlayerActor(p1, errors, side2Theme, adjustLevel, battlePartyStores);
+            checkPlayerActor(p2, errors, side2Theme, adjustLevel, battlePartyStores);
+            checkPlayerActor(p3, errors, side1Theme, adjustLevel, battlePartyStores);
+            checkPlayerActor(p4, errors, side1Theme, adjustLevel, battlePartyStores);
+        }
 
         if (errors.isEmpty()) {
             return BattleRegistry.startBattle(BattleFormat.Companion.getGEN_9_MULTI(), new BattleSide(p1, p3), new BattleSide(p2, p4), true)
