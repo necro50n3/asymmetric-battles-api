@@ -41,6 +41,7 @@ dependencies {
         exclude group: "net.neoforged.fancymodloader", module: "loader"
     }
 
+    modRuntimeOnly "dev.architectury:architectury-neoforge:13.0.8"
     modImplementation "curse.maven:radical-cobblemon-trainers-api-1152792:8876921"
 
     common(project(path: ':common', configuration: 'namedElements')) { transitive false }
