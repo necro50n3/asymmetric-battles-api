@@ -23,13 +23,12 @@ public class PlayerInteractOptionsMixin {
 
     @Inject(method = "<clinit>", at = @At("TAIL"))
     private static void addAsymmetricBattleOptions(CallbackInfo ci) {
-        Options[] oldValues = $VALUES;
-        Options[] newValues = oldValues;
+        Options[] newValues = $VALUES;
         List<String> options = List.of("QUADRUPLE_BATTLE", "PENTUPLE_BATTLE", "SEXTUPLE_BATTLE");
         for (String name : options) {
-            Options option = createOption(name, oldValues.length);
-            newValues = Arrays.copyOf(oldValues, oldValues.length + 1);
-            newValues[oldValues.length] = option;
+            Options option = createOption(name, newValues.length);
+            newValues = Arrays.copyOf(newValues, newValues.length + 1);
+            newValues[newValues.length - 1] = option;
         }
         $VALUES = newValues;
     }

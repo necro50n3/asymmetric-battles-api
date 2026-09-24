@@ -842,7 +842,8 @@ ${sideUpdate}`);
           let targetLoc;
           let event = "";
           while (true) {
-            if (/\s(?:-|\+)?[1-3]$/.test(data) && (0, import_dex.toID)(data) !== "conversion2") {
+            // ABA: Increase regex range to 6.
+            if (/\s(?:-|\+)?[1-6]$/.test(data) && (0, import_dex.toID)(data) !== "conversion2") {
               if (targetLoc !== void 0)
                 return error();
               targetLoc = parseInt(data.slice(-2));

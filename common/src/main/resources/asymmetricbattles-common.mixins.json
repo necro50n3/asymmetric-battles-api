@@ -8,6 +8,7 @@
         "battle.ActiveBattlePokemonMixin",
         "battle.BattleBuilderMixin",
         "battle.BattleFormatMixin",
+        "battle.BattleMessageMixin",
         "battle.PokemonBattleMixin",
         "battle.RandomBattleAIMixin",
         "battle.WinInstructionMixin",

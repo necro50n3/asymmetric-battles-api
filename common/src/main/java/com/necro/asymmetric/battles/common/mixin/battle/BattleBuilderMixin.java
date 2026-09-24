@@ -21,7 +21,7 @@ public class BattleBuilderMixin {
     )
     private BattleFormat modifyBattleFormat(BattleFormat battleFormat) {
         // return BattleFormat.Companion.getGEN_9_DOUBLES();
-        return AsymmetricBattleFormats.GEN_9_QUADRUPLES;
+        return AsymmetricBattleFormats.GEN_9_SEXTUPLES;
     }
 
 //    @Inject(method = "pve*", at = @At("HEAD"), remap = false, cancellable = true)

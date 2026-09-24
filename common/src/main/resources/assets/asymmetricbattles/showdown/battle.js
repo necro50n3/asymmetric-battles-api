@@ -2045,7 +2045,7 @@ class Battle {
     if (Math.abs(targetLoc) > numSlots && !this.isHordeBattleLike() && this.gameType !== "multi") {
       return false;
     }
-    else if (Math.abs(targetLoc) > numSlots && this.isHordeBattleLike() || this.gameType === "multi") {
+    else if (Math.abs(targetLoc) > numSlots && (this.isHordeBattleLike() || this.gameType === "multi")) {
       if (targetLoc > 0) targetLoc = numSlots;
       else if (targetLoc < 0) targetLoc = -numSlots;
     }
