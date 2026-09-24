@@ -1,4 +1,4 @@
-package com.necro.asymmetric.battles.common.mixin;
+package com.necro.asymmetric.battles.common.mixin.battle;
 
 import com.cobblemon.mod.common.battles.BattleFormat;
 import com.necro.asymmetric.battles.common.api.AsymmetricBattleFormats;

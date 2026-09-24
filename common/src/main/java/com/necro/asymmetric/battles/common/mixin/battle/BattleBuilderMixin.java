@@ -1,23 +1,15 @@
-package com.necro.asymmetric.battles.common.mixin;
+package com.necro.asymmetric.battles.common.mixin.battle;
 
-import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.battles.*;
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
-import com.necro.asymmetric.battles.common.api.AsymmetricBattleBuilder;
 import com.necro.asymmetric.battles.common.api.AsymmetricBattleFormats;
-import com.necro.asymmetric.battles.common.api.BattleParticipant;
-import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
-import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.ModifyVariable;
-import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.Collection;
-import java.util.UUID;
 
 @Mixin(BattleBuilder.class)
 public class BattleBuilderMixin {

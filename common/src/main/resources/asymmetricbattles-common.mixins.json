@@ -3,14 +3,16 @@
     "package": "com.necro.asymmetric.battles.common.mixin",
     "compatibilityLevel": "JAVA_21",
     "mixins": [
-        "ActiveBattlePokemonMixin",
-        "BattleBuilderMixin",
-        "BattleFormatMixin",
         "DebugMixin",
         "EmptyPokeBallEntityMixin",
-        "PokemonBattleMixin",
-        "RandomBattleAIMixin",
-        "WinInstructionMixin"
+        "battle.ActiveBattlePokemonMixin",
+        "battle.BattleBuilderMixin",
+        "battle.BattleFormatMixin",
+        "battle.PokemonBattleMixin",
+        "battle.RandomBattleAIMixin",
+        "battle.WinInstructionMixin",
+        "interaction.PlayerInteractionOptionsMixin",
+        "interaction.RequestInteractionsHandlerMixin"
     ],
     "injectors": {
         "defaultRequire": 1

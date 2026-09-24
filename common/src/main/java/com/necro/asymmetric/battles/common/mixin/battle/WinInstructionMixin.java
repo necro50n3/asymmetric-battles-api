@@ -1,4 +1,4 @@
-package com.necro.asymmetric.battles.common.mixin;
+package com.necro.asymmetric.battles.common.mixin.battle;
 
 import com.cobblemon.mod.common.api.battles.interpreter.BattleMessage;
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;

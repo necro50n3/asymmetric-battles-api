@@ -1,8 +1,7 @@
-package com.necro.asymmetric.battles.common.mixin;
+package com.necro.asymmetric.battles.common.mixin.battle;
 
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.api.battles.model.actor.ActorType;
-import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.battles.BattleSide;
 import com.necro.asymmetric.battles.common.api.actor.DummyBattleActor;
 import org.spongepowered.asm.mixin.Mixin;
@@ -15,9 +14,6 @@ import java.util.Arrays;
 
 @Mixin(PokemonBattle.class)
 public abstract class PokemonBattleMixin {
-    @Shadow
-    public abstract Iterable<BattleActor> getActors();
-
     @Shadow
     public abstract BattleSide getSide1();
 
