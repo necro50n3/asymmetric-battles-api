@@ -19,7 +19,8 @@ public class RandomBattleAIMixin {
         at = @At(
             value = "INVOKE",
             target = "Lkotlin/jvm/functions/Function1;invoke(Ljava/lang/Object;)Ljava/lang/Object;"
-        )
+        ),
+        remap = false
     )
     private Object modifyTargets(Object result, @Local(argsOnly = true) PokemonBattle battle) {
         List<ActiveBattlePokemon> target = (List<ActiveBattlePokemon>) result;

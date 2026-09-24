@@ -35,7 +35,8 @@ public abstract class WinInstructionMixin {
             value = "INVOKE",
             target = "Lcom/cobblemon/mod/common/api/battles/model/PokemonBattle;isPvW()Z",
             ordinal = 0
-        )
+        ),
+        remap = false
     )
     private boolean fixWildWin(boolean original, @Local(argsOnly = true) PokemonBattle battle) {
         if (!original) return false;
@@ -81,7 +82,8 @@ public abstract class WinInstructionMixin {
     @ModifyVariable(
         method = "invoke",
         at = @At("STORE"),
-        name = "winners"
+        name = "winners",
+        remap = false
     )
     private List<BattleActor> filterWinners(List<BattleActor> winners, @Local(argsOnly = true) PokemonBattle battle) {
         String user = this.message.argumentAt(0);
@@ -101,7 +103,8 @@ public abstract class WinInstructionMixin {
     @ModifyVariable(
         method = "invoke",
         at = @At("STORE"),
-        name = "losers"
+        name = "losers",
+        remap = false
     )
     private List<BattleActor> filterLosers(List<BattleActor> losers, @Local(argsOnly = true) PokemonBattle battle) {
         String user = this.message.argumentAt(0);
