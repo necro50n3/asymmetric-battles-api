@@ -15,7 +15,7 @@ import java.util.Arrays;
 import java.util.List;
 
 @Mixin(PlayerInteractOptionsPacket.Options.class)
-public class PlayerInteractionOptionsMixin {
+public class PlayerInteractOptionsMixin {
     @Shadow
     @Final
     @Mutable

@@ -11,7 +11,7 @@
         "battle.PokemonBattleMixin",
         "battle.RandomBattleAIMixin",
         "battle.WinInstructionMixin",
-        "interaction.PlayerInteractionOptionsMixin",
+        "interaction.PlayerInteractOptionsMixin",
         "interaction.RequestInteractionsHandlerMixin"
     ],
     "injectors": {
