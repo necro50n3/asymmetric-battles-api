@@ -108,7 +108,7 @@ class Battle {
     this.field = new import_field.Field(this);
     this.sides = Array(format.playerCount).fill(null);
     // ABA: Modify variable for new game types
-    if (this.gameType === "sextuples") this.activePerHalf = 6;
+    if (this.gameType === "sextuples" || this.gameType === "horde") this.activePerHalf = 6;
     else if (this.gameType === "pentuples") this.activePerHalf = 5;
     else if (this.gameType === "quadruples") this.activePerHalf = 4;
     else if (this.gameType === "triples") this.activePerHalf = 3;
@@ -1227,10 +1227,11 @@ class Battle {
     return canSwitchIn;
   }
   // ABA: Add boolean flag for special battles.
-  isHordeBattleLike() {
+  isAsymmetricBattle() {
     if (this.gameType === "quadruples") return true;
     else if (this.gameType === "pentuples") return true;
     else if (this.gameType === "sextuples") return true;
+    else if (this.gameType === "horde") return true;
     return false;
   }
   swapPosition(pokemon, newPosition, attributes) {
@@ -1239,7 +1240,7 @@ class Battle {
     }
     const target = pokemon.side.active[newPosition];
     // ABA: Alleviated swap restriction to non-special battles
-    if (!this.isHordeBattleLike() && newPosition !== 1 && (!target || target.fainted))
+    if (!this.isAsymmetricBattle() && newPosition !== 1 && (!target || target.fainted))
       return false;
     this.add("swap", pokemon, newPosition, attributes || "");
     const side = pokemon.side;
@@ -2042,10 +2043,10 @@ class Battle {
     const numSlots = this.activePerHalf;
     const sourceLoc = source.getLocOf(source);
     // ABA: Added targeting modifier for horde-like battles and multi battles (hopefully nothing breaks).
-    if (Math.abs(targetLoc) > numSlots && !this.isHordeBattleLike() && this.gameType !== "multi") {
+    if (Math.abs(targetLoc) > numSlots && !this.isAsymmetricBattle() && this.gameType !== "multi") {
       return false;
     }
-    else if (Math.abs(targetLoc) > numSlots && (this.isHordeBattleLike() || this.gameType === "multi")) {
+    else if (Math.abs(targetLoc) > numSlots && (this.isAsymmetricBattle() || this.gameType === "multi")) {
       if (targetLoc > 0) targetLoc = numSlots;
       else if (targetLoc < 0) targetLoc = -numSlots;
     }
@@ -2057,7 +2058,7 @@ class Battle {
       return isAdjacent;
     }
     // ABA: Added targeting exceptions for horde-like battles.
-    if (this.isHordeBattleLike()) {
+    if (this.isAsymmetricBattle()) {
       switch (targetType) {
         case "adjacentAlly":
           return !isFoe;
