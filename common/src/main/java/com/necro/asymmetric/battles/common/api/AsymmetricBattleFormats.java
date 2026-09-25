@@ -10,10 +10,10 @@ import java.util.HashSet;
 import java.util.Set;
 
 public class AsymmetricBattleFormats {
-    public static final BattleType QUADRUPLES = BattleTypes.INSTANCE.makeBattleType("quadruples", Component.literal("asymmetricbattles.battle.types.quadruples"), 1, 4);
-    public static final BattleType PENTUPLES = BattleTypes.INSTANCE.makeBattleType("pentuples", Component.literal("asymmetricbattles.battle.types.pentuples"), 1, 5);
-    public static final BattleType SEXTUPLES = BattleTypes.INSTANCE.makeBattleType("sextuples", Component.literal("asymmetricbattles.battle.types.sextuples"), 1, 6);
-    public static final BattleType HORDE = BattleTypes.INSTANCE.makeBattleType("horde", Component.literal("asymmetricbattles.battle.types.sextuples"), 1, 6);
+    public static final BattleType QUADRUPLES = BattleTypes.INSTANCE.makeBattleType("quadruples", Component.translatable("asymmetricbattles.battle.types.quadruples"), 1, 4);
+    public static final BattleType PENTUPLES = BattleTypes.INSTANCE.makeBattleType("pentuples", Component.translatable("asymmetricbattles.battle.types.pentuples"), 1, 5);
+    public static final BattleType SEXTUPLES = BattleTypes.INSTANCE.makeBattleType("sextuples", Component.translatable("asymmetricbattles.battle.types.sextuples"), 1, 6);
+    public static final BattleType HORDE = BattleTypes.INSTANCE.makeBattleType("horde", Component.translatable("asymmetricbattles.battle.types.sextuples"), 1, 6);
 
     public static final BattleFormat GEN_9_QUADRUPLES = new BattleFormat(
         "cobblemon",

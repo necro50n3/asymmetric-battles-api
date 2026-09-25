@@ -41,6 +41,8 @@ dependencies {
     modImplementation "net.fabricmc.fabric-api:fabric-api:$rootProject.fabric_api_version"
     modImplementation "net.fabricmc:fabric-language-kotlin:$rootProject.fabric_kotlin"
     modImplementation "com.cobblemon:fabric:$rootProject.cobblemon_version"
+    modApi("fuzs.forgeconfigapiport:forgeconfigapiport-fabric:$rootProject.forge_config_api_version")
+    modImplementation "com.terraformersmc:modmenu:11.0.3"
 
     modRuntimeOnly "dev.architectury:architectury-fabric:13.0.8"
     modImplementation "curse.maven:radical-cobblemon-trainers-api-1152792:8876927"
@@ -56,7 +58,8 @@ processResources {
         archives_name: rootProject.archives_name,
         version: project.version,
         minecraft_version: rootProject.minecraft_version,
-        cobblemon_version: rootProject.cobblemon_dependency
+        cobblemon_version: rootProject.cobblemon_dependency,
+        forge_config_api_version: rootProject.forge_config_api_dependency
     ]
     inputs.properties replaceProperties
 

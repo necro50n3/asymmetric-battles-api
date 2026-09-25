@@ -30,6 +30,13 @@ versionRange = "[${cobblemon_version},)"
 ordering = "AFTER"
 side = "BOTH"
 
+[[dependencies.asymmetricbattles]]
+modId = "forgeconfigapiport"
+mandatory = true
+versionRange = "[${forge_config_api_version},)"
+ordering = "AFTER"
+side = "BOTH"
+
 [[mixins]]
 config = "${archives_name}-common.mixins.json"
 

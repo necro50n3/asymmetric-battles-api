@@ -6,6 +6,7 @@ import com.cobblemon.mod.common.net.serverhandling.RequestInteractionsHandler;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.necro.asymmetric.battles.common.battle.AsymmetricOptions;
+import com.necro.asymmetric.battles.common.config.AsymmetricConfig;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -22,7 +23,7 @@ public class RequestInteractionsHandlerMixin {
         remap = false
     )
     private boolean addAsymmetricBattleOptions(EnumMap<Options, OptionStatus> instance, Operation<Boolean> original) {
-        if (instance.containsKey(Options.SINGLE_BATTLE)) {
+        if (instance.containsKey(Options.SINGLE_BATTLE) && AsymmetricConfig.Common.CONFIG.ENABLE_PVP_CHALLENGES.get()) {
             instance.put(Options.DOUBLE_BATTLE, OptionStatus.AVAILABLE);
             instance.put(Options.TRIPLE_BATTLE, OptionStatus.AVAILABLE);
             instance.put(AsymmetricOptions.QUADRUPLE_BATTLE, OptionStatus.AVAILABLE);

@@ -1,7 +1,10 @@
 {
+    "asymmetricbattles.mod.title": "Asymmetric Battles API",
     "asymmetricbattles.battle.types.quadruples": "Quadruple Battle",
     "asymmetricbattles.battle.types.pentuples": "Pentuple Battle",
     "asymmetricbattles.battle.types.sextuples": "Sextuple Battle",
-    "cobblemon.battle.invalid_dummy": "Attempted to start a battle without a non-dummy actor on one side.",
+    "asymmetricbattles.config.enable_pvp_challenges": "Enable PvP Challenges",
+    "asymmetricbattles.config.enable_debug": "Enable Debugging",
+    "cobblemon.battle.invalid_dummy": "Attempted to start a battle without at least one valid actor on one side.",
     "cobblemon.battle.pokeball_not_alone": "You can only capture wild Pokémon when it's alone!"
 }
