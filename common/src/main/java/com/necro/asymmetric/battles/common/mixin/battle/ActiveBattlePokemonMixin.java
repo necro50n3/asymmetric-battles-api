@@ -3,6 +3,7 @@ package com.necro.asymmetric.battles.common.mixin.battle;
 import com.cobblemon.mod.common.battles.ActiveBattlePokemon;
 import com.cobblemon.mod.common.battles.BattleFormat;
 import com.cobblemon.mod.common.battles.Targetable;
+import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.necro.asymmetric.battles.common.util.AsymmetricUtils;
 import kotlin.collections.CollectionsKt;
 import org.jetbrains.annotations.NotNull;
@@ -21,7 +22,14 @@ public abstract class ActiveBattlePokemonMixin implements Targetable {
 
     @Override
     public @NotNull List<Targetable> getAdjacent() {
-        if (AsymmetricUtils.isAsymmetricBattle(this.getFormat())) return CollectionsKt.filter(this.getAllActivePokemon(), pokemon -> pokemon != this);
+        if (AsymmetricUtils.isAsymmetricBattle(this.getFormat())) return CollectionsKt.filter(
+            this.getAllActivePokemon(),
+            pokemon -> {
+                if (pokemon == this) return false;
+                BattlePokemon battlePokemon = ((ActiveBattlePokemon) pokemon).getBattlePokemon();
+                return battlePokemon != null && battlePokemon.getHealth() > 0;
+            }
+        );
         else return Targetable.super.getAdjacent();
     }
 }

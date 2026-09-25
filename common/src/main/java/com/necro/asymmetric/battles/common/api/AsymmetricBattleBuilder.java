@@ -1,56 +1,69 @@
 package com.necro.asymmetric.battles.common.api;
 
-import com.cobblemon.mod.common.Cobblemon;
-import com.cobblemon.mod.common.CobblemonMemories;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
-import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
 import com.cobblemon.mod.common.battles.*;
 import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
 import com.cobblemon.mod.common.battles.actor.PokemonBattleActor;
-import com.cobblemon.mod.common.battles.ai.RandomBattleAI;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.npc.NPCBattleActor;
-import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
-import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.cobblemon.mod.common.util.PlayerExtensionsKt;
 import com.necro.asymmetric.battles.common.api.actor.HordeBattleActor;
 import com.necro.asymmetric.battles.common.battle.InvalidDummyActorError;
 import com.necro.asymmetric.battles.common.api.actor.DummyBattleActor;
 import kotlin.Unit;
 import net.minecraft.resources.ResourceLocation;
-import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
-import net.minecraft.world.entity.ai.memory.MemoryModuleType;
-import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.Comparator;
-import java.util.List;
-import java.util.UUID;
+import java.util.*;
 
 /*
- * Start Multi Battles or Horde Battles.
+ * Start Basic Battles, Multi Battles or Horde Battles.
  */
 
 public class AsymmetricBattleBuilder {
-    public static BattleStartResult multiBattle(BattleParticipant p1, BattleParticipant p2, BattleParticipant p3, BattleParticipant p4, int adjustLevel) {
-        return multiBattleCommon(p1.toActor(), p2.toActor(), p3.toActor(), p4.toActor(), adjustLevel);
+    public static BattleStartResult battle(BattleParticipant<PlayerBattleActor> p1, BattleParticipant<? extends BattleActor> p2, BattleFormat format) {
+        return battle(p1, p2, format, -1);
     }
 
-    public static BattleStartResult multiBattle(BattleParticipant p1, BattleParticipant p2, BattleParticipant p3, BattleParticipant p4) {
+    public static BattleStartResult battle(BattleParticipant<PlayerBattleActor> p1, BattleParticipant<? extends BattleActor> p2, BattleFormat format, int adjustLevel) {
+        return battle(p1.toActor(), p2.toActor(), format, adjustLevel);
+    }
+
+    public static BattleStartResult battle(PlayerBattleActor p1, BattleActor p2, BattleFormat format, int adjustLevel) {
+        List<PlayerPartyStore> battlePartyStores = new ArrayList<>();
+        ErroredBattleStart errors = new ErroredBattleStart();
+
+        checkPlayerActor(p1, errors, getBattleTheme(p2), adjustLevel, battlePartyStores);
+        checkPlayerActor(p2, errors, getBattleTheme(p1), adjustLevel, battlePartyStores);
+
+        if (errors.isEmpty()) {
+            return BattleRegistry.startBattle(format, new BattleSide(p1), new BattleSide(p2), true)
+                .ifSuccessful(battle -> {
+                    battle.getBattlePartyStores().addAll(battlePartyStores);
+                    return Unit.INSTANCE;
+                });
+        }
+        else return errors;
+    }
+
+    public static BattleStartResult multiBattle(BattleParticipant<? extends BattleActor> p1, BattleParticipant<? extends BattleActor> p2, BattleParticipant<? extends BattleActor> p3, BattleParticipant<? extends BattleActor> p4) {
         return multiBattle(p1, p2, p3, p4, -1);
     }
-    public static BattleStartResult multiBattle(BattleParticipant p1, BattleParticipant p4, int adjustLevel) {
-        return multiBattleCommon(p1.toActor(), p4.toActor(), BattleParticipant.dummy().toActor(), BattleParticipant.dummy().toActor(), adjustLevel);
+
+    public static BattleStartResult multiBattle(BattleParticipant<? extends BattleActor> p1, BattleParticipant<? extends BattleActor> p2, BattleParticipant<? extends BattleActor> p3, BattleParticipant<? extends BattleActor> p4, int adjustLevel) {
+        return multiBattle(p1.toActor(), p2.toActor(), p3.toActor(), p4.toActor(), adjustLevel);
     }
 
-    public static BattleStartResult multiBattle(BattleParticipant p1, BattleParticipant p2) {
+    public static BattleStartResult multiBattle(BattleParticipant<? extends BattleActor> p1, BattleParticipant<? extends BattleActor> p2) {
         return multiBattle(p1, p2, -1);
     }
 
-    private static BattleStartResult multiBattleCommon(BattleActor p1, BattleActor p2, BattleActor p3, BattleActor p4, int adjustLevel) {
+    public static BattleStartResult multiBattle(BattleParticipant<? extends BattleActor> p1, BattleParticipant<? extends BattleActor> p2, int adjustLevel) {
+        return multiBattle(p1.toActor(), p2.toActor(), BattleParticipant.dummy().toActor(), BattleParticipant.dummy().toActor(), adjustLevel);
+    }
+
+    public static BattleStartResult multiBattle(BattleActor p1, BattleActor p2, BattleActor p3, BattleActor p4, int adjustLevel) {
         List<PlayerPartyStore> battlePartyStores = new ArrayList<>();
         ErroredBattleStart errors = new ErroredBattleStart();
 
@@ -141,92 +154,23 @@ public class AsymmetricBattleBuilder {
             case PlayerBattleActor playerActor -> playerActor.getBattleTheme();
             case PokemonBattleActor pokemonActor when pokemonActor.getEntity() != null -> pokemonActor.getEntity().getBattleTheme();
             case NPCBattleActor npcActor -> npcActor.getEntity().getBattleTheme();
+            case HordeBattleActor hordeActor when hordeActor.getEntity() != null -> hordeActor.getEntity().getBattleTheme();
             case null, default -> null;
         };
     }
 
-    public static BattleStartResult hordeBattleFromHerd(ServerPlayer player, PokemonEntity pokemonEntity, @Nullable UUID leadingPokemon) {
-        return hordeBattleFromHerd(player, pokemonEntity, leadingPokemon, false, false);
+    public static BattleStartResult hordeBattle(BattleParticipant<PlayerBattleActor> p1, BattleParticipant<HordeBattleActor> p2) {
+        return hordeBattle(p1.toActor(), p2.toActor());
     }
 
-    public static BattleStartResult hordeBattleFromHerd(ServerPlayer player, PokemonEntity pokemonEntity, @Nullable UUID leadingPokemon, boolean cloneParties, boolean healFirst) {
-        return hordeBattleFromHerd(player, pokemonEntity, leadingPokemon, cloneParties, healFirst, Cobblemon.config.getDefaultFleeDistance());
-    }
-
-    public static BattleStartResult hordeBattleFromHerd(ServerPlayer player, PokemonEntity pokemonEntity, @Nullable UUID leadingPokemon, boolean cloneParties, boolean healFirst, float fleeDistance) {
-        return hordeBattleFromHerd(player, pokemonEntity, leadingPokemon, cloneParties, healFirst, fleeDistance, PlayerExtensionsKt.party(player));
-    }
-
-    public static BattleStartResult hordeBattleFromHerd(ServerPlayer player, PokemonEntity pokemonEntity, @Nullable UUID leadingPokemon, boolean cloneParties, boolean healFirst, float fleeDistance, PartyStore party) {
-        int herdSize = pokemonEntity.getBrain().hasMemoryValue(CobblemonMemories.HERD_SIZE) ? pokemonEntity.getBrain().getMemory(CobblemonMemories.HERD_SIZE).orElse(0) : 0;
-        String herdLeader = pokemonEntity.getBrain().hasMemoryValue(CobblemonMemories.HERD_LEADER) ? pokemonEntity.getBrain().getMemory(CobblemonMemories.HERD_LEADER).orElse(null) : null;
-        if (herdSize == 0 && herdLeader == null) return null;
-
-        PokemonEntity leader;
-        List<PokemonEntity> horde = new ArrayList<>();
-        if (herdLeader == null) leader = pokemonEntity;
-        else leader = (PokemonEntity) ((ServerLevel) pokemonEntity.level()).getEntity(UUID.fromString(herdLeader));
-
-        if (leader == null || !leader.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)) return null;
-        horde.add(leader);
-        leader.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElseThrow().findAll(entity -> {
-            if (!entity.getBrain().hasMemoryValue(CobblemonMemories.HERD_LEADER)) return false;
-            return entity.getBrain().getMemory(CobblemonMemories.HERD_LEADER).orElseThrow().equalsIgnoreCase(leader.getStringUUID());
-        }).forEach(entity -> {
-            if (horde.size() < 6) horde.add((PokemonEntity) entity);
-        });
-
-        return hordeBattle(player, horde, leadingPokemon, cloneParties, healFirst, fleeDistance, party);
-    }
-
-    public static BattleStartResult hordeBattle(ServerPlayer player, List<PokemonEntity> horde, @Nullable UUID leadingPokemon) {
-        return hordeBattle(player, horde, leadingPokemon, false, false);
-    }
-
-    public static BattleStartResult hordeBattle(ServerPlayer player, List<PokemonEntity> horde, @Nullable UUID leadingPokemon, boolean cloneParties, boolean healFirst) {
-        return hordeBattle(player, horde, leadingPokemon, cloneParties, healFirst, Cobblemon.config.getDefaultFleeDistance());
-    }
-
-    public static BattleStartResult hordeBattle(ServerPlayer player, List<PokemonEntity> horde, @Nullable UUID leadingPokemon, boolean cloneParties, boolean healFirst, float fleeDistance) {
-        return hordeBattle(player, horde, leadingPokemon, cloneParties, healFirst, fleeDistance, PlayerExtensionsKt.party(player));
-    }
-
-    public static BattleStartResult hordeBattle(ServerPlayer player, List<PokemonEntity> horde, @Nullable UUID leadingPokemon, boolean cloneParties, boolean healFirst, float fleeDistance, PartyStore party) {
-        List<BattlePokemon> battleTeam = party.toBattleTeam(cloneParties, healFirst, leadingPokemon);
-        battleTeam.sort(Comparator.comparing(pokemon -> pokemon.getHealth() <= 0));
-        PlayerBattleActor playerActor = new PlayerBattleActor(player.getUUID(), battleTeam);
-
-        List<BattlePokemon> hordeTeam = horde.stream().map(pokemon -> new BattlePokemon(pokemon.getPokemon(), pokemon.getPokemon(), p -> Unit.INSTANCE)).toList();
-        BattlePokemon leader = hordeTeam.getFirst();
-        HordeBattleActor hordeActor = new HordeBattleActor(leader.getEffectedPokemon().getUuid(), leader, hordeTeam, fleeDistance);
-
+    public static BattleStartResult hordeBattle(PlayerBattleActor p1, HordeBattleActor p2) {
         BattleFormat battleFormat = AsymmetricBattleFormats.GEN_9_HORDE;
         ErroredBattleStart errors = new ErroredBattleStart();
 
-        if (!battleTeam.isEmpty() && battleTeam.getFirst().getHealth() <= 0) {
-            errors.getParticipantErrors().get(playerActor).add(BattleStartError.Companion.insufficientPokemon(
-                player,
-                battleFormat.getBattleType().getSlotsPerActor(),
-                playerActor.getPokemonList().size()
-            ));
-        }
-
-        if (playerActor.getPokemonList().stream().anyMatch(battlePokemon -> battlePokemon.getEntity() != null && battlePokemon.getEntity().isBusy())) {
-            errors.getParticipantErrors().get(playerActor).add(BattleStartError.Companion.targetIsBusy(player.getDisplayName()));
-        }
-
-        if (BattleRegistry.getBattleByParticipatingPlayer(player) != null) {
-            errors.getParticipantErrors().get(playerActor).add(BattleStartError.Companion.alreadyInBattle(playerActor));
-        }
-
-        playerActor.setBattleTheme(horde.getFirst().getBattleTheme());
+        checkPlayerActor(p1, errors, getBattleTheme(p2), -1, List.of());
 
         if (errors.isEmpty()) {
-            return BattleRegistry.startBattle(battleFormat, new BattleSide(playerActor), new BattleSide(hordeActor), true)
-                .ifSuccessful(battle -> {
-                if (!cloneParties) horde.forEach(pokemon -> pokemon.setBattleId(battle.getBattleId()));
-                return Unit.INSTANCE;
-            });
+            return BattleRegistry.startBattle(battleFormat, new BattleSide(p1), new BattleSide(p2), true);
         }
         else return errors;
     }

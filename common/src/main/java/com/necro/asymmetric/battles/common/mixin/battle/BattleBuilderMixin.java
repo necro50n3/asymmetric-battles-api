@@ -1,5 +1,6 @@
 package com.necro.asymmetric.battles.common.mixin.battle;
 
+import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.battles.*;
 import com.cobblemon.mod.common.battles.actor.PokemonBattleActor;
@@ -54,7 +55,7 @@ public class BattleBuilderMixin {
         horde.add(pokemonEntity);
         if (!entities.isEmpty()) horde.addAll(entities.subList(0, Math.min(entities.size(), 5)));
 
-        cir.setReturnValue(AsymmetricBattleBuilder.hordeBattle(player, horde, leadingPokemon));
+        cir.setReturnValue(AsymmetricBattleBuilder.hordeBattle(BattleParticipant.player(player, leadingPokemon), BattleParticipant.horde(horde)));
     }
 
     @WrapOperation(method = { "pvp1v1*", "pvp2v2*", "pve*", "pvn*" }, at = @At(value = "INVOKE", target = "Ljava/util/Collection;add(Ljava/lang/Object;)Z"), remap = false)
