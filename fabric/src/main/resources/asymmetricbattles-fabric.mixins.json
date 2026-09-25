@@ -2,8 +2,13 @@
     "required": true,
     "package": "com.necro.asymmetric.battles.fabric.mixin",
     "compatibilityLevel": "JAVA_21",
+    "plugin": "com.necro.asymmetric.battles.fabric.AsymmetricBattlesAPIFabricMixinPlugin",
     "mixins": [
         "GraalShowdownUnbundlerMixin"
+
+    ],
+    "client": [
+        "msd.StatChangeRendererMixin"
     ],
     "injectors": {
         "defaultRequire": 1

@@ -1,0 +1,35 @@
+package com.necro.asymmetric.battles.neoforge;
+
+import com.necro.asymmetric.battles.common.AsymmetricBattlesAPIMixinPluginImpl;
+import net.neoforged.fml.loading.LoadingModList;
+import net.neoforged.fml.loading.moddiscovery.ModFileInfo;
+import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
+
+public class AsymmetricBattlesAPINeoForgeMixinPlugin extends AsymmetricBattlesAPIMixinPluginImpl {
+    @Override
+    protected String mixin(String pkg) {
+        return "com.necro.asymmetric.battles.fabric.mixins." + pkg;
+    }
+
+    @Override
+    protected boolean isModAndNewerThan(String mod, String version) {
+        ModFileInfo info = LoadingModList.get().getModFileById(mod);
+        if (info == null) return false;
+        return info.getMods().getFirst().getVersion().compareTo(new DefaultArtifactVersion(version)) >= 0;
+    }
+
+    @Override
+    protected boolean isModAndOlderThan(String mod, String version) {
+        ModFileInfo info = LoadingModList.get().getModFileById(mod);
+        if (info == null) return false;
+        return info.getMods().getFirst().getVersion().compareTo(new DefaultArtifactVersion(version)) <= 0;
+    }
+
+    @Override
+    protected boolean isModLoaded(String... mods) {
+        for (String mod : mods) {
+            if (LoadingModList.get().getModFileById(mod) != null) return true;
+        }
+        return false;
+    }
+}

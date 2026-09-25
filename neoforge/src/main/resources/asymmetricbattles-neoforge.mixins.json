@@ -2,8 +2,12 @@
     "required": true,
     "package": "com.necro.asymmetric.battles.neoforge.mixin",
     "compatibilityLevel": "JAVA_21",
+    "plugin": "com.necro.asymmetric.battles.neoforge.AsymmetricBattlesAPINeoForgeMixinPlugin",
     "mixins": [
         "GraalShowdownUnbundlerMixin"
+    ],
+    "client": [
+        "msd.StatChangeRendererMixin"
     ],
     "injectors": {
         "defaultRequire": 1

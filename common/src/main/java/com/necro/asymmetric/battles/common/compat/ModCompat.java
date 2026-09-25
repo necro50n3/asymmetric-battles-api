@@ -1,7 +1,8 @@
 package com.necro.asymmetric.battles.common.compat;
 
 public enum ModCompat {
-    RCT_API("rctapi");
+    RCT_API("rctapi"),
+    MEGA_SHOWDOWN("mega_showdown");
 
     private final String modid;
     private boolean loaded;
