@@ -5,13 +5,14 @@
     "mixins": [
         "DebugMixin",
         "EmptyPokeBallEntityMixin",
-        "SwitchInstructionMixin",
         "battle.ActiveBattlePokemonMixin",
         "battle.BattleBuilderMixin",
         "battle.BattleFormatMixin",
         "battle.BattleMessageMixin",
         "battle.PokemonBattleMixin",
         "battle.RandomBattleAIMixin",
+        "battle.HordeSwitchInstructionMixin",
+        "battle.SwitchInstructionMixin",
         "battle.WinInstructionMixin",
         "interaction.PlayerInteractOptionsMixin",
         "interaction.RequestInteractionsHandlerMixin"

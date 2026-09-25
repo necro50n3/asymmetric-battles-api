@@ -1989,7 +1989,7 @@ class Battle {
       return true;
     const numSlots = this.activePerHalf;
     const sourceLoc = source.getLocOf(source);
-    // ABA: Added targeting modifier for horde-like battles and multi battles (hopefully nothing breaks).
+    // ABA: Added targeting modifier for asymmetric battles and multi battles (hopefully nothing breaks).
     if (Math.abs(targetLoc) > numSlots && !this.isAsymmetricBattle() && this.gameType !== "multi") {
       return false;
     }
@@ -2004,7 +2004,7 @@ class Battle {
     if (this.gameType === "freeforall" && targetType === "adjacentAlly") {
       return isAdjacent;
     }
-    // ABA: Added targeting exceptions for horde-like battles.
+    // ABA: Added targeting exceptions for asymmetric battles.
     if (this.isAsymmetricBattle()) {
       switch (targetType) {
         case "adjacentAlly":

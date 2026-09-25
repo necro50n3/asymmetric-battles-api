@@ -1,6 +1,7 @@
 package com.necro.asymmetric.battles.common.api;
 
 import com.cobblemon.mod.common.Cobblemon;
+import com.cobblemon.mod.common.CobblemonMemories;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
@@ -18,7 +19,9 @@ import com.necro.asymmetric.battles.common.battle.InvalidDummyActorError;
 import com.necro.asymmetric.battles.common.api.actor.DummyBattleActor;
 import kotlin.Unit;
 import net.minecraft.resources.ResourceLocation;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.memory.MemoryModuleType;
 import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import org.jetbrains.annotations.Nullable;
 
@@ -136,6 +139,40 @@ public class AsymmetricBattleBuilder {
             case NPCBattleActor npcActor -> npcActor.getEntity().getBattleTheme();
             case null, default -> null;
         };
+    }
+
+    public static BattleStartResult hordeBattleFromHerd(ServerPlayer player, PokemonEntity pokemonEntity, @Nullable UUID leadingPokemon) {
+        return hordeBattleFromHerd(player, pokemonEntity, leadingPokemon, false, false);
+    }
+
+    public static BattleStartResult hordeBattleFromHerd(ServerPlayer player, PokemonEntity pokemonEntity, @Nullable UUID leadingPokemon, boolean cloneParties, boolean healFirst) {
+        return hordeBattleFromHerd(player, pokemonEntity, leadingPokemon, cloneParties, healFirst, Cobblemon.config.getDefaultFleeDistance());
+    }
+
+    public static BattleStartResult hordeBattleFromHerd(ServerPlayer player, PokemonEntity pokemonEntity, @Nullable UUID leadingPokemon, boolean cloneParties, boolean healFirst, float fleeDistance) {
+        return hordeBattleFromHerd(player, pokemonEntity, leadingPokemon, cloneParties, healFirst, fleeDistance, PlayerExtensionsKt.party(player));
+    }
+
+    public static BattleStartResult hordeBattleFromHerd(ServerPlayer player, PokemonEntity pokemonEntity, @Nullable UUID leadingPokemon, boolean cloneParties, boolean healFirst, float fleeDistance, PartyStore party) {
+        int herdSize = pokemonEntity.getBrain().hasMemoryValue(CobblemonMemories.HERD_SIZE) ? pokemonEntity.getBrain().getMemory(CobblemonMemories.HERD_SIZE).orElse(0) : 0;
+        String herdLeader = pokemonEntity.getBrain().hasMemoryValue(CobblemonMemories.HERD_LEADER) ? pokemonEntity.getBrain().getMemory(CobblemonMemories.HERD_LEADER).orElse(null) : null;
+        if (herdSize == 0 && herdLeader == null) return null;
+
+        PokemonEntity leader;
+        List<PokemonEntity> horde = new ArrayList<>();
+        if (herdLeader == null) leader = pokemonEntity;
+        else leader = (PokemonEntity) ((ServerLevel) pokemonEntity.level()).getEntity(UUID.fromString(herdLeader));
+
+        if (leader == null || !leader.getBrain().hasMemoryValue(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES)) return null;
+        horde.add(leader);
+        leader.getBrain().getMemory(MemoryModuleType.NEAREST_VISIBLE_LIVING_ENTITIES).orElseThrow().findAll(entity -> {
+            if (!entity.getBrain().hasMemoryValue(CobblemonMemories.HERD_LEADER)) return false;
+            return entity.getBrain().getMemory(CobblemonMemories.HERD_LEADER).orElseThrow().equalsIgnoreCase(leader.getStringUUID());
+        }).forEach(entity -> {
+            if (horde.size() < 6) horde.add((PokemonEntity) entity);
+        });
+
+        return hordeBattle(player, horde, leadingPokemon, cloneParties, healFirst, fleeDistance, party);
     }
 
     public static BattleStartResult hordeBattle(ServerPlayer player, List<PokemonEntity> horde, @Nullable UUID leadingPokemon) {
