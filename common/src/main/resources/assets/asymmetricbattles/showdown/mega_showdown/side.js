@@ -63,6 +63,33 @@ class Side {
     this.n = sideNum;
     this.name = name;
     this.avatar = "";
+    // ABA: Extract team init method from constructor
+    this.initTeam(team);
+    this.faintedLastTurn = null;
+    this.faintedThisTurn = null;
+    this.totalFainted = 0;
+    this.zMoveUsed = false;
+	this.dynamaxUsed = false;
+    this.sideConditions = {};
+    // ABA: Extract team init method from constructor
+    this.activeRequest = null;
+    this.choice = {
+      cantUndo: false,
+      error: ``,
+      actions: [],
+      forcedSwitchesLeft: 0,
+      forcedPassesLeft: 0,
+      switchIns: /* @__PURE__ */ new Set(),
+      zMove: false,
+      mega: false,
+      ultra: false,
+      dynamax: false,
+      terastallize: false
+    };
+    this.lastMove = null;
+  }
+  // ABA: Extract team init method from constructor
+  initTeam(team) {
     this.team = team;
     this.pokemon = [];
     for (let i = 0; i < this.team.length && i < 24; i++) {
@@ -95,30 +122,10 @@ class Side {
         this.active = Array(Math.min(this.pokemon.length, 1)).fill(null);
     }
     this.pokemonLeft = this.pokemon.filter((pk) => !pk.fainted).length;
-    this.faintedLastTurn = null;
-    this.faintedThisTurn = null;
-    this.totalFainted = 0;
-    this.zMoveUsed = false;
-	this.dynamaxUsed = false;
-    this.sideConditions = {};
+
     this.slotConditions = [];
     for (let i = 0; i < this.active.length; i++)
       this.slotConditions[i] = {};
-    this.activeRequest = null;
-    this.choice = {
-      cantUndo: false,
-      error: ``,
-      actions: [],
-      forcedSwitchesLeft: 0,
-      forcedPassesLeft: 0,
-      switchIns: /* @__PURE__ */ new Set(),
-      zMove: false,
-      mega: false,
-      ultra: false,
-      dynamax: false,
-      terastallize: false
-    };
-    this.lastMove = null;
   }
   toJSON() {
     return import_state.State.serializeSide(this);

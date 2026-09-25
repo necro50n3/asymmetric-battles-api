@@ -24,19 +24,19 @@ public class BattleOverlayMixin {
         remap = false
     )
     private Iterable<ActiveClientBattlePokemon> filterPokemon(ClientBattleSide instance, Operation<Iterable<ActiveClientBattlePokemon>> original) {
-        if (!AsymmetricUtils.isAsymmetricBattle(instance.getBattle().getBattleFormat())) return original.call(instance);
+        if (!AsymmetricUtils.isAsymmetricOrMultiBattle(instance.getBattle().getBattleFormat())) return original.call(instance);
         else return CollectionsKt.filter(original.call(instance), pokemon -> pokemon.getBattlePokemon() != null);
     }
 
     @ModifyConstant(method = "drawTile", constant = @Constant(floatValue = 4F, ordinal = 0), remap = false)
     private float modifyHorizontalSpacing(float constant, @Local(argsOnly = true) ActiveClientBattlePokemon activeBattlePokemon) {
-        if (!AsymmetricUtils.isAsymmetricBattle(activeBattlePokemon.getFormat())) return constant;
+        if (!AsymmetricUtils.isAsymmetricOrMultiBattle(activeBattlePokemon.getFormat())) return constant;
         else return 2F;
     }
 
     @ModifyConstant(method = "drawTile", constant = @Constant(intValue = 30, ordinal = 0), remap = false)
     private int modifyVerticalSpacing(int constant, @Local(argsOnly = true) ActiveClientBattlePokemon activeBattlePokemon) {
-        if (!AsymmetricUtils.isAsymmetricBattle(activeBattlePokemon.getFormat())) return constant;
+        if (!AsymmetricUtils.isAsymmetricOrMultiBattle(activeBattlePokemon.getFormat())) return constant;
         else return 20;
     }
 }

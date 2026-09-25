@@ -2850,8 +2850,7 @@ class Battle {
         side.avatar = "" + options.avatar;
         didSomething = true;
       }
-      if (options.team)
-        throw new Error(`Player ${slot} already has a team!`);
+      // ABA: Removed already existing team error
     }
     if (options.team && typeof options.team !== "string") {
       options.team = import_teams.Teams.pack(options.team);

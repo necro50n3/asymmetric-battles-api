@@ -1,15 +1,18 @@
 package com.necro.asymmetric.battles.common.api;
 
 import com.cobblemon.mod.common.Cobblemon;
+import com.cobblemon.mod.common.CobblemonEntities;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
 import com.cobblemon.mod.common.battles.*;
 import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
 import com.cobblemon.mod.common.battles.actor.PokemonBattleActor;
+import com.cobblemon.mod.common.battles.ai.RandomBattleAI;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.npc.NPCBattleActor;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
+import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.util.PlayerExtensionsKt;
 import com.necro.asymmetric.battles.common.api.actor.HordeBattleActor;
 import com.necro.asymmetric.battles.common.battle.InvalidDummyActorError;
@@ -60,6 +63,20 @@ public class AsymmetricBattleBuilder {
             return BattleRegistry.startBattle(BattleFormat.Companion.getGEN_9_MULTI(), new BattleSide(p1, p3), new BattleSide(p2, p4), true)
                 .ifSuccessful(battle -> {
                     battle.getBattlePartyStores().addAll(battlePartyStores);
+
+//                    PokemonBattleActor pokemonActor = (PokemonBattleActor) p2;
+//                    Pokemon pokemon = pokemonActor.getPokemon().getEffectedPokemon().clone(true, pokemonActor.getEntity().registryAccess());
+//                    PokemonEntity entity = new PokemonEntity(pokemonActor.getEntity().level(), pokemon, CobblemonEntities.POKEMON);
+//                    entity.moveTo(((PlayerBattleActor) p1).getEntity().position());
+//                    pokemonActor.getEntity().level().addFreshEntity(entity);
+//                    PokemonBattleActor newActor = new PokemonBattleActor(
+//                        pokemon.getUuid(),
+//                        new BattlePokemon(pokemon, pokemon, p -> Unit.INSTANCE),
+//                        Cobblemon.config.getDefaultFleeDistance(),
+//                        new RandomBattleAI()
+//                    );
+//                    AsymmetricAPI.setMultiBattleActor(newActor, battle, 4);
+
                     return Unit.INSTANCE;
                 });
         }

@@ -53,7 +53,7 @@ public abstract class BattleTargetSelectionMixin extends BattleActionSelection {
     @Inject(method = "<init>", at = @At("RETURN"), remap = false)
     private void modifyBaseTiles(BattleGUI battleGUI, SingleActionRequest request, InBattleMove move, String gimmickID, InBattleGimmickMove gimmickMove, CallbackInfo ci) {
         ClientBattle battle = CobblemonClient.INSTANCE.getBattle();
-        if (battle == null || !AsymmetricUtils.isAsymmetricBattle(battle.getBattleFormat())) return;
+        if (battle == null || !AsymmetricUtils.isAsymmetricOrMultiBattle(battle.getBattleFormat())) return;
 
         List<TargetTile> baseTiles = new ArrayList<>();
 
