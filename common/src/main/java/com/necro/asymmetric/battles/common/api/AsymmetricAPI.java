@@ -44,6 +44,10 @@ public class AsymmetricAPI {
                 "side.initTeam(battle.getTeam({ \"team\": \"%4$s\" })); " +
                 "side.totalFainted = 0; " +
 
+                "for (let i = 0; i < side.pokemon.length; i++) { " +
+                    "battle.initPokemon(side.pokemon[i]); " +
+                "} " +
+
                 "for (let i = 0; i < Math.min(side.active.length, side.pokemon.length); i++) { " +
                     "side.active[i] = side.pokemon[i]; " +
                 "} " +

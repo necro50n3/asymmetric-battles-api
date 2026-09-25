@@ -2244,6 +2244,38 @@ class Battle {
       action.speed = action.pokemon.getActionSpeed();
     }
   }
+  // ABA: Extracted Pokemon initialiser
+  initPokemon(pokemon) {
+    let rawSpecies = null;
+    if (!rawSpecies)
+      return;
+    const species = pokemon.setSpecies(rawSpecies);
+    if (!species)
+      return;
+    pokemon.baseSpecies = rawSpecies;
+    pokemon.details = species.name + (pokemon.level === 100 ? "" : ", L" + pokemon.level) + (pokemon.gender === "" ? "" : ", " + pokemon.gender) + (pokemon.set.shiny ? ", shiny" : "");
+    pokemon.setAbility(species.abilities["0"], null, true);
+    pokemon.baseAbility = pokemon.ability;
+    const behemothMove = {
+      "Zacian-Crowned": "behemothblade",
+      "Zamazenta-Crowned": "behemothbash"
+    };
+    const ironHead = pokemon.baseMoves.indexOf("ironhead");
+    if (ironHead >= 0) {
+      const move = this.dex.moves.get(behemothMove[rawSpecies.name]);
+      pokemon.baseMoveSlots[ironHead] = {
+        move: move.name,
+        id: move.id,
+        pp: move.noPPBoosts || move.isZ ? move.pp : move.pp * 8 / 5,
+        maxpp: move.noPPBoosts || move.isZ ? move.pp : move.pp * 8 / 5,
+        target: move.target,
+        disabled: false,
+        disabledSource: "",
+        used: false
+      };
+      pokemon.moveSlots = pokemon.baseMoveSlots.slice();
+    }
+  }
   runAction(action) {
     const pokemonOriginalHP = action.pokemon?.hp;
     let residualPokemon = [];
@@ -2255,40 +2287,8 @@ class Battle {
         }
         this.add("start");
         for (const pokemon of this.getAllPokemon()) {
-          let rawSpecies = null;
-//          if (pokemon.species.id === "zacian" && pokemon.item === "rustedsword") {
-//            rawSpecies = this.dex.species.get("Zacian-Crowned");
-//          } else if (pokemon.species.id === "zamazenta" && pokemon.item === "rustedshield") {
-//            rawSpecies = this.dex.species.get("Zamazenta-Crowned");
-//          }
-          if (!rawSpecies)
-            continue;
-          const species = pokemon.setSpecies(rawSpecies);
-          if (!species)
-            continue;
-          pokemon.baseSpecies = rawSpecies;
-          pokemon.details = species.name + (pokemon.level === 100 ? "" : ", L" + pokemon.level) + (pokemon.gender === "" ? "" : ", " + pokemon.gender) + (pokemon.set.shiny ? ", shiny" : "");
-          pokemon.setAbility(species.abilities["0"], null, true);
-          pokemon.baseAbility = pokemon.ability;
-          const behemothMove = {
-            "Zacian-Crowned": "behemothblade",
-            "Zamazenta-Crowned": "behemothbash"
-          };
-          const ironHead = pokemon.baseMoves.indexOf("ironhead");
-          if (ironHead >= 0) {
-            const move = this.dex.moves.get(behemothMove[rawSpecies.name]);
-            pokemon.baseMoveSlots[ironHead] = {
-              move: move.name,
-              id: move.id,
-              pp: move.noPPBoosts || move.isZ ? move.pp : move.pp * 8 / 5,
-              maxpp: move.noPPBoosts || move.isZ ? move.pp : move.pp * 8 / 5,
-              target: move.target,
-              disabled: false,
-              disabledSource: "",
-              used: false
-            };
-            pokemon.moveSlots = pokemon.baseMoveSlots.slice();
-          }
+          // ABA: Extracted Pokemon initialiser
+          this.initPokemon(pokemon);
         }
         if (this.format.onBattleStart)
           this.format.onBattleStart.call(this);
