@@ -1,7 +1,6 @@
 package com.necro.asymmetric.battles.common.api;
 
 import com.cobblemon.mod.common.Cobblemon;
-import com.cobblemon.mod.common.CobblemonEntities;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.api.storage.party.PlayerPartyStore;
@@ -20,6 +19,7 @@ import com.necro.asymmetric.battles.common.api.actor.DummyBattleActor;
 import kotlin.Unit;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.world.entity.ai.targeting.TargetingConditions;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
@@ -65,10 +65,19 @@ public class AsymmetricBattleBuilder {
                     battle.getBattlePartyStores().addAll(battlePartyStores);
 
 //                    PokemonBattleActor pokemonActor = (PokemonBattleActor) p2;
-//                    Pokemon pokemon = pokemonActor.getPokemon().getEffectedPokemon().clone(true, pokemonActor.getEntity().registryAccess());
-//                    PokemonEntity entity = new PokemonEntity(pokemonActor.getEntity().level(), pokemon, CobblemonEntities.POKEMON);
-//                    entity.moveTo(((PlayerBattleActor) p1).getEntity().position());
-//                    pokemonActor.getEntity().level().addFreshEntity(entity);
+//                    PokemonEntity original = pokemonActor.getEntity();
+//                    PokemonEntity entity = original.level().getNearestEntity(
+//                        PokemonEntity.class,
+//                        TargetingConditions.DEFAULT,
+//                        original,
+//                        original.getX(),
+//                        original.getY(),
+//                        original.getZ(),
+//                        original.getBoundingBox().inflate(8, 2, 8)
+//                    );
+//                    if (entity == null) return Unit.INSTANCE;
+//                    Pokemon pokemon = entity.getPokemon();
+//
 //                    PokemonBattleActor newActor = new PokemonBattleActor(
 //                        pokemon.getUuid(),
 //                        new BattlePokemon(pokemon, pokemon, p -> Unit.INSTANCE),

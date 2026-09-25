@@ -5,6 +5,7 @@
     "mixins": [
         "DebugMixin",
         "EmptyPokeBallEntityMixin",
+        "SwitchInstructionMixin",
         "battle.ActiveBattlePokemonMixin",
         "battle.BattleBuilderMixin",
         "battle.BattleFormatMixin",
