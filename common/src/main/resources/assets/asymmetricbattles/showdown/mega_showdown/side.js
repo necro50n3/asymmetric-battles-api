@@ -835,7 +835,8 @@ ${sideUpdate}`);
       return this.emitChoiceError(`Can't undo: A trapping/disabling effect would cause undo to leak information`);
     }
     this.clearChoice();
-    const choiceStrings = input.startsWith("team ") ? [input] : input.split(",");
+    // ABA: Trim choice strings of "default" selection
+    const choiceStrings = input.startsWith("team ") ? [input] : input.split(",").filter(str => str.trim() !== "default" && str.trim() !== "");
     if (choiceStrings.length > this.active.length) {
       return this.emitChoiceError(
         `Can't make choices: You sent choices for ${choiceStrings.length} Pok\xE9mon, but this is a ${this.battle.gameType} game!`
