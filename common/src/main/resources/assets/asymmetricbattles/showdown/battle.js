@@ -112,7 +112,7 @@ class Battle {
     else if (this.gameType === "pentuples") this.activePerHalf = 5;
     else if (this.gameType === "quadruples") this.activePerHalf = 4;
     else if (this.gameType === "triples") this.activePerHalf = 3;
-    else if (this.gameType === "doubles") this.activePerHalf = 2;
+    else if (format.playerCount > 2 || this.gameType === "doubles") this.activePerHalf = 2;
     else this.activePerHalf = 1;
     this.prng = options.prng || new import_prng.PRNG(options.seed || void 0);
     this.prngSeed = this.prng.startingSeed.slice();
@@ -1403,61 +1403,6 @@ class Battle {
         this.add("-center");
       }
     }
-    // ABA: Add swap-to-centre logic for special battles
-//    else if (this.sides.some((side) => side.active.length == 4 && side.pokemonLeft <= 2)) {
-//      const actives = this.getAllActive();
-//      const side1 = this.sides[0].active.filter(pokemon => pokemon != null);
-//      const side2 = this.sides[1].active.filter(pokemon => pokemon != null);
-//      if (side1.length >= 1 && side2.length >= 1) {
-//        if (this.sides[0].active.length > 2) {
-//          this.swapPosition(side1[0], 1, "[silent]");
-//          this.swapPosition(side1[1], 2, "[silent]");
-//        }
-//
-//        if (this.sides[1].active.length > 2) {
-//          this.swapPosition(side2[0], 1, "[silent]");
-//          this.swapPosition(side2[1], 2, "[silent]");
-//        }
-//      }
-//    }
-//    else if (this.sides.some((side) => side.active.length == 5 && side.pokemonLeft <= 3)) {
-//      const actives = this.getAllActive();
-//      const side1 = this.sides[0].active.filter(pokemon => pokemon != null);
-//      const side2 = this.sides[1].active.filter(pokemon => pokemon != null);
-//      if (side1.length >= 1 && side2.length >= 1) {
-//        if (this.sides[0].active.length > 3) {
-//          this.swapPosition(side1[0], 1, "[silent]");
-//          this.swapPosition(side1[1], 2, "[silent]");
-//          this.swapPosition(side1[2], 3, "[silent]");
-//        }
-//
-//        if (this.sides[1].active.length > 3) {
-//          this.swapPosition(side2[0], 1, "[silent]");
-//          this.swapPosition(side2[1], 2, "[silent]");
-//          this.swapPosition(side2[2], 3, "[silent]");
-//        }
-//      }
-//    }
-//    else if (this.sides.some((side) => side.active.length == 6 && side.pokemonLeft <= 4)) {
-//      const actives = this.getAllActive();
-//      const side1 = this.sides[0].active.filter(pokemon => pokemon != null);
-//      const side2 = this.sides[1].active.filter(pokemon => pokemon != null);
-//      if (side1.length >= 1 && side2.length >= 1) {
-//        if (this.sides[0].active.length > 4) {
-//          this.swapPosition(side1[0], 1, "[silent]");
-//          this.swapPosition(side1[0], 2, "[silent]");
-//          this.swapPosition(side1[2], 3, "[silent]");
-//          this.swapPosition(side1[3], 4, "[silent]");
-//        }
-//
-//        if (this.sides[1].active.length > 4) {
-//          this.swapPosition(side2[0], 1, "[silent]");
-//          this.swapPosition(side2[0], 2, "[silent]");
-//          this.swapPosition(side2[2], 3, "[silent]");
-//          this.swapPosition(side2[3], 4, "[silent]");
-//        }
-//      }
-//    }
     this.add("turn", this.turn);
     if (this.gameType === "multi") {
       for (const side of this.sides) {
@@ -2061,7 +2006,7 @@ class Battle {
     if (this.isAsymmetricBattle()) {
       switch (targetType) {
         case "adjacentAlly":
-          return !isFoe;
+          return !isFoe && !isSelf;
         case "adjacentAllyOrSelf":
           return !isFoe || isSelf;
         case "adjacentFoe":

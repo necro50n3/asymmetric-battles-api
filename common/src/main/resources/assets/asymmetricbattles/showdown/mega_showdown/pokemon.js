@@ -448,7 +448,8 @@ class Pokemon {
   isAdjacent(pokemon2) {
     if (this.fainted || pokemon2.fainted)
       return false;
-    if (this.battle.activePerHalf <= 2)
+    // ABA: All non-self Pokemon are considered adjacent in asymmetric battles
+    if (this.battle.activePerHalf <= 2 || this.battle.isAsymmetricBattle())
       return this !== pokemon2;
     if (this.side === pokemon2.side)
       return Math.abs(this.position - pokemon2.position) === 1;

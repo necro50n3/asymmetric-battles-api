@@ -109,7 +109,13 @@ class Battle {
     this.gameType = format.gameType || "singles";
     this.field = new import_field.Field(this);
     this.sides = Array(format.playerCount).fill(null);
-    this.activePerHalf = this.gameType === "triples" ? 3 : format.playerCount > 2 || this.gameType === "doubles" ? 2 : 1;
+    // ABA: Modify variable for new game types
+    if (this.gameType === "sextuples" || this.gameType === "horde") this.activePerHalf = 6;
+    else if (this.gameType === "pentuples") this.activePerHalf = 5;
+    else if (this.gameType === "quadruples") this.activePerHalf = 4;
+    else if (this.gameType === "triples") this.activePerHalf = 3;
+    else if (format.playerCount > 2 || this.gameType === "doubles") this.activePerHalf = 2;
+    else this.activePerHalf = 1;
     this.prng = options.prng || new import_prng.PRNG(options.seed || void 0);
     this.prngSeed = this.prng.startingSeed.slice();
     this.rated = options.rated || !!options.rated;
@@ -1222,12 +1228,21 @@ class Battle {
     }
     return canSwitchIn;
   }
+  // ABA: Add boolean flag for special battles.
+  isAsymmetricBattle() {
+    if (this.gameType === "quadruples") return true;
+    else if (this.gameType === "pentuples") return true;
+    else if (this.gameType === "sextuples") return true;
+    else if (this.gameType === "horde") return true;
+    return false;
+  }
   swapPosition(pokemon, newPosition, attributes) {
     if (newPosition >= pokemon.side.active.length) {
       throw new Error("Invalid swap position");
     }
     const target = pokemon.side.active[newPosition];
-    if (newPosition !== 1 && (!target || target.fainted))
+    // ABA: Alleviated swap restriction to non-special battles
+    if (!this.isAsymmetricBattle() && newPosition !== 1 && (!target || target.fainted))
       return false;
     this.add("swap", pokemon, newPosition, attributes || "");
     const side = pokemon.side;
@@ -1545,7 +1560,8 @@ class Battle {
       if (subFormat.onBegin)
         subFormat.onBegin.call(this);
     }
-    if (this.sides.some((side) => !side.pokemon[0])) {
+    // ABA: Lifted check to only check side 0 and 1.
+    if (!this.sides[0].pokemon[0] || !this.sides[1].pokemon[0]) {
       throw new Error("Battle not started: A player has an empty team.");
     }
     if (this.debugMode) {
@@ -1973,14 +1989,36 @@ class Battle {
       return true;
     const numSlots = this.activePerHalf;
     const sourceLoc = source.getLocOf(source);
-    if (Math.abs(targetLoc) > numSlots)
+    // ABA: Added targeting modifier for horde-like battles and multi battles (hopefully nothing breaks).
+    if (Math.abs(targetLoc) > numSlots && !this.isAsymmetricBattle() && this.gameType !== "multi") {
       return false;
+    }
+    else if (Math.abs(targetLoc) > numSlots && (this.isAsymmetricBattle() || this.gameType === "multi")) {
+      if (targetLoc > 0) targetLoc = numSlots;
+      else if (targetLoc < 0) targetLoc = -numSlots;
+    }
     const isSelf = sourceLoc === targetLoc;
     const isFoe = this.gameType === "freeforall" ? !isSelf : targetLoc > 0;
     const acrossFromTargetLoc = -(numSlots + 1 - targetLoc);
     const isAdjacent = targetLoc > 0 ? Math.abs(acrossFromTargetLoc - sourceLoc) <= 1 : Math.abs(targetLoc - sourceLoc) === 1;
     if (this.gameType === "freeforall" && targetType === "adjacentAlly") {
       return isAdjacent;
+    }
+    // ABA: Added targeting exceptions for horde-like battles.
+    if (this.isAsymmetricBattle()) {
+      switch (targetType) {
+        case "adjacentAlly":
+          return !isFoe && !isSelf;
+        case "adjacentAllyOrSelf":
+          return !isFoe || isSelf;
+        case "adjacentFoe":
+          return isFoe;
+        case "randomNormal":
+        case "scripted":
+        case "normal":
+        case "any":
+          return !isSelf;
+      }
     }
     switch (targetType) {
       case "randomNormal":
@@ -2264,7 +2302,8 @@ class Battle {
             subFormat.onBattleStart.call(this);
         }
         for (const side of this.sides) {
-          for (let i = 0; i < side.active.length; i++) {
+          // ABA: Added check for min between active slots and team size
+          for (let i = 0; i < Math.min(side.active.length, side.pokemon.length); i++) {
             if (!side.pokemonLeft) {
               side.active[i] = side.pokemon[i];
               side.active[i].fainted = true;

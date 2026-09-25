@@ -813,10 +813,6 @@ ${sideUpdate}`);
     };
   }
   choose(input) {
-    // ABA: Debugger
-    // const error = new Error("Debugger");
-    // console.log(this.battle.log)
-    // console.log(error.stack);
     if (!this.requestState) {
       return this.emitChoiceError(
         this.battle.ended ? `Can't do anything: The game is over` : `Can't do anything: It's not your turn`
