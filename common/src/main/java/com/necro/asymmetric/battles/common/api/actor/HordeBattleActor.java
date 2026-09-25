@@ -20,6 +20,10 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
+/*
+ * The HordeBattleActor is used in Horde Battles to represent a team of wild Pokemon.
+ */
+
 public class HordeBattleActor extends AIBattleActor implements FleeableBattleActor {
     public final BattlePokemon leader;
     private final float fleeDistance;

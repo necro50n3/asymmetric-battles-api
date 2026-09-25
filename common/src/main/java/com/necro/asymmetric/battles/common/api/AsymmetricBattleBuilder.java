@@ -30,6 +30,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+/*
+ * Start Multi Battles or Horde Battles.
+ */
+
 public class AsymmetricBattleBuilder {
     public static BattleStartResult multiBattle(BattleParticipant p1, BattleParticipant p2, BattleParticipant p3, BattleParticipant p4, int adjustLevel) {
         return multiBattleCommon(p1.toActor(), p2.toActor(), p3.toActor(), p4.toActor(), adjustLevel);

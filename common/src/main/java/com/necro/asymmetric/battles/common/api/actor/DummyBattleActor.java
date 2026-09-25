@@ -9,6 +9,11 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.UUID;
 
+/*
+ * The DummyBattleActor is used in Multi Battles to represent an empty slot.
+ * A DummyBattleActor can only ever be in slot 3 and 4 of a Multi Battle.
+ */
+
 public class DummyBattleActor extends BattleActor {
     public DummyBattleActor(@NotNull UUID uuid) {
         super(uuid, List.of());

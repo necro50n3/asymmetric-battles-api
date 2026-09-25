@@ -11,6 +11,11 @@ import com.necro.asymmetric.battles.common.util.MultiBattleUtils;
 import java.util.ArrayList;
 import java.util.List;
 
+/*
+ * Dynamically add a new BattleActor to an existing Multi Battle.
+ * Sides 1 and 3 represent the ally/player side, and Sides 2 and 4 represent the opposing side.
+ */
+
 public class AsymmetricAPI {
     public static void setMultiBattleActor(BattleActor actor, PokemonBattle battle, int side) {
         if (battle.getEnded()) return;

@@ -21,6 +21,10 @@ import java.util.Comparator;
 import java.util.List;
 import java.util.UUID;
 
+/*
+ * Translation layer from various entities to a BattleActor.
+ */
+
 @FunctionalInterface
 public interface BattleParticipant {
     BattleActor toActor();
