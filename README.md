@@ -1,3 +1,10 @@
+[![Modrinth](https://img.shields.io/modrinth/dt/--------?style=for-the-badge&logo=modrinth&label=Modrinth)](https://modrinth.com/mod/GebWh45l)
+[![CurseForge Downloads](https://img.shields.io/curseforge/dt/-------?style=for-the-badge&logo=curseforge&label=Curseforge)](https://www.curseforge.com/minecraft/mc-mods/cobblemonraiddens)
+[![Discord](https://img.shields.io/discord/1355016729679499284?style=for-the-badge&logo=discord&label=Discord)](https://discord.gg/6jBar3y6nt)
+[![GitHub](https://img.shields.io/badge/GitHub-565656?style=for-the-badge&logo=github)](https://github.com/necro50n3/asymmetric-battles-api)
+
+# Asymmetric Battles API
+
 ## Expand the capabilities of Cobblemon's battle engine!
 
 Asymmetric Battles API lifts core restrictions around Cobblemon's and Showdown's battle engine allowing for some truly wild battles.
