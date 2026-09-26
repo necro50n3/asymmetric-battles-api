@@ -1,10 +1,8 @@
 package com.necro.asymmetric.battles.common.mixin.battle;
 
-import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.battles.ActiveBattlePokemon;
 import com.cobblemon.mod.common.battles.ai.RandomBattleAI;
 import com.llamalad7.mixinextras.injector.ModifyExpressionValue;
-import com.llamalad7.mixinextras.sugar.Local;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -21,7 +19,7 @@ public class RandomBattleAIMixin {
         ),
         remap = false
     )
-    private Object modifyTargets(Object result, @Local(argsOnly = true) PokemonBattle battle) {
+    private Object modifyTargets(Object result) {
         List<ActiveBattlePokemon> target = (List<ActiveBattlePokemon>) result;
         if (target == null || target.isEmpty()) return target;
         return target.stream().filter(targetable -> targetable.getBattlePokemon() != null).toList();

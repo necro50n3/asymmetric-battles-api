@@ -102,31 +102,31 @@ class Side {
       this.pokemon[i].position = i;
     }
     // ABA: Dynamic array sizes for battles, custom battles for 4-6 active pokemon
+    this.pokemonLeft = this.pokemon.filter((pk) => !pk.fainted).length;
     switch (this.battle.gameType) {
       case "doubles":
-        this.active = Array(Math.min(this.pokemon.length, 2)).fill(null);
+        this.active = Array(Math.min(this.pokemonLeft, 2)).fill(null);
         break;
       case "triples":
       case "rotation":
-        this.active = Array(Math.min(this.pokemon.length, 3)).fill(null);
+        this.active = Array(Math.min(this.pokemonLeft, 3)).fill(null);
         break;
       case "quadruples":
-        this.active = Array(Math.min(this.pokemon.length, 4)).fill(null);
+        this.active = Array(Math.min(this.pokemonLeft, 4)).fill(null);
         break;
       case "pentuples":
-        this.active = Array(Math.min(this.pokemon.length, 5)).fill(null);
+        this.active = Array(Math.min(this.pokemonLeft, 5)).fill(null);
         break;
       case "sextuples":
-        this.active = Array(Math.min(this.pokemon.length, 6)).fill(null);
+        this.active = Array(Math.min(this.pokemonLeft, 6)).fill(null);
         break;
       case "horde":
         if (this.n == 0) this.active = [null];
-        else this.active = Array(Math.min(this.pokemon.length, 6)).fill(null);
+        else this.active = Array(Math.min(this.pokemonLeft, 6)).fill(null);
         break;
       default:
-        this.active = Array(Math.min(this.pokemon.length, 1)).fill(null);
+        this.active = Array(Math.min(this.pokemonLeft, 1)).fill(null);
     }
-    this.pokemonLeft = this.pokemon.filter((pk) => !pk.fainted).length;
 
     this.slotConditions = [];
     for (let i = 0; i < this.active.length; i++)
