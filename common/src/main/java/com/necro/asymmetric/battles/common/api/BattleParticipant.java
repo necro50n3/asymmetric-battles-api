@@ -165,7 +165,7 @@ public interface BattleParticipant<T extends BattleActor> {
      * @return A participant supplying a {@link HordeBattleActor}.
      */
     static BattleParticipant<HordeBattleActor> horde(List<PokemonEntity> pokemonList) {
-        return horde(pokemonList, Cobblemon.config.getDefaultFleeDistance() * 2);
+        return horde(pokemonList, Cobblemon.config.getDefaultFleeDistance());
     }
 
     /**
@@ -188,7 +188,7 @@ public interface BattleParticipant<T extends BattleActor> {
      * @return A participant supplying a {@link HordeBattleActor}, or {@code null} if the entity is not part of a valid herd or has no visible members.
      */
     static @Nullable BattleParticipant<HordeBattleActor> horde(PokemonEntity pokemonEntity) {
-        return horde(pokemonEntity, Cobblemon.config.getDefaultFleeDistance() * 2);
+        return horde(pokemonEntity, Cobblemon.config.getDefaultFleeDistance());
     }
 
     /**
