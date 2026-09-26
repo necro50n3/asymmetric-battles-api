@@ -10,6 +10,7 @@ import com.cobblemon.mod.common.entity.npc.NPCBattleActor;
 import com.necro.asymmetric.battles.common.api.actor.HordeBattleActor;
 import com.necro.asymmetric.battles.common.battle.InvalidDummyActorError;
 import com.necro.asymmetric.battles.common.api.actor.DummyBattleActor;
+import com.necro.asymmetric.battles.common.util.PokemonLocatorUtils;
 import kotlin.Unit;
 import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
@@ -38,7 +39,10 @@ public class AsymmetricBattleBuilder {
         checkPlayerActor(p2, errors, getBattleTheme(p1), adjustLevel, battlePartyStores);
 
         if (errors.isEmpty()) {
-            return BattleRegistry.startBattle(format, new BattleSide(p1), new BattleSide(p2), true)
+            BattleSide side1 = new BattleSide(p1);
+            BattleSide side2 = new BattleSide(p2);
+            PokemonLocatorUtils.rearrangeBattle(side1, side2);
+            return BattleRegistry.startBattle(format, side1, side2, true)
                 .ifSuccessful(battle -> {
                     battle.getBattlePartyStores().addAll(battlePartyStores);
                     return Unit.INSTANCE;
@@ -80,7 +84,10 @@ public class AsymmetricBattleBuilder {
         }
 
         if (errors.isEmpty()) {
-            return BattleRegistry.startBattle(BattleFormat.Companion.getGEN_9_MULTI(), new BattleSide(p1, p3), new BattleSide(p2, p4), true)
+            BattleSide side1 = new BattleSide(p1, p3);
+            BattleSide side2 = new BattleSide(p2, p4);
+            PokemonLocatorUtils.rearrangeBattle(side1, side2);
+            return BattleRegistry.startBattle(BattleFormat.Companion.getGEN_9_MULTI(), side1, side2, true)
                 .ifSuccessful(battle -> {
                     battle.getBattlePartyStores().addAll(battlePartyStores);
 
@@ -108,6 +115,25 @@ public class AsymmetricBattleBuilder {
 
                     return Unit.INSTANCE;
                 });
+        }
+        else return errors;
+    }
+
+    public static BattleStartResult hordeBattle(BattleParticipant<PlayerBattleActor> p1, BattleParticipant<HordeBattleActor> p2) {
+        return hordeBattle(p1.toActor(), p2.toActor());
+    }
+
+    public static BattleStartResult hordeBattle(PlayerBattleActor p1, HordeBattleActor p2) {
+        BattleFormat battleFormat = AsymmetricBattleFormats.GEN_9_HORDE;
+        ErroredBattleStart errors = new ErroredBattleStart();
+
+        checkPlayerActor(p1, errors, getBattleTheme(p2), -1, List.of());
+
+        if (errors.isEmpty()) {
+            BattleSide side1 = new BattleSide(p1);
+            BattleSide side2 = new BattleSide(p2);
+            PokemonLocatorUtils.rearrangeBattle(side1, side2);
+            return BattleRegistry.startBattle(battleFormat, side1, side2, true);
         }
         else return errors;
     }
@@ -157,21 +183,5 @@ public class AsymmetricBattleBuilder {
             case HordeBattleActor hordeActor when hordeActor.getEntity() != null -> hordeActor.getEntity().getBattleTheme();
             case null, default -> null;
         };
-    }
-
-    public static BattleStartResult hordeBattle(BattleParticipant<PlayerBattleActor> p1, BattleParticipant<HordeBattleActor> p2) {
-        return hordeBattle(p1.toActor(), p2.toActor());
-    }
-
-    public static BattleStartResult hordeBattle(PlayerBattleActor p1, HordeBattleActor p2) {
-        BattleFormat battleFormat = AsymmetricBattleFormats.GEN_9_HORDE;
-        ErroredBattleStart errors = new ErroredBattleStart();
-
-        checkPlayerActor(p1, errors, getBattleTheme(p2), -1, List.of());
-
-        if (errors.isEmpty()) {
-            return BattleRegistry.startBattle(battleFormat, new BattleSide(p1), new BattleSide(p2), true);
-        }
-        else return errors;
     }
 }

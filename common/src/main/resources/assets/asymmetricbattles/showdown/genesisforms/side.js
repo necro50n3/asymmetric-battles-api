@@ -1,5 +1,3 @@
-// TODO: Add changes from main side.js
-
 /**
  * Version: 1.2.7
  *

@@ -1,5 +1,3 @@
-// TODO: Add changes from main battle.js
-
 "use strict";
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;

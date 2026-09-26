@@ -1,12 +1,12 @@
 package com.necro.asymmetric.battles.common.api.actor;
 
 import com.cobblemon.mod.common.Cobblemon;
-import com.cobblemon.mod.common.api.battles.model.actor.AIBattleActor;
 import com.cobblemon.mod.common.api.battles.model.actor.ActorType;
 import com.cobblemon.mod.common.api.battles.model.actor.EntityBackedBattleActor;
 import com.cobblemon.mod.common.api.battles.model.actor.FleeableBattleActor;
 import com.cobblemon.mod.common.api.battles.model.ai.BattleAI;
 import com.cobblemon.mod.common.api.net.NetworkPacket;
+import com.cobblemon.mod.common.battles.actor.MultiPokemonBattleActor;
 import com.cobblemon.mod.common.battles.ai.RandomBattleAI;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
@@ -26,13 +26,12 @@ import java.util.UUID;
 /*
  * The HordeBattleActor is used in Horde Battles to represent a team of wild Pokemon.
  */
-
-public class HordeBattleActor extends AIBattleActor implements FleeableBattleActor, EntityBackedBattleActor<PokemonEntity> {
+public class HordeBattleActor extends MultiPokemonBattleActor implements FleeableBattleActor, EntityBackedBattleActor<PokemonEntity> {
     private BattlePokemon leader;
     private final float fleeDistance;
 
     public HordeBattleActor(@NotNull UUID uuid, BattlePokemon leader, @NotNull List<? extends BattlePokemon> pokemonList, float fleeDistance, @NotNull BattleAI battleAI) {
-        super(uuid, pokemonList, battleAI);
+        super(pokemonList, battleAI, uuid);
         this.leader = leader;
         this.fleeDistance = fleeDistance;
     }

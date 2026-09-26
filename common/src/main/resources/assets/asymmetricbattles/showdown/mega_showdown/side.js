@@ -1,5 +1,3 @@
-// TODO: Add changes from main side.js
-
 "use strict";
 var __defProp = Object.defineProperty;
 var __getOwnPropDesc = Object.getOwnPropertyDescriptor;
