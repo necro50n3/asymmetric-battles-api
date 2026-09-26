@@ -11,12 +11,52 @@ import com.necro.asymmetric.battles.common.util.MultiBattleUtils;
 import java.util.ArrayList;
 import java.util.List;
 
-/*
- * Dynamically add a new BattleActor to an existing Multi Battle.
- * Sides 1 and 3 represent the ally/player side, and Sides 2 and 4 represent the opposing side.
+/**
+ * Core runtime API for dynamically modifying active Cobblemon battles.
+ * <p>
+ * This class provides utility functions to hot-join or substitute a {@link BattleActor}
+ * into an ongoing Multi Battle without restarting the battle engine.
+ *
+ * <h4>Multi Battle Slot Layout:</h4>
+ * <ul>
+ *   <li><b>Side 1 (Ally Team):</b>
+ *     <ul>
+ *       <li>{@code side = 1} (Showdown {@code p1}): Primary actor (Index 0).</li>
+ *       <li>{@code side = 3} (Showdown {@code p3}): Ally actor (Index 1).</li>
+ *     </ul>
+ *   </li>
+ *   <li><b>Side 2 (Opposing Team):</b>
+ *     <ul>
+ *       <li>{@code side = 2} (Showdown {@code p2}): Primary opponent (Index 0).</li>
+ *       <li>{@code side = 4} (Showdown {@code p4}): Ally opponent (Index 1).</li>
+ *     </ul>
+ *   </li>
+ * </ul>
+ *
+ * @see AsymmetricBattleBuilder#multiBattle
  */
-
 public class AsymmetricAPI {
+
+    /**
+     * Dynamically injects a new {@link BattleActor} into an ongoing Multi Battle at the specified slot.
+     * @param actor  The {@link BattleActor} joining the battle (Player, NPC, Wild, or Horde actor).
+     * @param battle The active {@link PokemonBattle} instance.
+     * @param side   The battle side slot (1 to 4):
+     *               <ul>
+     *                 <li><b>Side 1 (Ally Team):</b>
+     *                   <ul>
+     *                     <li>{@code side = 1} (Showdown {@code p1}): Primary actor (Index 0).</li>
+     *                     <li>{@code side = 3} (Showdown {@code p3}): Ally actor (Index 1).</li>
+     *                   </ul>
+     *                 </li>
+     *                 <li><b>Side 2 (Opposing Team):</b>
+     *                   <ul>
+     *                     <li>{@code side = 2} (Showdown {@code p2}): Primary opponent (Index 0).</li>
+     *                     <li>{@code side = 4} (Showdown {@code p4}): Ally opponent (Index 1).</li>
+     *                   </ul>
+     *                 </li>
+     *               </ul>
+     */
     public static void setMultiBattleActor(BattleActor actor, PokemonBattle battle, int side) {
         if (battle.getEnded()) return;
         else if (!battle.getFormat().getBattleType().getName().equalsIgnoreCase("multi")) return;

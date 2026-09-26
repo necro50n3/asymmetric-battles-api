@@ -11,6 +11,7 @@ import com.cobblemon.mod.common.battles.ai.RandomBattleAI;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.net.messages.client.battle.BattleEndPacket;
+import com.necro.asymmetric.battles.common.api.BattleParticipant;
 import kotlin.Pair;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -23,27 +24,61 @@ import org.jetbrains.annotations.Nullable;
 import java.util.List;
 import java.util.UUID;
 
-/*
- * The HordeBattleActor is used in Horde Battles to represent a team of wild Pokemon.
+/**
+ * A specialized {@link MultiPokemonBattleActor} representing a coordinated team of wild Pokémon in Horde Battles.
+ * @see com.necro.asymmetric.battles.common.api.AsymmetricBattleFormats#GEN_9_HORDE
+ * @see com.necro.asymmetric.battles.common.api.AsymmetricBattleBuilder#hordeBattle(BattleParticipant, BattleParticipant)
  */
 public class HordeBattleActor extends MultiPokemonBattleActor implements FleeableBattleActor, EntityBackedBattleActor<PokemonEntity> {
     private BattlePokemon leader;
     private final float fleeDistance;
 
+    /**
+     * Full constructor for a horde battle actor.
+     *
+     * @param uuid         The unique identifier of the horde actor.
+     * @param leader       The primary {@link BattlePokemon} acting as the leader.
+     * @param pokemonList  The full roster of wild Pokémon participating in the horde.
+     * @param fleeDistance Maximum distance challenger can move away before the horde flees.
+     * @param battleAI     The AI decider for turn action selections across the horde.
+     */
     public HordeBattleActor(@NotNull UUID uuid, BattlePokemon leader, @NotNull List<? extends BattlePokemon> pokemonList, float fleeDistance, @NotNull BattleAI battleAI) {
         super(pokemonList, battleAI, uuid);
         this.leader = leader;
         this.fleeDistance = fleeDistance;
     }
 
+    /**
+     * Constructs a horde actor with custom flee distance and default {@link RandomBattleAI}.
+     *
+     * @param uuid         The unique identifier.
+     * @param leader       The leader battle Pokémon.
+     * @param pokemonList  The full list of battle Pokémon.
+     * @param fleeDistance Maximum flee distance.
+     */
     public HordeBattleActor(@NotNull UUID uuid, BattlePokemon leader, @NotNull List<? extends BattlePokemon> pokemonList, float fleeDistance) {
         this(uuid, leader, pokemonList, fleeDistance, new RandomBattleAI());
     }
 
+    /**
+     * Constructs a horde actor with custom AI and default flee distance (2x standard wild flee distance).
+     *
+     * @param uuid        The unique identifier.
+     * @param leader      The leader battle Pokémon.
+     * @param pokemonList The full list of battle Pokémon.
+     * @param battleAI    The AI controller.
+     */
     public HordeBattleActor(@NotNull UUID uuid, BattlePokemon leader, @NotNull List<? extends BattlePokemon> pokemonList, @NotNull BattleAI battleAI) {
         this(uuid, leader, pokemonList, Cobblemon.config.getDefaultFleeDistance() * 2, battleAI);
     }
 
+    /**
+     * Constructs a horde actor with default flee distance and {@link RandomBattleAI}.
+     *
+     * @param uuid        The unique identifier.
+     * @param leader      The leader battle Pokémon.
+     * @param pokemonList The full list of battle Pokémon.
+     */
     public HordeBattleActor(@NotNull UUID uuid, BattlePokemon leader, @NotNull List<? extends BattlePokemon> pokemonList) {
         this(uuid, leader, pokemonList, new RandomBattleAI());
     }
@@ -90,10 +125,18 @@ public class HordeBattleActor extends MultiPokemonBattleActor implements Fleeabl
         }
     }
 
+    /**
+     * @return The current horde leader {@link BattlePokemon}.
+     */
     public BattlePokemon getLeader() {
         return this.leader;
     }
 
+    /**
+     * Updates the designated leader of the horde.
+     *
+     * @param pokemon The new leader.
+     */
     public void setLeader(BattlePokemon pokemon) {
         this.leader = pokemon;
     }

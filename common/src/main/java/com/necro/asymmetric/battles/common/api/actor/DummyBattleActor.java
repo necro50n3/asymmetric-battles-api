@@ -9,12 +9,26 @@ import org.jetbrains.annotations.NotNull;
 import java.util.List;
 import java.util.UUID;
 
-/*
- * The DummyBattleActor is used in Multi Battles to represent an empty slot.
- * A DummyBattleActor can only ever be in slot 3 and 4 of a Multi Battle.
+/**
+ * Placeholder {@link BattleActor} used to represent an open/unfilled slot in Multi Battles.
+ * <p>
+ * <b>Usage Constraints:</b>
+ * <ul>
+ *   <li>Only valid in secondary ally positions (Slot 3 / Showdown {@code p3} and Slot 4 / Showdown {@code p4}).</li>
+ *   <li>Cannot be placed in primary battle slots (Slot 1 or Slot 2).</li>
+ * </ul>
+ * <p>
+ * When a battle starts with dummy actors, it allows asymmetric 1v1, 1v2, or 2v1 matchups under
+ * the Multi Battle format while reserving slots for late-joining participants via
+ * {@link com.necro.asymmetric.battles.common.api.AsymmetricAPI#setMultiBattleActor}.
  */
-
 public class DummyBattleActor extends BattleActor {
+
+    /**
+     * Constructs a new dummy actor placeholder.
+     *
+     * @param uuid The unique identifier assigned to this placeholder actor.
+     */
     public DummyBattleActor(@NotNull UUID uuid) {
         super(uuid, List.of());
     }
