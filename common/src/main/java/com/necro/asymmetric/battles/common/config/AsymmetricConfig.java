@@ -15,7 +15,7 @@ public class AsymmetricConfig {
             ENABLE_PVP_CHALLENGES = builder
                 .comment("Whether Quadruple, Pentuple and Sextuple Battles are available in the Player Battle Challenge screen. This does not disable the battle formats themselves.")
                 .translation("asymmetricbattles.config.enable_pvp_challenges")
-                .define("enable_pvp_challenges", false);
+                .define("enable_pvp_challenges", true);
 
             ENABLE_DEBUG = builder
                 .comment("Log showdown inputs and outputs for debugging.")
