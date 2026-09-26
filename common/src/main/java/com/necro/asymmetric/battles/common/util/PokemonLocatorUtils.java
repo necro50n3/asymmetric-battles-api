@@ -23,6 +23,11 @@ public class PokemonLocatorUtils {
         rearrangeActors(actors1, actors2);
     }
 
+    public static Vec3 getAveragePosition(BattleActor[] side) {
+        List<Vec3> positions = getPositions(side);
+        return getCenter(positions);
+    }
+
     private static void rearrangePokemon(@NotNull List<BattlePokemon> side1, @NotNull BattleActor[] side2) {
         if (side1.size() <= 1) return;
 
