@@ -11,6 +11,16 @@ import java.util.Collection;
 
 @Mixin(BattleBuilder.class)
 public class BattleBuilderMixin {
+//    @ModifyVariable(
+//        method = "pve(Lnet/minecraft/server/level/ServerPlayer;Lcom/cobblemon/mod/common/entity/pokemon/PokemonEntity;Ljava/util/UUID;Lcom/cobblemon/mod/common/battles/BattleFormat;ZZFLcom/cobblemon/mod/common/api/storage/party/PartyStore;)Lcom/cobblemon/mod/common/battles/BattleStartResult;",
+//        at = @At("HEAD"),
+//        argsOnly = true,
+//        remap = false
+//    )
+//    private BattleFormat modifyBattleFormat(BattleFormat battleFormat) {
+//        return AsymmetricBattleFormats.GEN_9_SEXTUPLES;
+//    }
+
     @WrapOperation(method = { "pvp1v1*", "pvp2v2*", "pve*", "pvn*" }, at = @At(value = "INVOKE", target = "Ljava/util/Collection;add(Ljava/lang/Object;)Z"), remap = false)
     private static boolean cancelInsufficientPokemonError(Collection<BattleStartError> set, Object error, Operation<Boolean> original) {
         if (aba_shouldCancel(error)) return false;
