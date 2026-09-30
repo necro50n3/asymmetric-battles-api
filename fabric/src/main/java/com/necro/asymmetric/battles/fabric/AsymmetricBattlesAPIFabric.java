@@ -3,6 +3,7 @@ package com.necro.asymmetric.battles.fabric;
 import com.necro.asymmetric.battles.common.AsymmetricBattlesAPI;
 import com.necro.asymmetric.battles.common.compat.ModCompat;
 import com.necro.asymmetric.battles.common.config.AsymmetricConfig;
+import com.necro.asymmetric.battles.fabric.network.AsymmetricNetworkMessagesFabric;
 import fuzs.forgeconfigapiport.fabric.api.neoforge.v4.NeoForgeConfigRegistry;
 import net.fabricmc.api.ModInitializer;
 import net.fabricmc.loader.api.FabricLoader;
@@ -17,6 +18,7 @@ public class AsymmetricBattlesAPIFabric implements ModInitializer {
 
         NeoForgeConfigRegistry.INSTANCE.register(AsymmetricBattlesAPI.MODID, ModConfig.Type.COMMON, AsymmetricConfig.Common.CONFIG_SPEC);
         AsymmetricBattlesAPI.init();
+        AsymmetricNetworkMessagesFabric.registerPayload();
     }
 
 }

@@ -4,8 +4,10 @@ import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.api.pokemon.evolution.progress.EvolutionProgress;
 import com.cobblemon.mod.common.battles.*;
+import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
 import com.cobblemon.mod.common.battles.runner.ShowdownService;
 import com.cobblemon.mod.common.pokemon.evolution.progress.LastBattleCriticalHitsEvolutionProgress;
+import com.necro.asymmetric.battles.common.network.AsymmetricNetworkMessages;
 import com.necro.asymmetric.battles.common.util.MultiBattleUtils;
 
 import java.util.ArrayList;
@@ -107,5 +109,9 @@ public class AsymmetricAPI {
         ));
 
         ShowdownService.Companion.getService().send(battle.getBattleId(), messages.toArray(new String[]{}));
+        for (BattleActor iterActor : battle.getActors()) {
+            if (!(iterActor instanceof PlayerBattleActor player)) return;
+            AsymmetricNetworkMessages.MULTI_BATTLE_ACTOR_UPDATE.accept(player.getEntity(), side, player.getSide() == battleSide, actor);
+        }
     }
 }
