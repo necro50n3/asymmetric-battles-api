@@ -13,7 +13,7 @@ import net.minecraft.server.level.ServerPlayer;
 
 public class AsymmetricNetworkMessagesFabric {
     public static void registerPayload() {
-        PayloadTypeRegistry.playC2S().register(MultiBattleActorUpdatePacket.PACKET_TYPE, MultiBattleActorUpdatePacket.CODEC);
+        PayloadTypeRegistry.playS2C().register(MultiBattleActorUpdatePacket.PACKET_TYPE, MultiBattleActorUpdatePacket.CODEC);
 
         init();
     }

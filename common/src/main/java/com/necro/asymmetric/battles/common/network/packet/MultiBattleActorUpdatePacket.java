@@ -67,8 +67,9 @@ public record MultiBattleActorUpdatePacket(int side, boolean isAlly, BattleIniti
         UUID uuid = buf.readUUID();
         MutableComponent component = (MutableComponent) ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC.decode(buf);
         String showdownId = buf.readUtf();
+        int pokemonCount = NetExtensionsKt.readSizedInt(buf, IntSize.U_BYTE);
         List<BattleInitializePacket.ActiveBattlePokemonDTO> activePokemon = new ArrayList<>();
-        for (int i = 0; i < NetExtensionsKt.readSizedInt(buf, IntSize.U_BYTE); i++) {
+        for (int i = 0; i < pokemonCount; i++) {
             if (buf.readBoolean()) {
                 activePokemon.add(BattleInitializePacket.ActiveBattlePokemonDTO.Companion.loadFromBuffer(buf));
             } else {
