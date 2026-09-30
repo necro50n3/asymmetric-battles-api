@@ -14,7 +14,7 @@ public abstract class AsymmetricBattlesAPIMixinPluginImpl implements IMixinConfi
     protected abstract String mixin(String pkg);
 
     protected final Map<String, Supplier<Boolean>> MIXINS = Map.of(
-        mixin("msd."), () -> this.isModLoaded(ModCompat.MEGA_SHOWDOWN.getModid())
+        mixin("msd.StatChangeRendererMixin"), () -> this.isModLoaded(ModCompat.MEGA_SHOWDOWN.getModid())
     );
 
     @Override

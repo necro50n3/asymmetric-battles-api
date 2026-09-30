@@ -96,7 +96,7 @@ public class PokemonLocatorUtils {
         entries.sort(Comparator.comparingDouble(ActorEntry::score));
 
         List<T> sorted = new ArrayList<>();
-        for (int i = 0; i < list.size(); i++) sorted.add(entries.get(i).actor());
+        for (ActorEntry<T> entry : entries) sorted.add(entry.actor());
         sorted.addAll(failed);
         return sorted;
     }
