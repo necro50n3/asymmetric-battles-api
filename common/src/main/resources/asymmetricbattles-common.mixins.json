@@ -24,6 +24,7 @@
     "client": [
         "client.ActiveClientBattlePokemonMixin",
         "client.BattleGeneralActionSelectionMixin",
+        "client.BattleMoveSelectionMixin",
         "client.BattleOverlayMixin",
         "client.BattleTargetSelectionMixin",
         "client.TargetTileMixin"
