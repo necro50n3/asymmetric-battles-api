@@ -35,7 +35,7 @@ public class BattleOverlayMixin {
         method = "drawTile",
         at = @At(value = "HEAD"),
         argsOnly = true,
-        ordinal = 8,
+        index = 8,
         remap = false
     )
     private boolean modifyIsCompact(boolean isCompact) {

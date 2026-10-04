@@ -8,7 +8,7 @@ import org.apache.maven.artifact.versioning.DefaultArtifactVersion;
 public class AsymmetricBattlesAPINeoForgeMixinPlugin extends AsymmetricBattlesAPIMixinPluginImpl {
     @Override
     protected String mixin(String pkg) {
-        return "com.necro.asymmetric.battles.fabric.mixins." + pkg;
+        return "com.necro.asymmetric.battles.fabric.mixin." + pkg;
     }
 
     @Override

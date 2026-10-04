@@ -8,7 +8,7 @@ import net.fabricmc.loader.api.VersionParsingException;
 public class AsymmetricBattlesAPIFabricMixinPlugin extends AsymmetricBattlesAPIMixinPluginImpl {
     @Override
     protected String mixin(String pkg) {
-        return "com.necro.asymmetric.battles.fabric.mixins." + pkg;
+        return "com.necro.asymmetric.battles.fabric.mixin." + pkg;
     }
 
     @Override
