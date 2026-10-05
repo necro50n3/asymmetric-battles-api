@@ -40,6 +40,7 @@ dependencies {
     forgeRuntimeLibrary("thedarkcolour:kotlinforforge-neoforge:$rootProject.kotlin_for_forge_version") {
         exclude group: "net.neoforged.fancymodloader", module: "loader"
     }
+    include(modApi "me.shedaniel.cloth:cloth-config-neoforge:$rootProject.cloth_config_version")
 
     modRuntimeOnly "dev.architectury:architectury-neoforge:13.0.8"
     modImplementation "curse.maven:radical-cobblemon-trainers-api-1152792:8876921"
@@ -64,7 +65,6 @@ processResources {
         version: project.version,
         minecraft_version: rootProject.minecraft_version,
         cobblemon_version: rootProject.cobblemon_dependency,
-        forge_config_api_version: rootProject.forge_config_api_dependency,
         neoforge_version: rootProject.neoforge_version
     ]
     inputs.properties replaceProperties
