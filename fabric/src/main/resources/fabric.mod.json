@@ -20,9 +20,6 @@
         ],
         "client": [
             "com.necro.asymmetric.battles.fabric.AsymmetricBattlesAPIFabricClient"
-        ],
-        "modmenu": [
-            "com.necro.asymmetric.battles.fabric.compat.modmenu.AsymmetricModMenuCompat"
         ]
     },
     "mixins": [
