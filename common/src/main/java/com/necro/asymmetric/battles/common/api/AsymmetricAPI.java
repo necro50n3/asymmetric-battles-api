@@ -101,7 +101,8 @@ public class AsymmetricAPI {
                 "for (let i = 0; i < Math.min(side.active.length, side.pokemon.length); i++) { " +
                     "side.active[i] = null; " +
                     "battle.actions.switchIn(side.pokemon[i], i); " +
-                "}",
+                "} " +
+                "battle.sendUpdates();",
             side - 1,
             actor.getPokemonList().size(),
             actor.getUuid(),
