@@ -108,10 +108,9 @@ public class HordeBattleActor extends MultiPokemonBattleActor implements Fleeabl
         ServerPlayer ownerPlayer = this.leader.getEffectedPokemon().getOwnerPlayer();
         if (ownerPlayer != null) return new Pair<>(ownerPlayer.serverLevel(), ownerPlayer.position());
 
-        PokemonEntity entity = this.leader.getEntity();
-        assert entity != null;
-        ServerLevel level = (ServerLevel) entity.level();
-        return new Pair<>(level, entity.position());
+        PokemonEntity entity = this.getEntity();
+        if (entity == null) return null;
+        return new Pair<>((ServerLevel) entity.level(), entity.position());
     }
 
     @Override
