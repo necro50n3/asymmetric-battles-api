@@ -9,7 +9,6 @@
         "battle.BattleBuilderMixin",
         "battle.BattleFormatMixin",
         "battle.BattleMessageMixin",
-        "battle.FaintInstructionMixin",
         "battle.HordeSwitchInstructionMixin",
         "battle.PokemonBattleMixin",
         "battle.RandomBattleAIMixin",
