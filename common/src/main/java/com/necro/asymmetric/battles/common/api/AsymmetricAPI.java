@@ -131,12 +131,19 @@ public class AsymmetricAPI {
         }
     }
 
-    public static @Nullable Pokemon getRandomBattleSpawn(String type, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel, Supplier<Pokemon> defaultSpawn) {
+    public static @Nullable Pokemon getRandomBattleSpawn(@Nullable BattleSpawnPool pool, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel, Supplier<Pokemon> defaultSpawn) {
+        if (pool == null) return defaultSpawn.get();
         SpawnCause cause = new SpawnCause(SPAWNER, player);
         BattleSpawnablePosition spawnablePosition = new BattleSpawnablePosition(cause, level, blockPos, List.of(), battle, rootProperties, baseLevel);
-        BattleSpawnPool pool = SpawnRegistry.get(type, rootProperties);
-        if (pool == null) return defaultSpawn.get();
         return pool.getRandom(spawnablePosition, player);
+    }
+
+    public static @Nullable Pokemon getRandomBattleSpawn(@Nullable BattleSpawnPool pool, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel) {
+        return getRandomBattleSpawn(pool, player, level, blockPos, battle, rootProperties, baseLevel, () -> null);
+    }
+
+    public static @Nullable Pokemon getRandomBattleSpawn(String type, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel, Supplier<Pokemon> defaultSpawn) {
+        return getRandomBattleSpawn(SpawnRegistry.get(type, rootProperties), player, level, blockPos, battle, rootProperties, baseLevel, defaultSpawn);
     }
 
     public static @Nullable Pokemon getRandomBattleSpawn(String type, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel) {
