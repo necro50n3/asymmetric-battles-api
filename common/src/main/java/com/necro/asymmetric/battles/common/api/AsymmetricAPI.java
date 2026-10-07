@@ -2,16 +2,30 @@ package com.necro.asymmetric.battles.common.api;
 
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
+import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.api.pokemon.evolution.progress.EvolutionProgress;
+import com.cobblemon.mod.common.api.spawning.CobblemonSpawnPools;
+import com.cobblemon.mod.common.api.spawning.SpawnCause;
+import com.cobblemon.mod.common.api.spawning.spawner.BasicSpawner;
 import com.cobblemon.mod.common.battles.*;
 import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
 import com.cobblemon.mod.common.battles.runner.ShowdownService;
+import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.evolution.progress.LastBattleCriticalHitsEvolutionProgress;
+import com.necro.asymmetric.battles.common.api.spawning.BattleSpawnPool;
+import com.necro.asymmetric.battles.common.api.spawning.BattleSpawnablePosition;
 import com.necro.asymmetric.battles.common.network.AsymmetricNetworkMessages;
+import com.necro.asymmetric.battles.common.registry.SpawnRegistry;
 import com.necro.asymmetric.battles.common.util.MultiBattleUtils;
+import net.minecraft.core.BlockPos;
+import net.minecraft.server.level.ServerLevel;
+import net.minecraft.server.level.ServerPlayer;
+import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Map;
+import java.util.function.Supplier;
 
 /**
  * Core runtime API for dynamically modifying active Cobblemon battles.
@@ -38,6 +52,7 @@ import java.util.List;
  * @see AsymmetricBattleBuilder#multiBattle
  */
 public class AsymmetricAPI {
+    private static BasicSpawner SPAWNER;
 
     /**
      * Dynamically injects a new {@link BattleActor} into an ongoing Multi Battle at the specified slot.
@@ -114,5 +129,21 @@ public class AsymmetricAPI {
             if (!(iterActor instanceof PlayerBattleActor player)) return;
             AsymmetricNetworkMessages.MULTI_BATTLE_ACTOR_UPDATE.accept(player.getEntity(), side, player.getSide() == battleSide, actor);
         }
+    }
+
+    public static @Nullable Pokemon getRandomBattleSpawn(String type, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel, Supplier<Pokemon> defaultSpawn) {
+        SpawnCause cause = new SpawnCause(SPAWNER, player);
+        BattleSpawnablePosition spawnablePosition = new BattleSpawnablePosition(cause, level, blockPos, List.of(), battle, rootProperties, baseLevel);
+        BattleSpawnPool pool = SpawnRegistry.get(type, rootProperties);
+        if (pool == null) return defaultSpawn.get();
+        return pool.getRandom(spawnablePosition, player);
+    }
+
+    public static @Nullable Pokemon getRandomBattleSpawn(String type, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel) {
+        return getRandomBattleSpawn(type, player, level, blockPos, battle, rootProperties, baseLevel, () -> null);
+    }
+
+    public static void onServerStart() {
+        SPAWNER = new BasicSpawner("battle", CobblemonSpawnPools.WORLD_SPAWN_POOL, 0, Map.of());
     }
 }

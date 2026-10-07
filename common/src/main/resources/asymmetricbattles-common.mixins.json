@@ -4,7 +4,6 @@
     "compatibilityLevel": "JAVA_21",
     "mixins": [
         "DebugMixin",
-        "EmptyPokeBallEntityMixin",
         "battle.ActiveBattlePokemonMixin",
         "battle.BattleBuilderMixin",
         "battle.BattleFormatMixin",
@@ -14,6 +13,8 @@
         "battle.RandomBattleAIMixin",
         "battle.SwitchInstructionMixin",
         "battle.WinInstructionMixin",
+        "entity.EmptyPokeBallEntityMixin",
+        "entity.PokemonServerDelegateMixin",
         "interaction.PlayerInteractOptionsMixin",
         "interaction.RequestInteractionsHandlerMixin"
     ],
