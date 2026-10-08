@@ -9,7 +9,6 @@ import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.necro.asymmetric.battles.common.util.DoubleWeightedRandomMap;
 import kotlin.Pair;
-import kotlin.collections.CollectionsKt;
 import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
@@ -36,13 +35,23 @@ public class BattleSpawnPool {
         if (this.pokemon.getSpecies() != null) this.species = this.pokemon.getSpecies();
         else {
             List<Pair<String, String>> keyPairs = StringExtensionsKt.splitMap(this.pokemon.getOriginalString(), " ", "=");
-            Pair<String, String> matched = CollectionsKt.last(keyPairs, pair -> "species".equalsIgnoreCase(pair.getFirst()));
+            Pair<String, String> matched = null;
+
+            for (int i = keyPairs.size() - 1; i >= 0; i--) {
+                Pair<String, String> pair = keyPairs.get(i);
+                if ("species".equalsIgnoreCase(pair.getFirst())) {
+                    matched = pair;
+                    break;
+                }
+            }
+
             if (matched == null) this.species = "random";
             else {
                 String species = matched.getSecond().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_:]", "");
                 if (species.contains(":")) this.species = species.split(":")[1];
                 else this.species = species;
             }
+            this.pokemon.setSpecies(this.species);
         }
         return this.species;
     }

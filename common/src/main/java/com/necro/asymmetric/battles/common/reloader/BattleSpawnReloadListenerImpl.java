@@ -32,7 +32,7 @@ public abstract class BattleSpawnReloadListenerImpl {
                 BattleSpawnPool pool = this.gson.fromJson(reader, this.cls);
                 SpawnPoolTypeRegistry.register(this.type, pool);
             } catch (Exception e) {
-                AsymmetricBattlesAPI.LOGGER.error("Failed to load status effect {}", id, e);
+                AsymmetricBattlesAPI.LOGGER.error("Failed to load battle spawn pool {}", id, e);
             }
         });
     }

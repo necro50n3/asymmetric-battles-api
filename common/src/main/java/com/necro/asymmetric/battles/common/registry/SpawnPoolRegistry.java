@@ -9,20 +9,26 @@ import com.necro.asymmetric.battles.common.api.spawning.BattleSpawnPool;
 import com.necro.asymmetric.battles.common.util.PropertyExtractors;
 import org.jetbrains.annotations.Nullable;
 
-import java.util.ArrayList;
-import java.util.HashMap;
-import java.util.List;
-import java.util.Map;
+import java.util.*;
 
 class SpawnPoolRegistry {
     private final Map<String, List<BattleSpawnPool>> registry = new HashMap<>();
+
+    public void sort() {
+        this.registry.values().forEach(list -> list.sort(
+            Comparator.comparingInt((BattleSpawnPool p) -> p.pokemon.getOriginalString().trim().split(" ").length).reversed()
+        ));
+    }
 
     public void register(String species, BattleSpawnPool pool) {
         this.registry.computeIfAbsent(species, key -> new ArrayList<>()).add(pool);
     }
 
     public void register(PokemonProperties properties, BattleSpawnDetail detail, Class<? extends BattleSpawnPool> cls) {
-        BattleSpawnPool result = this.get(properties);
+        BattleSpawnPool result = this.registry.computeIfAbsent(properties.getSpecies(), key -> new ArrayList<>())
+            .stream()
+            .filter(pool -> pool.pokemon.getOriginalString().equals(properties.getOriginalString()))
+            .findFirst().orElse(null);
         if (result != null) result.spawns.add(detail);
         else {
             try {
@@ -48,7 +54,7 @@ class SpawnPoolRegistry {
     public @Nullable BattleSpawnPool get(PokemonProperties properties) {
         return this.registry.computeIfAbsent(properties.getSpecies(), key -> new ArrayList<>())
             .stream()
-            .filter(pool -> pool.pokemon.getOriginalString().equals(properties.getOriginalString()))
+            .filter(pool -> pool.pokemon.isSubSetOf(properties))
             .findFirst().orElse(null);
     }
 }

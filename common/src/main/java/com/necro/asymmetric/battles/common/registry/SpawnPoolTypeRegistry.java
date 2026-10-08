@@ -14,6 +14,10 @@ import java.util.Map;
 public class SpawnPoolTypeRegistry {
     private static final Map<String, SpawnPoolRegistry> SPAWN_POOL_TYPE_REGISTRY = new HashMap<>();
 
+    public static void sort() {
+        SPAWN_POOL_TYPE_REGISTRY.values().forEach(SpawnPoolRegistry::sort);
+    }
+
     public static void register(String type, BattleSpawnPool pool) {
         SPAWN_POOL_TYPE_REGISTRY.computeIfAbsent(type, key -> new SpawnPoolRegistry()).register(pool.species(), pool);
     }
