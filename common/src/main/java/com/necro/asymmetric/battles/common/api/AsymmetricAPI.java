@@ -15,7 +15,7 @@ import com.cobblemon.mod.common.pokemon.evolution.progress.LastBattleCriticalHit
 import com.necro.asymmetric.battles.common.api.spawning.BattleSpawnPool;
 import com.necro.asymmetric.battles.common.api.spawning.BattleSpawnablePosition;
 import com.necro.asymmetric.battles.common.network.AsymmetricNetworkMessages;
-import com.necro.asymmetric.battles.common.registry.SpawnRegistry;
+import com.necro.asymmetric.battles.common.registry.SpawnPoolTypeRegistry;
 import com.necro.asymmetric.battles.common.util.MultiBattleUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
@@ -143,7 +143,7 @@ public class AsymmetricAPI {
     }
 
     public static @Nullable Pokemon getRandomBattleSpawn(String type, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel, Supplier<Pokemon> defaultSpawn) {
-        return getRandomBattleSpawn(SpawnRegistry.get(type, rootProperties), player, level, blockPos, battle, rootProperties, baseLevel, defaultSpawn);
+        return getRandomBattleSpawn(SpawnPoolTypeRegistry.get(type, rootProperties), player, level, blockPos, battle, rootProperties, baseLevel, defaultSpawn);
     }
 
     public static @Nullable Pokemon getRandomBattleSpawn(String type, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel) {

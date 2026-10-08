@@ -3,7 +3,7 @@ package com.necro.asymmetric.battles.common.reloader;
 import com.google.gson.Gson;
 import com.necro.asymmetric.battles.common.AsymmetricBattlesAPI;
 import com.necro.asymmetric.battles.common.api.spawning.BattleSpawnPool;
-import com.necro.asymmetric.battles.common.registry.SpawnRegistry;
+import com.necro.asymmetric.battles.common.registry.SpawnPoolTypeRegistry;
 import net.minecraft.server.packs.resources.ResourceManager;
 import org.jetbrains.annotations.NotNull;
 
@@ -30,7 +30,7 @@ public abstract class BattleSpawnReloadListenerImpl {
         manager.listResources("battle_spawns/" + this.type, path -> path.toString().endsWith(".json")).forEach((id, resource) -> {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.open(), StandardCharsets.UTF_8))) {
                 BattleSpawnPool pool = this.gson.fromJson(reader, this.cls);
-                SpawnRegistry.register(this.type, pool);
+                SpawnPoolTypeRegistry.register(this.type, pool);
             } catch (Exception e) {
                 AsymmetricBattlesAPI.LOGGER.error("Failed to load status effect {}", id, e);
             }
