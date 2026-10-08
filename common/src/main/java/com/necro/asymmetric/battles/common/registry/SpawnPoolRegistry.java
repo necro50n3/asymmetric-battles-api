@@ -22,14 +22,14 @@ class SpawnPoolRegistry {
     }
 
     public void register(PokemonProperties properties, BattleSpawnDetail detail, Class<? extends BattleSpawnPool> cls) {
-        BattleSpawnPool result = get(properties);
+        BattleSpawnPool result = this.get(properties);
         if (result != null) result.spawns.add(detail);
         else {
             try {
                 BattleSpawnPool pool = cls.getDeclaredConstructor().newInstance();
                 pool.pokemon = properties;
                 pool.spawns.add(detail);
-                this.registry.get(detail.species()).add(pool);
+                this.register(detail.species(), pool);
             }
             catch (Exception e) {
                 AsymmetricBattlesAPI.LOGGER.error("Unable to create a spawn pool for: {}", detail.pokemon.getOriginalString(), e);
@@ -38,11 +38,11 @@ class SpawnPoolRegistry {
     }
 
     public @Nullable BattleSpawnPool get(PokemonEntity pokemonEntity) {
-        return get(pokemonEntity.getPokemon());
+        return this.get(pokemonEntity.getPokemon());
     }
 
     public @Nullable BattleSpawnPool get(Pokemon pokemon) {
-        return get(pokemon.createPokemonProperties(PropertyExtractors.SHORT_EXTRACTOR));
+        return this.get(pokemon.createPokemonProperties(PropertyExtractors.SHORT_EXTRACTOR));
     }
 
     public @Nullable BattleSpawnPool get(PokemonProperties properties) {

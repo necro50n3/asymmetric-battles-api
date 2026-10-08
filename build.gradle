@@ -3,6 +3,7 @@ plugins {
     id 'architectury-plugin' version '3.4-SNAPSHOT'
     id 'com.gradleup.shadow' version '9.6.1' apply false
     id 'org.jetbrains.kotlin.jvm' version '2.2.10'
+    id 'maven-publish'
 }
 
 architectury {
@@ -18,6 +19,7 @@ subprojects {
     apply plugin: 'dev.architectury.loom'
     apply plugin: 'architectury-plugin'
     apply plugin: 'org.jetbrains.kotlin.jvm'
+    apply plugin: 'maven-publish'
 
     idea {
         module {
@@ -63,7 +65,27 @@ subprojects {
         withSourcesJar()
     }
 
+    publishing {
+        publications {
+            create("mavenJava", MavenPublication) {
+                groupId = rootProject.maven_group
+                artifactId = "${rootProject.archives_name}-${project.name}"
+                version = rootProject.mod_version
+                from components["java"]
+
+                pom.withXml {
+                    def root = asNode()
+                    root.get("dependencies").each { root.remove(it as Node) }
+                }
+            }
+        }
+    }
+
     tasks.withType(JavaCompile).configureEach {
         it.options.release = 21
+    }
+
+    tasks.withType(GenerateModuleMetadata).configureEach {
+        enabled = false
     }
 }
