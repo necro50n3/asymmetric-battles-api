@@ -8,6 +8,7 @@ import com.cobblemon.mod.common.api.spawning.condition.SpawningCondition;
 import com.cobblemon.mod.common.api.spawning.multiplier.WeightMultiplier;
 import com.cobblemon.mod.common.api.spawning.position.SpawnablePosition;
 import com.cobblemon.mod.common.pokemon.Pokemon;
+import com.google.common.collect.Sets;
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
 import com.necro.asymmetric.battles.common.AsymmetricBattlesAPI;
@@ -16,6 +17,7 @@ import kotlin.ranges.IntRange;
 import net.minecraft.server.level.ServerPlayer;
 
 import java.lang.reflect.Type;
+import java.util.HashSet;
 import java.util.List;
 
 public class BattleSpawnDetail extends BattleSpawnTarget implements JsonSerializer<BattleSpawnDetail>, JsonDeserializer<BattleSpawnDetail> {
@@ -38,8 +40,9 @@ public class BattleSpawnDetail extends BattleSpawnTarget implements JsonSerializ
 
     public static BattleSpawnDetail basic(PokemonProperties properties, IntRange levelRangeOffset, double weight) {
         BattleSpawnDetail detail = new BattleSpawnDetail();
-        detail.pokemon = properties.getOriginalString();
+        detail.pokemon = properties.asString(" ");
         detail.properties = properties;
+        detail.properties.setOriginalString(detail.pokemon);
         detail.species = properties.getSpecies() != null && properties.getSpecies().contains(":") ? properties.getSpecies().split(":")[1] : properties.getSpecies();
         detail.levelRangeOffset = levelRangeOffset;
         detail.weight = weight;
@@ -88,6 +91,9 @@ public class BattleSpawnDetail extends BattleSpawnTarget implements JsonSerializ
 
     public Pokemon create(int baseLevel, ServerPlayer player) {
         Pokemon spawn = this.properties().create(player);
+        spawn.setForcedAspects(new HashSet<>(Sets.union(this.properties().getAspects(), spawn.getForcedAspects())));
+        spawn.updateAspects();
+        spawn.updateForm();
         ((IBattleSpawn) spawn).aba_setBattleSpawn();
         IntRange levelRange = this.getLevelRange(baseLevel);
         spawn.setLevel(player.getRandom().nextInt(levelRange.getStart(), levelRange.getEndInclusive() + 1));

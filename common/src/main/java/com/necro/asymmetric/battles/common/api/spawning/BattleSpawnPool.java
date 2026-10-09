@@ -3,6 +3,7 @@ package com.necro.asymmetric.battles.common.api.spawning;
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.cobblemon.mod.common.api.pokemon.evolution.PreEvolution;
 import com.cobblemon.mod.common.api.pokemon.labels.CobblemonPokemonLabels;
+import com.cobblemon.mod.common.pokemon.FormData;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.util.adapters.PokemonPropertiesAdapterKt;
 import com.google.gson.Gson;
@@ -15,7 +16,9 @@ import net.minecraft.server.level.ServerPlayer;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
+import java.util.HashSet;
 import java.util.List;
+import java.util.Set;
 import java.util.stream.Collectors;
 
 public class BattleSpawnPool extends BattleSpawnTarget {
@@ -44,7 +47,6 @@ public class BattleSpawnPool extends BattleSpawnTarget {
 
     public static BattleSpawnDetail defaultSpawn(Pokemon pokemon, IntRange levelRangeOffset) {
         PreEvolution preEvolution = null;
-        PokemonProperties spawnProperties = pokemon.createPokemonProperties(PropertyExtractors.SHORT_EXTRACTOR);
         for (
             PreEvolution current = pokemon.getPreEvolution();
             current != null && !current.getForm().getLabels().contains(CobblemonPokemonLabels.BABY);
@@ -52,10 +54,16 @@ public class BattleSpawnPool extends BattleSpawnTarget {
         ) {
             preEvolution = current;
         }
+
+        PokemonProperties spawnProperties = pokemon.createPokemonProperties(PropertyExtractors.SHORT_EXTRACTOR);
+        FormData targetForm = pokemon.getForm();
         if (preEvolution != null) {
+            targetForm = preEvolution.getForm();
             spawnProperties.setSpecies(preEvolution.getSpecies().getResourceIdentifier().getPath());
-            spawnProperties.setForm(preEvolution.getForm().getName());
         }
+
+        spawnProperties.setForm(targetForm.formOnlyShowdownId());
+        spawnProperties.setAspects(new HashSet<>(targetForm.getAspects()));
         return BattleSpawnDetail.basic(spawnProperties, levelRangeOffset, 1.0);
     }
 }
