@@ -25,6 +25,7 @@ public class BattleSpawnablePosition extends BasicSpawnablePosition {
 
     public BattleSpawnablePosition(@NotNull SpawnCause cause, @NotNull ServerLevel level, @NotNull BlockPos blockPos, @NotNull List<SpawningInfluence> influences, PokemonBattle battle, Pokemon rootPokemon) {
         this(cause, level, blockPos, influences, battle, rootPokemon.createPokemonProperties(PropertyExtractors.LONG_EXTRACTOR), rootPokemon.getLevel());
+        this.rootProperties.setAspects(rootPokemon.getAspects());
     }
 
     public BattleSpawnablePosition(@NotNull SpawnCause cause, @NotNull ServerLevel level, @NotNull BlockPos blockPos, @NotNull List<SpawningInfluence> influences, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel) {

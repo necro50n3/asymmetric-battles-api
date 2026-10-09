@@ -1,8 +1,8 @@
 package com.necro.asymmetric.battles.common.mixin.entity;
 
-import com.cobblemon.mod.common.api.pokemon.feature.FlagSpeciesFeature;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.entity.pokemon.PokemonServerDelegate;
+import com.necro.asymmetric.battles.common.util.IBattleSpawn;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
@@ -16,6 +16,6 @@ public class PokemonServerDelegateMixin {
 
     @Inject(method = "doDeathDrops", at = @At("HEAD"), remap = false, cancellable = true)
     private void doDeathDropsInject(CallbackInfo ci) {
-        if (this.entity != null && new FlagSpeciesFeature("battle_spawn", true).matches(this.entity)) ci.cancel();
+        if (this.entity != null && ((IBattleSpawn) this.entity.getPokemon()).aba_isBattleSpawn()) ci.cancel();
     }
 }

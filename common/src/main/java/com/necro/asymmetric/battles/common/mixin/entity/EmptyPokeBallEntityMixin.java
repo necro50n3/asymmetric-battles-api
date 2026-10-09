@@ -16,6 +16,8 @@ import com.cobblemon.mod.common.pokeball.PokeBall;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.llamalad7.mixinextras.sugar.Local;
+import com.llamalad7.mixinextras.sugar.Share;
+import com.llamalad7.mixinextras.sugar.ref.LocalBooleanRef;
 import com.necro.asymmetric.battles.common.api.actor.DummyBattleActor;
 import kotlin.Unit;
 import net.minecraft.ChatFormatting;
@@ -28,7 +30,6 @@ import net.minecraft.world.phys.EntityHitResult;
 import org.jetbrains.annotations.Nullable;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.List;
@@ -57,9 +58,6 @@ public abstract class EmptyPokeBallEntityMixin extends ThrowableItemProjectile {
     @Shadow
     protected abstract void attemptCatch(PokemonEntity pokemonEntity);
 
-    @Unique
-    private boolean aba_bypassChecks = false;
-
     @WrapOperation(
         method = "onHitEntity",
         at = @At(
@@ -69,8 +67,8 @@ public abstract class EmptyPokeBallEntityMixin extends ThrowableItemProjectile {
         ),
         remap = false
     )
-    private void bypassSend(LivingEntity instance, Component component, Operation<Void> original, @Local(argsOnly = true) EntityHitResult hitResult) {
-        this.aba_bypassChecks = false;
+    private void bypassSend(LivingEntity instance, Component component, Operation<Void> original, @Local(argsOnly = true) EntityHitResult hitResult, @Share("bypassDrop") LocalBooleanRef bypassDrop) {
+        bypassDrop.set(false);
 
         PokemonEntity pokemonEntity = (PokemonEntity) hitResult.getEntity();
         PokemonBattle battle = ((PokemonServerDelegate) pokemonEntity.getDelegate()).getBattle();
@@ -98,7 +96,7 @@ public abstract class EmptyPokeBallEntityMixin extends ThrowableItemProjectile {
             return;
         }
 
-        this.aba_bypassChecks = true;
+        bypassDrop.set(true);
 
         List<ActiveBattlePokemon> activePokemon = hitActor.getActivePokemon().stream().filter(pokemon -> {
             if (pokemon.getBattlePokemon() == null) return false;
@@ -149,8 +147,8 @@ public abstract class EmptyPokeBallEntityMixin extends ThrowableItemProjectile {
         ),
         remap = false
     )
-    private void bypassDrop(EmptyPokeBallEntity instance, Operation<Void> original) {
-        if (!this.aba_bypassChecks) original.call(instance);
-        this.aba_bypassChecks = false;
+    private void bypassDrop(EmptyPokeBallEntity instance, Operation<Void> original, @Share("bypassDrop") LocalBooleanRef bypassDrop) {
+        if (!bypassDrop.get()) original.call(instance);
+        bypassDrop.set(false);
     }
 }

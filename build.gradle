@@ -70,7 +70,7 @@ subprojects {
             create("mavenJava", MavenPublication) {
                 groupId = rootProject.maven_group
                 artifactId = "${rootProject.archives_name}-${project.name}"
-                version = rootProject.mod_version
+                version = "${rootProject.mod_version}-SNAPSHOT"
                 from components["java"]
 
                 pom.withXml {

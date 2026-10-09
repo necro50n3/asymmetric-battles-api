@@ -14,8 +14,9 @@ import java.util.Map;
 public class SpawnPoolTypeRegistry {
     private static final Map<String, SpawnPoolRegistry> SPAWN_POOL_TYPE_REGISTRY = new HashMap<>();
 
-    public static void sort() {
-        SPAWN_POOL_TYPE_REGISTRY.values().forEach(SpawnPoolRegistry::sort);
+    public static void sort(String type) {
+        SpawnPoolRegistry registry = SPAWN_POOL_TYPE_REGISTRY.get(type);
+        if (registry != null) registry.sort();
     }
 
     public static void register(String type, BattleSpawnPool pool) {
@@ -42,5 +43,9 @@ public class SpawnPoolTypeRegistry {
         SpawnPoolRegistry registry = SPAWN_POOL_TYPE_REGISTRY.get(type);
         if (registry == null) return null;
         return registry.get(properties);
+    }
+
+    public static @Nullable SpawnPoolRegistry get(String type) {
+        return SPAWN_POOL_TYPE_REGISTRY.get(type);
     }
 }

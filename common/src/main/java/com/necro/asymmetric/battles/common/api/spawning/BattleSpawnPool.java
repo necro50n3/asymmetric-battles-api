@@ -1,72 +1,61 @@
 package com.necro.asymmetric.battles.common.api.spawning;
 
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
+import com.cobblemon.mod.common.api.pokemon.evolution.PreEvolution;
+import com.cobblemon.mod.common.api.pokemon.labels.CobblemonPokemonLabels;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.cobblemon.mod.common.util.StringExtensionsKt;
 import com.cobblemon.mod.common.util.adapters.PokemonPropertiesAdapterKt;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
 import com.google.gson.reflect.TypeToken;
 import com.necro.asymmetric.battles.common.util.DoubleWeightedRandomMap;
-import kotlin.Pair;
+import com.necro.asymmetric.battles.common.util.PropertyExtractors;
+import kotlin.ranges.IntRange;
 import net.minecraft.server.level.ServerPlayer;
-import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
-import java.util.Locale;
 import java.util.stream.Collectors;
 
-public class BattleSpawnPool {
+public class BattleSpawnPool extends BattleSpawnTarget {
     public static final Gson GSON = new GsonBuilder()
         .registerTypeAdapter(PokemonProperties.class, PokemonPropertiesAdapterKt.getPokemonPropertiesShortAdapter())
         .registerTypeAdapter(BattleSpawnDetail.class, new BattleSpawnDetail())
         .registerTypeAdapter(new TypeToken<List<BattleSpawnDetail>>(){}.getType(), new BattleSpawnDetailListAdapter())
         .create();
 
-    public PokemonProperties pokemon = new PokemonProperties();
-    private transient String species = null;
     public List<BattleSpawnDetail> spawns = new ArrayList<>();
 
-    public @NotNull String species() {
-        if (this.species != null) return this.species;
-
-        if (this.pokemon.getSpecies() != null) this.species = this.pokemon.getSpecies();
-        else {
-            List<Pair<String, String>> keyPairs = StringExtensionsKt.splitMap(this.pokemon.getOriginalString(), " ", "=");
-            Pair<String, String> matched = null;
-
-            for (int i = keyPairs.size() - 1; i >= 0; i--) {
-                Pair<String, String> pair = keyPairs.get(i);
-                if ("species".equalsIgnoreCase(pair.getFirst())) {
-                    matched = pair;
-                    break;
-                }
-            }
-
-            if (matched == null) this.species = "random";
-            else {
-                String species = matched.getSecond().toLowerCase(Locale.ROOT).replaceAll("[^a-z0-9_:]", "");
-                if (species.contains(":")) this.species = species.split(":")[1];
-                else this.species = species;
-            }
-            this.pokemon.setSpecies(this.species);
-        }
-        return this.species;
+    public boolean isSatisfiedBy(PokemonProperties check) {
+        return this.properties().isSubSetOf(check) && check.getAspects().containsAll(this.properties().getAspects());
     }
 
     public List<BattleSpawnDetail> validSpawns(BattleSpawnablePosition spawnablePosition) {
-        PokemonProperties check = spawnablePosition.rootProperties();
-        check.setAspects(spawnablePosition.rootProperties().getAspects());
-
-        return this.spawns.stream().filter(spawn -> spawn.isSatisfiedBy(spawnablePosition, check)).toList();
+        return this.spawns.stream().filter(spawn -> spawn.isSatisfiedBy(spawnablePosition)).toList();
     }
 
     public @Nullable Pokemon getRandom(BattleSpawnablePosition spawnablePosition, ServerPlayer player) {
         List<BattleSpawnDetail> validSpawns = this.validSpawns(spawnablePosition);
         if (validSpawns.isEmpty()) return null;
         DoubleWeightedRandomMap<BattleSpawnDetail> spawnMap = DoubleWeightedRandomMap.fromMap(validSpawns.stream().collect(Collectors.toMap(detail -> detail, detail -> detail.getWeight(spawnablePosition))));
-        return spawnMap.getRandom(player.getRandom()).map(detail -> detail.create(spawnablePosition, player)).orElse(null);
+        return spawnMap.getRandom(player.getRandom()).map(detail -> detail.create(spawnablePosition.baseLevel(), player)).orElse(null);
+    }
+
+    public static BattleSpawnDetail defaultSpawn(Pokemon pokemon, IntRange levelRangeOffset) {
+        PreEvolution preEvolution = null;
+        PokemonProperties spawnProperties = pokemon.createPokemonProperties(PropertyExtractors.SHORT_EXTRACTOR);
+        for (
+            PreEvolution current = pokemon.getPreEvolution();
+            current != null && !current.getForm().getLabels().contains(CobblemonPokemonLabels.BABY);
+            current = current.getForm().getPreEvolution()
+        ) {
+            preEvolution = current;
+        }
+        if (preEvolution != null) {
+            spawnProperties.setSpecies(preEvolution.getSpecies().getResourceIdentifier().getPath());
+            spawnProperties.setForm(preEvolution.getForm().getName());
+        }
+        return BattleSpawnDetail.basic(spawnProperties, levelRangeOffset, 1.0);
     }
 }

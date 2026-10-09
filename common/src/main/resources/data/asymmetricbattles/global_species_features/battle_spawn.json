@@ -1,8 +1,0 @@
-{
-    "keys": [
-        "battle_spawn"
-    ],
-    "type": "flag",
-    "isAspect": true,
-    "default": false
-}

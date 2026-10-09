@@ -135,7 +135,8 @@ public class AsymmetricAPI {
         if (pool == null) return defaultSpawn.get();
         SpawnCause cause = new SpawnCause(SPAWNER, player);
         BattleSpawnablePosition spawnablePosition = new BattleSpawnablePosition(cause, level, blockPos, List.of(), battle, rootProperties, baseLevel);
-        return pool.getRandom(spawnablePosition, player);
+        Pokemon pokemon = pool.getRandom(spawnablePosition, player);
+        return pokemon != null ? pokemon : defaultSpawn.get();
     }
 
     public static @Nullable Pokemon getRandomBattleSpawn(@Nullable BattleSpawnPool pool, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel) {

@@ -14,6 +14,7 @@
         "battle.SwitchInstructionMixin",
         "battle.WinInstructionMixin",
         "entity.EmptyPokeBallEntityMixin",
+        "entity.PokemonMixin",
         "entity.PokemonServerDelegateMixin",
         "interaction.PlayerInteractOptionsMixin",
         "interaction.RequestInteractionsHandlerMixin"

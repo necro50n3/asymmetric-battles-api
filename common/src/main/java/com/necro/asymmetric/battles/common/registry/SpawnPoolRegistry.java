@@ -11,12 +11,12 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
-class SpawnPoolRegistry {
-    private final Map<String, List<BattleSpawnPool>> registry = new HashMap<>();
+public class SpawnPoolRegistry {
+    public final Map<String, List<BattleSpawnPool>> registry = new HashMap<>();
 
     public void sort() {
         this.registry.values().forEach(list -> list.sort(
-            Comparator.comparingInt((BattleSpawnPool p) -> p.pokemon.getOriginalString().trim().split(" ").length).reversed()
+            Comparator.comparingInt((BattleSpawnPool p) -> p.pokemon.trim().split(" ").length).reversed()
         ));
     }
 
@@ -25,20 +25,21 @@ class SpawnPoolRegistry {
     }
 
     public void register(PokemonProperties properties, BattleSpawnDetail detail, Class<? extends BattleSpawnPool> cls) {
-        BattleSpawnPool result = this.registry.computeIfAbsent(properties.getSpecies(), key -> new ArrayList<>())
+        String species = properties.getSpecies() != null && properties.getSpecies().contains(":") ? properties.getSpecies().split(":")[1] : properties.getSpecies();
+        BattleSpawnPool result = species == null ? null : this.registry.computeIfAbsent(species, key -> new ArrayList<>())
             .stream()
-            .filter(pool -> pool.pokemon.getOriginalString().equals(properties.getOriginalString()))
+            .filter(pool -> pool.pokemon.equals(properties.getOriginalString()))
             .findFirst().orElse(null);
         if (result != null) result.spawns.add(detail);
         else {
             try {
                 BattleSpawnPool pool = cls.getDeclaredConstructor().newInstance();
-                pool.pokemon = properties;
+                pool.pokemon = properties.getOriginalString();
                 pool.spawns.add(detail);
-                this.register(detail.species(), pool);
+                this.register(pool.species(), pool);
             }
             catch (Exception e) {
-                AsymmetricBattlesAPI.LOGGER.error("Unable to create a spawn pool for: {}", detail.pokemon.getOriginalString(), e);
+                AsymmetricBattlesAPI.LOGGER.error("Unable to create a spawn pool for: {}", detail.pokemon, e);
             }
         }
     }
@@ -48,13 +49,16 @@ class SpawnPoolRegistry {
     }
 
     public @Nullable BattleSpawnPool get(Pokemon pokemon) {
-        return this.get(pokemon.createPokemonProperties(PropertyExtractors.SHORT_EXTRACTOR));
+        PokemonProperties properties = pokemon.createPokemonProperties(PropertyExtractors.LONG_EXTRACTOR);
+        properties.setAspects(pokemon.getAspects());
+        return this.get(properties);
     }
 
     public @Nullable BattleSpawnPool get(PokemonProperties properties) {
-        return this.registry.computeIfAbsent(properties.getSpecies(), key -> new ArrayList<>())
-            .stream()
-            .filter(pool -> pool.pokemon.isSubSetOf(properties))
-            .findFirst().orElse(null);
+        String species = properties.getSpecies() != null && properties.getSpecies().contains(":") ? properties.getSpecies().split(":")[1] : properties.getSpecies();
+        if (species == null) return null;
+        List<BattleSpawnPool> pools = this.registry.get(species);
+        if (pools == null) return null;
+        return pools.stream().filter(pool -> pool.isSatisfiedBy(properties)).findFirst().orElse(null);
     }
 }
