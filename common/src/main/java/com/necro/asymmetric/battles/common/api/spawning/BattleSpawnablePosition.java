@@ -12,6 +12,7 @@ import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import org.jetbrains.annotations.NotNull;
 
+import java.util.HashSet;
 import java.util.List;
 
 public class BattleSpawnablePosition extends BasicSpawnablePosition {
@@ -25,7 +26,7 @@ public class BattleSpawnablePosition extends BasicSpawnablePosition {
 
     public BattleSpawnablePosition(@NotNull SpawnCause cause, @NotNull ServerLevel level, @NotNull BlockPos blockPos, @NotNull List<SpawningInfluence> influences, PokemonBattle battle, Pokemon rootPokemon) {
         this(cause, level, blockPos, influences, battle, rootPokemon.createPokemonProperties(PropertyExtractors.LONG_EXTRACTOR), rootPokemon.getLevel());
-        this.rootProperties.setAspects(rootPokemon.getAspects());
+        this.rootProperties.setAspects(new HashSet<>(rootPokemon.getAspects()));
     }
 
     public BattleSpawnablePosition(@NotNull SpawnCause cause, @NotNull ServerLevel level, @NotNull BlockPos blockPos, @NotNull List<SpawningInfluence> influences, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel) {

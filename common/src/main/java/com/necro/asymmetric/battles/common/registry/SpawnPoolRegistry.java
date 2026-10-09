@@ -50,7 +50,7 @@ public class SpawnPoolRegistry {
 
     public @Nullable BattleSpawnPool get(Pokemon pokemon) {
         PokemonProperties properties = pokemon.createPokemonProperties(PropertyExtractors.LONG_EXTRACTOR);
-        properties.setAspects(pokemon.getAspects());
+        properties.setAspects(new HashSet<>(pokemon.getAspects()));
         return this.get(properties);
     }
 
