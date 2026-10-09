@@ -1,5 +1,7 @@
 package com.necro.asymmetric.battles.common.mixin.battle;
 
+import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
+import com.cobblemon.mod.common.api.battles.model.actor.ActorType;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.api.battles.model.actor.EntityBackedBattleActor;
 import com.cobblemon.mod.common.battles.ActiveBattlePokemon;
@@ -41,6 +43,9 @@ public abstract class ActiveBattlePokemonMixin implements Targetable {
     @Shadow
     public abstract @NotNull BattlePokemon getBattlePokemon();
 
+    @Shadow
+    public abstract @NotNull PokemonBattle getBattle();
+
     @Override
     public @NotNull List<Targetable> getAdjacent() {
         if (AsymmetricUtils.isAsymmetricBattle(this.getFormat())) return CollectionsKt.filter(
@@ -54,12 +59,11 @@ public abstract class ActiveBattlePokemonMixin implements Targetable {
         else return Targetable.super.getAdjacent();
     }
 
-    @Inject(method = "getSendOutPosition", at = @At("RETURN"), cancellable = true, remap = false)
+    @Inject(method = "getSendOutPosition", at = @At("HEAD"), cancellable = true, remap = false)
     private void getSendOutPositionExtension(CallbackInfoReturnable<Vec3> cir) {
         int pokemonPerSide = this.getFormat().getBattleType().getPokemonPerSide();
-
-        if (pokemonPerSide < 4 || pokemonPerSide > 6) return;
         if (!AsymmetricUtils.isAsymmetricBattle(this.getFormat())) return;
+        if (this.getFormat().getBattleType().getName().equals("horde") && this.getActor().getType() == ActorType.PLAYER) pokemonPerSide = 1;
 
         String pnx = this.getPNX();
         if (pnx.length() < 3) return;
@@ -95,7 +99,7 @@ public abstract class ActiveBattlePokemonMixin implements Targetable {
         double sideOffset = (slotIndex - centerIndex) * 3.5;
 
         double distFromCenter = Math.abs(slotIndex - centerIndex);
-        double forwardOffset = 0.30 - (distFromCenter / centerIndex) * 0.15;
+        double forwardOffset = pokemonPerSide == 1 ? 0.30 : 0.30 - (distFromCenter / centerIndex) * 0.15;
 
         Vec3 candidatePos = basePos.add(actorOffset.scale(forwardOffset)).add(orthogonalVector.scale(sideOffset));
         Vec3 finalPos = candidatePos;

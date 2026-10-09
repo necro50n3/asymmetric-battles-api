@@ -13,7 +13,7 @@ public class AsymmetricBattleFormats {
     public static final BattleType QUADRUPLES = BattleTypes.INSTANCE.makeBattleType("quadruples", Component.translatable("asymmetricbattles.battle.types.quadruples"), 1, 4);
     public static final BattleType PENTUPLES = BattleTypes.INSTANCE.makeBattleType("pentuples", Component.translatable("asymmetricbattles.battle.types.pentuples"), 1, 5);
     public static final BattleType SEXTUPLES = BattleTypes.INSTANCE.makeBattleType("sextuples", Component.translatable("asymmetricbattles.battle.types.sextuples"), 1, 6);
-    public static final BattleType HORDE = BattleTypes.INSTANCE.makeBattleType("horde", Component.translatable("asymmetricbattles.battle.types.sextuples"), 1, 6);
+    public static final BattleType HORDE = BattleTypes.INSTANCE.makeBattleType("horde", Component.translatable("asymmetricbattles.battle.types.horde"), 1, 6);
 
     public static final BattleFormat GEN_9_QUADRUPLES = new BattleFormat(
         "cobblemon",

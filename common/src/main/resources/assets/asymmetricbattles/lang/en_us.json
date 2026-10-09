@@ -1,5 +1,6 @@
 {
     "asymmetricbattles.mod.title": "Asymmetric Battles API",
+    "asymmetricbattles.battle.types.horde": "Horde Battle",
     "asymmetricbattles.battle.types.quadruples": "Quadruple Battle",
     "asymmetricbattles.battle.types.pentuples": "Pentuple Battle",
     "asymmetricbattles.battle.types.sextuples": "Sextuple Battle",
