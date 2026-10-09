@@ -8,6 +8,7 @@ import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.util.adapters.PokemonPropertiesAdapterKt;
 import com.google.gson.Gson;
 import com.google.gson.GsonBuilder;
+import com.google.gson.annotations.SerializedName;
 import com.google.gson.reflect.TypeToken;
 import com.necro.asymmetric.battles.common.util.DoubleWeightedRandomMap;
 import com.necro.asymmetric.battles.common.util.PropertyExtractors;
@@ -27,6 +28,7 @@ public class BattleSpawnPool extends BattleSpawnTarget {
         .registerTypeAdapter(new TypeToken<List<BattleSpawnDetail>>(){}.getType(), new BattleSpawnDetailListAdapter())
         .create();
 
+    @SerializedName(value = "spawns", alternate = { "spawn" })
     public List<BattleSpawnDetail> spawns = new ArrayList<>();
 
     public boolean isSatisfiedBy(PokemonProperties check) {

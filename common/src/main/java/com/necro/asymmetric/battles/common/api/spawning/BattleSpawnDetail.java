@@ -28,11 +28,14 @@ public class BattleSpawnDetail extends BattleSpawnTarget implements JsonSerializ
     @SerializedName(value = "offset", alternate = { "levelOffset", "levelRangeOffset" })
     public IntRange levelRangeOffset = new IntRange(-5, 0);
 
+    @SerializedName(value = "conditions", alternate = { "condition" })
     public List<SpawningCondition<?>> conditions = List.of();
+    @SerializedName(value = "anticonditions", alternate = { "anticondition" })
     public List<SpawningCondition<?>> anticonditions = List.of();
     public CompositeSpawningCondition compositeCondition = null;
 
     public double weight = 1.0;
+    @SerializedName(value = "weightMultipliers", alternate = { "weightMultiplier" })
     public List<WeightMultiplier> weightMultipliers = List.of();
 
     public List<String> neededInstalledMods = List.of();
