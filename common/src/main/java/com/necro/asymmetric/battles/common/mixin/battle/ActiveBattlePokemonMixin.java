@@ -1,7 +1,6 @@
 package com.necro.asymmetric.battles.common.mixin.battle;
 
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
-import com.cobblemon.mod.common.api.battles.model.actor.ActorType;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.api.battles.model.actor.EntityBackedBattleActor;
 import com.cobblemon.mod.common.battles.ActiveBattlePokemon;
@@ -61,9 +60,8 @@ public abstract class ActiveBattlePokemonMixin implements Targetable {
 
     @Inject(method = "getSendOutPosition", at = @At("HEAD"), cancellable = true, remap = false)
     private void getSendOutPositionExtension(CallbackInfoReturnable<Vec3> cir) {
-        int pokemonPerSide = this.getFormat().getBattleType().getPokemonPerSide();
-        if (!AsymmetricUtils.isAsymmetricBattle(this.getFormat())) return;
-        if (this.getFormat().getBattleType().getName().equals("horde") && this.getActor().getType() == ActorType.PLAYER) pokemonPerSide = 1;
+        if (this.getFormat().getBattleType().getPokemonPerSide() == 1) return;
+        int pokemonPerSide = (int) this.getSide().getActivePokemon().stream().filter(ActiveBattlePokemon::hasPokemon).count();
 
         String pnx = this.getPNX();
         if (pnx.length() < 3) return;
