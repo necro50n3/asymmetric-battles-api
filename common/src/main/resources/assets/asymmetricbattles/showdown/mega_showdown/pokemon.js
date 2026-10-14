@@ -1041,6 +1041,14 @@ class Pokemon {
    * as well as sending all relevant messages sent to the client.
    */
   formeChange(speciesId, source = this.battle.effect, isPermanent, message) {
+
+    if (isPermanent && source?.effectType === 'Item') {
+      const volatileId = this.getAbility().clearOnMega;
+      if (volatileId && this.volatiles[volatileId]) {
+        delete this.volatiles[volatileId];
+      }
+    }
+
     const rawSpecies = this.battle.dex.species.get(speciesId);
     const species = this.setSpecies(rawSpecies, source);
     if (!species)
@@ -1088,12 +1096,18 @@ class Pokemon {
       }
       if (source || !this.getAbility().flags["cantsuppress"])
         this.setAbility(species.abilities["0"], null, true);
-      this.baseAbility = (0, import_dex.toID)(species.abilities["0"]);
+      this.baseAbility = this.battle.toID(species.abilities["0"]);
     }
     if (this.terastallized) {
       this.knownType = true;
       this.apparentType = this.terastallized;
     }
+
+    const isMegaItem = isPermanent && source?.effectType === 'Item';
+    if (!isMegaItem && !this.side.hasMegaEvolved) {
+      this.canMegaEvo = this.battle.actions.canMegaEvo(this);
+    }
+
     return true;
   }
   clearVolatile(includeSwitchFlags = true) {
