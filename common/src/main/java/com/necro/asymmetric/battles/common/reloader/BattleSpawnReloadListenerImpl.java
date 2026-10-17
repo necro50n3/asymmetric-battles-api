@@ -33,7 +33,8 @@ public abstract class BattleSpawnReloadListenerImpl {
         manager.listResources("battle_spawns/" + this.type, path -> path.toString().endsWith(".json")).forEach((id, resource) -> {
             try (BufferedReader reader = new BufferedReader(new InputStreamReader(resource.open(), StandardCharsets.UTF_8))) {
                 BattleSpawnPool pool = this.gson.fromJson(reader, this.cls);
-                SpawnPoolTypeRegistry.register(this.type, pool);
+                if (pool.isValid()) SpawnPoolTypeRegistry.register(this.type, pool);
+                else AsymmetricBattlesAPI.LOGGER.error("Failed to load battle spawn pool {}: Missing field \"pokemon\"", id);
             } catch (Exception e) {
                 AsymmetricBattlesAPI.LOGGER.error("Failed to load battle spawn pool {}", id, e);
             }
