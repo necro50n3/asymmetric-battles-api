@@ -1,32 +1,78 @@
 package com.necro.asymmetric.battles.common.api.spawning;
 
+import com.bedrockk.molang.Expression;
 import com.cobblemon.mod.common.Cobblemon;
+import com.cobblemon.mod.common.api.conditional.RegistryLikeCondition;
+import com.cobblemon.mod.common.api.molang.ExpressionLike;
+import com.cobblemon.mod.common.api.npc.NPCClass;
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
-import com.cobblemon.mod.common.api.spawning.SpawnLoader;
+import com.cobblemon.mod.common.api.spawning.MoonPhaseRange;
+import com.cobblemon.mod.common.api.spawning.TimeRange;
 import com.cobblemon.mod.common.api.spawning.condition.CompositeSpawningCondition;
 import com.cobblemon.mod.common.api.spawning.condition.SpawningCondition;
+import com.cobblemon.mod.common.api.spawning.detail.PossibleHeldItem;
 import com.cobblemon.mod.common.api.spawning.multiplier.WeightMultiplier;
 import com.cobblemon.mod.common.api.spawning.position.SpawnablePosition;
+import com.cobblemon.mod.common.api.spawning.position.SpawnablePositionType;
 import com.cobblemon.mod.common.pokemon.Pokemon;
+import com.cobblemon.mod.common.util.adapters.*;
+import com.cobblemon.mod.common.util.math.DoubleRange;
 import com.google.common.collect.Sets;
 import com.google.gson.*;
 import com.google.gson.annotations.SerializedName;
+import com.google.gson.reflect.TypeToken;
+import com.mojang.datafixers.util.Either;
 import com.necro.asymmetric.battles.common.AsymmetricBattlesAPI;
+import com.necro.asymmetric.battles.common.util.DoubleRangeAdapter;
 import com.necro.asymmetric.battles.common.util.IBattleSpawn;
 import kotlin.ranges.IntRange;
+import net.minecraft.core.registries.Registries;
+import net.minecraft.nbt.CompoundTag;
+import net.minecraft.resources.ResourceLocation;
 import net.minecraft.server.level.ServerPlayer;
+import net.minecraft.tags.TagKey;
+import net.minecraft.world.level.biome.Biome;
+import net.minecraft.world.level.block.Block;
+import net.minecraft.world.level.levelgen.structure.Structure;
+import net.minecraft.world.level.material.Fluid;
 
 import java.lang.reflect.Type;
 import java.util.HashSet;
 import java.util.List;
 
 public class BattleSpawnDetail extends BattleSpawnTarget implements JsonSerializer<BattleSpawnDetail>, JsonDeserializer<BattleSpawnDetail> {
-    public static final Gson GSON = SpawnLoader.INSTANCE.getGson();
+    public static final Gson GSON = new GsonBuilder()
+        .setPrettyPrinting()
+        .disableHtmlEscaping()
+        .setLenient()
+        .registerTypeAdapter(TypeToken.getParameterized(RegistryLikeCondition.class, Biome.class).getType(), BiomeLikeConditionAdapter.INSTANCE)
+        .registerTypeAdapter(TypeToken.getParameterized(RegistryLikeCondition.class, Block.class).getType(), BlockLikeConditionAdapter.INSTANCE)
+        .registerTypeAdapter(TypeToken.getParameterized(RegistryLikeCondition.class, Fluid.class).getType(), FluidLikeConditionAdapter.INSTANCE)
+        .registerTypeAdapter(
+            TypeToken.getParameterized(Either.class, ResourceLocation.class, TypeToken.getParameterized(TagKey.class, Structure.class).getType()).getType(),
+            new EitherIdentifierOrTagAdapter<>(Registries.STRUCTURE)
+        )
+        .registerTypeAdapter(SpawnablePositionType.class, RegisteredSpawnablePositionAdapter.INSTANCE)
+        .registerTypeAdapter(ResourceLocation.class, IdentifierAdapter.INSTANCE)
+        .registerTypeAdapter(SpawningCondition.class, SpawningConditionAdapter.INSTANCE)
+        .registerTypeAdapter(TimeRange.class, TimeRange.Companion.getAdapter())
+        .registerTypeAdapter(MoonPhaseRange.class, new IntRangesAdapter<>(MoonPhaseRange.Companion.getMoonPhaseRanges(), MoonPhaseRange::new))
+        .registerTypeAdapter(PokemonProperties.class, PokemonPropertiesAdapterKt.getPokemonPropertiesShortAdapter())
+        .registerTypeAdapter(CompoundTag .class, NbtCompoundAdapter.INSTANCE)
+        .registerTypeAdapter(IntRange.class, IntRangeAdapter.INSTANCE)
+        .registerTypeAdapter(DoubleRange.class, DoubleRangeAdapter.INSTANCE)
+        .registerTypeAdapter(PossibleHeldItem.class, PossibleHeldItemAdapter.INSTANCE)
+        .registerTypeAdapter(NPCClass.class, NPCClassReferenceAdapter.INSTANCE)
+        .registerTypeAdapter(Expression.class, ExpressionAdapter.INSTANCE)
+        .registerTypeAdapter(ExpressionLike.class, ExpressionLikeAdapter.INSTANCE)
+        .create();
 
     @SerializedName(value = "level", alternate = { "levelRange" })
     public IntRange levelRange = null;
     @SerializedName(value = "offset", alternate = { "levelOffset", "levelRangeOffset" })
     public IntRange levelRangeOffset = new IntRange(-5, 0);
+    @SerializedName(value = "relativeOffset", alternate = { "levelRelativeOffset", "levelRangeRelativeOffset" })
+    public DoubleRange levelRangeRelativeOffset = null;
 
     @SerializedName(value = "conditions", alternate = { "condition" })
     public List<SpawningCondition<?>> conditions = List.of();
@@ -61,7 +107,8 @@ public class BattleSpawnDetail extends BattleSpawnTarget implements JsonSerializ
 
     public boolean isValid() {
         boolean isValid = true;
-        if (!this.conditions.isEmpty() && this.conditions.stream().anyMatch(condition -> !condition.isValid())) isValid = false;
+        if (this.pokemon.isBlank()) isValid = false;
+        else if (!this.conditions.isEmpty() && this.conditions.stream().anyMatch(condition -> !condition.isValid())) isValid = false;
         else if (!this.anticonditions.isEmpty() && this.anticonditions.stream().anyMatch(condition -> !condition.isValid())) isValid = false;
         isValid = isValid && this.isModDependencySatisfied();
         if (!isValid) AsymmetricBattlesAPI.LOGGER.error("Unable to parse a spawn due to a syntax error for {}", this.pokemon);
@@ -85,6 +132,7 @@ public class BattleSpawnDetail extends BattleSpawnTarget implements JsonSerializ
 
     public IntRange getLevelRange(int level) {
         if (this.levelRange != null) return this.levelRange;
+        else if (this.levelRangeRelativeOffset != null) return new IntRange(clampLevel((int) (level * this.levelRangeRelativeOffset.getStart())), clampLevel((int) (level * this.levelRangeRelativeOffset.getEndInclusive())));
         return new IntRange(clampLevel(level + this.levelRangeOffset.getStart()), clampLevel(level + this.levelRangeOffset.getEndInclusive()));
     }
 
