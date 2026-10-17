@@ -5,6 +5,7 @@ import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.necro.asymmetric.battles.common.api.spawning.BattleSpawnDetail;
 import com.necro.asymmetric.battles.common.api.spawning.BattleSpawnPool;
+import com.necro.asymmetric.battles.common.api.spawning.GlobalBattleSpawnPool;
 import org.jetbrains.annotations.NotNull;
 import org.jetbrains.annotations.Nullable;
 
@@ -20,11 +21,15 @@ public class SpawnPoolTypeRegistry {
     }
 
     public static void register(String type, BattleSpawnPool pool) {
-        SPAWN_POOL_TYPE_REGISTRY.computeIfAbsent(type, key -> new SpawnPoolRegistry()).register(pool.species(), pool);
+        SPAWN_POOL_TYPE_REGISTRY.computeIfAbsent(type, key -> new SpawnPoolRegistry(type)).register(pool.species(), pool);
+    }
+
+    public static void register(String type, GlobalBattleSpawnPool pool) {
+        SPAWN_POOL_TYPE_REGISTRY.computeIfAbsent(type, key -> new SpawnPoolRegistry(type)).register(pool);
     }
 
     public static void register(String type, PokemonProperties properties, BattleSpawnDetail detail, Class<? extends BattleSpawnPool> cls) {
-        SPAWN_POOL_TYPE_REGISTRY.computeIfAbsent(type, key -> new SpawnPoolRegistry()).register(properties, detail, cls);
+        SPAWN_POOL_TYPE_REGISTRY.computeIfAbsent(type, key -> new SpawnPoolRegistry(type)).register(properties, detail, cls);
     }
 
     public static @Nullable BattleSpawnPool get(String type, @NotNull PokemonEntity pokemonEntity) {

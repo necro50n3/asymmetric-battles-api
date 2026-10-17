@@ -6,22 +6,38 @@ import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.necro.asymmetric.battles.common.AsymmetricBattlesAPI;
 import com.necro.asymmetric.battles.common.api.spawning.BattleSpawnDetail;
 import com.necro.asymmetric.battles.common.api.spawning.BattleSpawnPool;
+import com.necro.asymmetric.battles.common.api.spawning.GlobalBattleSpawnPool;
 import com.necro.asymmetric.battles.common.util.PropertyExtractors;
 import org.jetbrains.annotations.Nullable;
 
 import java.util.*;
 
 public class SpawnPoolRegistry {
+    public final String type;
+    public final List<GlobalBattleSpawnPool> global = new ArrayList<>();
     public final Map<String, List<BattleSpawnPool>> registry = new HashMap<>();
+
+    public SpawnPoolRegistry(String type) {
+        this.type = type;
+    }
 
     public void sort() {
         this.registry.values().forEach(list -> list.sort(
             Comparator.comparingInt((BattleSpawnPool p) -> p.pokemon.trim().split(" ").length).reversed()
         ));
+        this.global.sort(
+            Comparator.comparingInt((GlobalBattleSpawnPool p) -> p.properties.trim().split(" ").length).reversed()
+        );
     }
 
     public void register(String species, BattleSpawnPool pool) {
+        pool.type = this.type;
         this.registry.computeIfAbsent(species, key -> new ArrayList<>()).add(pool);
+    }
+
+    public void register(GlobalBattleSpawnPool pool) {
+        pool.type = this.type;
+        this.global.add(pool);
     }
 
     public void register(PokemonProperties properties, BattleSpawnDetail detail, Class<? extends BattleSpawnPool> cls) {
@@ -34,6 +50,7 @@ public class SpawnPoolRegistry {
         else {
             try {
                 BattleSpawnPool pool = cls.getDeclaredConstructor().newInstance();
+                pool.type = this.type;
                 pool.pokemon = properties.getOriginalString();
                 pool.spawns.add(detail);
                 this.register(pool.species(), pool);
@@ -60,5 +77,20 @@ public class SpawnPoolRegistry {
         List<BattleSpawnPool> pools = this.registry.get(species);
         if (pools == null) return null;
         return pools.stream().filter(pool -> pool.isSatisfiedBy(properties)).findFirst().orElse(null);
+    }
+
+    public @Nullable GlobalBattleSpawnPool getGlobal(PokemonEntity pokemonEntity) {
+        return this.getGlobal(pokemonEntity.getPokemon());
+    }
+
+    public @Nullable GlobalBattleSpawnPool getGlobal(Pokemon pokemon) {
+        PokemonProperties properties = pokemon.createPokemonProperties(PropertyExtractors.LONG_EXTRACTOR);
+        properties.setAspects(new HashSet<>(pokemon.getAspects()));
+        return this.getGlobal(properties);
+    }
+
+    public @Nullable GlobalBattleSpawnPool getGlobal(PokemonProperties properties) {
+        if (this.global.isEmpty()) return null;
+        return this.global.stream().filter(pool -> pool.isSatisfiedBy(properties)).findFirst().orElse(null);
     }
 }

@@ -52,7 +52,7 @@ import java.util.function.Supplier;
  * @see AsymmetricBattleBuilder#multiBattle
  */
 public class AsymmetricAPI {
-    private static BasicSpawner SPAWNER;
+    public static BasicSpawner SPAWNER;
 
     /**
      * Dynamically injects a new {@link BattleActor} into an ongoing Multi Battle at the specified slot.

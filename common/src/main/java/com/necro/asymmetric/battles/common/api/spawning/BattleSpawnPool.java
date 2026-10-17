@@ -5,11 +5,9 @@ import com.cobblemon.mod.common.api.pokemon.evolution.PreEvolution;
 import com.cobblemon.mod.common.api.pokemon.labels.CobblemonPokemonLabels;
 import com.cobblemon.mod.common.pokemon.FormData;
 import com.cobblemon.mod.common.pokemon.Pokemon;
-import com.cobblemon.mod.common.util.adapters.PokemonPropertiesAdapterKt;
-import com.google.gson.Gson;
-import com.google.gson.GsonBuilder;
 import com.google.gson.annotations.SerializedName;
-import com.google.gson.reflect.TypeToken;
+import com.necro.asymmetric.battles.common.registry.SpawnPoolRegistry;
+import com.necro.asymmetric.battles.common.registry.SpawnPoolTypeRegistry;
 import com.necro.asymmetric.battles.common.util.DoubleWeightedRandomMap;
 import com.necro.asymmetric.battles.common.util.PropertyExtractors;
 import kotlin.ranges.IntRange;
@@ -21,22 +19,22 @@ import java.util.HashSet;
 import java.util.List;
 import java.util.stream.Collectors;
 
-public class BattleSpawnPool extends BattleSpawnTarget {
-    public static final Gson GSON = new GsonBuilder()
-        .registerTypeAdapter(PokemonProperties.class, PokemonPropertiesAdapterKt.getPokemonPropertiesShortAdapter())
-        .registerTypeAdapter(BattleSpawnDetail.class, new BattleSpawnDetail())
-        .registerTypeAdapter(new TypeToken<List<BattleSpawnDetail>>(){}.getType(), new BattleSpawnDetailListAdapter())
-        .create();
+public class BattleSpawnPool extends BattleSpawnTarget implements AsymmetricSpawnPool {
+    public transient String type = null;
 
     @SerializedName(value = "spawns", alternate = { "spawn" })
     public List<BattleSpawnDetail> spawns = new ArrayList<>();
 
-    public boolean isSatisfiedBy(PokemonProperties check) {
-        return this.properties().isSubSetOf(check) && check.getAspects().containsAll(this.properties().getAspects());
-    }
-
+    @Override
     public List<BattleSpawnDetail> validSpawns(BattleSpawnablePosition spawnablePosition) {
-        return this.spawns.stream().filter(spawn -> spawn.isSatisfiedBy(spawnablePosition)).toList();
+        List<BattleSpawnDetail> details = new ArrayList<>(this.spawns.stream().filter(spawn -> spawn.isSatisfiedBy(spawnablePosition)).toList());
+        SpawnPoolRegistry registry = SpawnPoolTypeRegistry.get(this.type);
+        GlobalBattleSpawnPool global = registry != null ? registry.getGlobal(spawnablePosition.rootProperties()) : null;
+        if (global != null) {
+            if (global.replace) details = global.validSpawns(spawnablePosition);
+            else details.addAll(global.validSpawns(spawnablePosition));
+        }
+        return details;
     }
 
     public @Nullable Pokemon getRandom(BattleSpawnablePosition spawnablePosition, ServerPlayer player) {
