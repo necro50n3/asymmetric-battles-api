@@ -2,7 +2,6 @@ package com.necro.asymmetric.battles.common.api.spawning;
 
 import com.cobblemon.mod.common.api.pokemon.PokemonProperties;
 import com.google.gson.annotations.SerializedName;
-import com.necro.asymmetric.battles.common.AsymmetricBattlesAPI;
 import org.jetbrains.annotations.NotNull;
 
 import java.util.ArrayList;
@@ -26,8 +25,6 @@ public class GlobalBattleSpawnPool implements AsymmetricSpawnPool {
 
     @Override
     public boolean isSatisfiedBy(PokemonProperties check) {
-        AsymmetricBattlesAPI.LOGGER.info(this.properties().asString(" "));
-        AsymmetricBattlesAPI.LOGGER.info("isSubSetOf={},aspects={}", this.properties().isSubSetOf(check), check.getAspects().containsAll(this.properties().getAspects()));
         return this.properties.isEmpty() || (this.properties().isSubSetOf(check) && check.getAspects().containsAll(this.properties().getAspects()));
     }
 
