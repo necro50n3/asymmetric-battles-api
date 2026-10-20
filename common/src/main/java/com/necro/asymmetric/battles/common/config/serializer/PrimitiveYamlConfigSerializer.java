@@ -1,6 +1,7 @@
 package com.necro.asymmetric.battles.common.config.serializer;
 
 import com.mojang.logging.LogUtils;
+import com.necro.asymmetric.battles.common.config.adapter.YamlAdapter;
 import me.shedaniel.autoconfig.ConfigData;
 import me.shedaniel.autoconfig.annotation.Config;
 import me.shedaniel.autoconfig.serializer.ConfigSerializer;
@@ -11,6 +12,9 @@ import me.shedaniel.cloth.clothconfig.shadowed.org.yaml.snakeyaml.LoaderOptions;
 import me.shedaniel.cloth.clothconfig.shadowed.org.yaml.snakeyaml.Yaml;
 import me.shedaniel.cloth.clothconfig.shadowed.org.yaml.snakeyaml.constructor.SafeConstructor;
 import me.shedaniel.cloth.clothconfig.shadowed.org.yaml.snakeyaml.representer.Representer;
+import net.minecraft.core.BlockPos;
+import net.minecraft.resources.ResourceLocation;
+import net.minecraft.world.phys.Vec3;
 import org.slf4j.Logger;
 
 import java.io.IOException;
@@ -19,13 +23,37 @@ import java.lang.reflect.*;
 import java.nio.file.Files;
 import java.nio.file.Path;
 import java.util.*;
+import java.util.concurrent.ConcurrentHashMap;
 
 public class PrimitiveYamlConfigSerializer<T extends ConfigData> implements ConfigSerializer<T> {
     private static final Logger LOGGER = LogUtils.getLogger();
 
+    private static final Map<Class<?>, YamlAdapter<?>> GLOBAL_ADAPTERS = new ConcurrentHashMap<>();
+    private final Map<Class<?>, YamlAdapter<?>> adapters = new ConcurrentHashMap<>();
+
     private final Config definition;
     private final Class<T> configClass;
     private final Yaml yaml;
+
+    static {
+        registerGlobal(ResourceLocation.class, YamlAdapter.of(Object::toString, raw -> ResourceLocation.parse(String.valueOf(raw).trim())));
+        registerGlobal(UUID.class, YamlAdapter.of(Object::toString, raw -> UUID.fromString(String.valueOf(raw).trim())));
+        registerGlobal(Path.class, YamlAdapter.of(p -> p.toString().replace('\\', '/'), raw -> Path.of(String.valueOf(raw).trim())));
+        registerGlobal(BlockPos.class, YamlAdapter.of(
+            blockPos -> blockPos.getX() + "," + blockPos.getY() + "," + blockPos.getZ(),
+            raw -> {
+                String[] s = String.valueOf(raw).trim().split(",");
+                if (s.length != 3) throw new IllegalArgumentException("Expected 'x,y,z'");
+                return new BlockPos(Integer.parseInt(s[0]), Integer.parseInt(s[1]), Integer.parseInt(s[2]));
+            }));
+        registerGlobal(Vec3.class, YamlAdapter.of(
+            pos -> pos.x() + "," + pos.y() + "," + pos.z(),
+            raw -> {
+                String[] s = String.valueOf(raw).trim().split(",");
+                if (s.length != 3) throw new IllegalArgumentException("Expected 'x,y,z'");
+                return new Vec3(Double.parseDouble(s[0]), Double.parseDouble(s[1]), Double.parseDouble(s[2]));
+            }));
+    }
 
     private PrimitiveYamlConfigSerializer(Config definition, Class<T> configClass, Yaml yaml) {
         this.definition = definition;
@@ -35,6 +63,15 @@ public class PrimitiveYamlConfigSerializer<T extends ConfigData> implements Conf
 
     public PrimitiveYamlConfigSerializer(Config definition, Class<T> configClass) {
         this(definition, configClass, createYaml());
+    }
+
+    public static <U> void registerGlobal(Class<U> cls, YamlAdapter<U> adapter) {
+        GLOBAL_ADAPTERS.put(cls, adapter);
+    }
+
+    public <U> PrimitiveYamlConfigSerializer<T> register(Class<U> cls, YamlAdapter<U> adapter) {
+        this.adapters.put(cls, adapter);
+        return this;
     }
 
     private static Yaml createYaml() {
@@ -78,10 +115,10 @@ public class PrimitiveYamlConfigSerializer<T extends ConfigData> implements Conf
                 String key = keyName(field);
                 Comment comment = getComment(field);
 
-                boolean nested = isCustomObject(value) && !fieldsOf(value.getClass()).isEmpty();
+                boolean nested = this.isCustomObject(value) && !fieldsOf(value.getClass()).isEmpty();
                 String dumped = null;
                 if (!nested) {
-                    Object plain = toPlain(value, seen);
+                    Object plain = this.toPlain(value, seen);
                     if (plain == null) continue;
                     Map<String, Object> single = new LinkedHashMap<>();
                     single.put(key, plain);
@@ -117,11 +154,12 @@ public class PrimitiveYamlConfigSerializer<T extends ConfigData> implements Conf
         return hasComment || block || prevWasBlock;
     }
 
-    private static boolean isCustomObject(Object object) {
+    private boolean isCustomObject(Object object) {
         if (object == null) return false;
         else if (object instanceof String || object instanceof Number || object instanceof Boolean || object instanceof Character) return false;
         else if (object instanceof Enum<?>) return false;
         else if (object instanceof YamlSerializer) return false;
+        if (this.findAdapter(object.getClass()) != null) return false;
         else if (object instanceof Collection<?>) return false;
         else if (object instanceof Map<?, ?>) return false;
         else if (object.getClass().isArray()) return false;
@@ -148,36 +186,38 @@ public class PrimitiveYamlConfigSerializer<T extends ConfigData> implements Conf
         }
     }
 
-    private static Object toPlain(Object object, Set<Object> seen) {
+    private Object toPlain(Object object, Set<Object> seen) {
         if (object == null || object instanceof String || object instanceof Number || object instanceof Boolean) return object;
         if (object instanceof Enum<?> e) return e.name();
         if (object instanceof Character) return object.toString();
         if (!seen.add(object)) throw new IllegalStateException("Cyclic reference in config: " + object.getClass());
         try {
-            if (object instanceof YamlSerializer custom) return toPlain(custom.serialize(), seen);
+            if (object instanceof YamlSerializer custom) return this.toPlain(custom.serialize(), seen);
+            YamlAdapter<Object> adapter = this.findAdapter(object.getClass());
+            if (adapter != null) return this.toPlain(adapter.serialize(object), seen);
             else if (object instanceof Collection<?> collection) {
                 List<Object> result = new ArrayList<>();
-                for (Object obj : collection) result.add(toPlain(obj, seen));
+                for (Object obj : collection) result.add(this.toPlain(obj, seen));
                 return result;
             }
             else if (object instanceof Map<?, ?> map) {
                 Map<Object, Object> result = new LinkedHashMap<>();
                 for (Map.Entry<?, ?> entry : map.entrySet()) {
-                    Object val = toPlain(entry.getValue(), seen);
-                    if (val != null) result.put(plainKey(entry.getKey()), val);
+                    Object val = this.toPlain(entry.getValue(), seen);
+                    if (val != null) result.put(this.plainKey(entry.getKey()), val);
                 }
                 return result;
             }
             else if (object.getClass().isArray()) {
                 List<Object> result = new ArrayList<>();
-                for (int i = 0; i < Array.getLength(object); i++) result.add(toPlain(Array.get(object, i), seen));
+                for (int i = 0; i < Array.getLength(object); i++) result.add(this.toPlain(Array.get(object, i), seen));
                 return result;
             }
             Map<String, Object> result = new LinkedHashMap<>();
             for (Field field : fieldsOf(object.getClass())) {
                 String key = keyName(field);
                 try {
-                    Object val = toPlain(field.get(object), seen);
+                    Object val = this.toPlain(field.get(object), seen);
                     if (val != null) result.put(key, val);
                 }
                 catch (IllegalAccessException e) {
@@ -190,9 +230,36 @@ public class PrimitiveYamlConfigSerializer<T extends ConfigData> implements Conf
         }
     }
 
-    private static Object plainKey(Object key) {
+    @SuppressWarnings("unchecked")
+    private YamlAdapter<Object> lookup(Class<?> type) {
+        YamlAdapter<?> adapter = this.adapters.get(type);
+        return (YamlAdapter<Object>) (adapter != null ? adapter : GLOBAL_ADAPTERS.get(type));
+    }
+
+    @SuppressWarnings("unchecked")
+    private YamlAdapter<Object> findAdapter(Class<?> type) {
+        for (Class<?> c = type; c != null && c != Object.class; c = c.getSuperclass()) {
+            YamlAdapter<?> adapter = this.lookup(type);
+            if (adapter == null) adapter = findInInterfaces(c.getInterfaces());
+            if (adapter != null) return (YamlAdapter<Object>) adapter;
+        }
+        return null;
+    }
+
+    private YamlAdapter<?> findInInterfaces(Class<?>[] interfaces) {
+        for (Class<?> i : interfaces) {
+            YamlAdapter<?> adapter = this.adapters.get(i);
+            if (adapter == null) adapter = findInInterfaces(i.getInterfaces());
+            if (adapter != null) return adapter;
+        }
+        return null;
+    }
+
+    private Object plainKey(Object key) {
         if (key == null || key instanceof String || key instanceof Number || key instanceof Boolean) return key;
         else if (key instanceof YamlSerializer custom) return custom.serialize();
+        YamlAdapter<Object> adapter = this.findAdapter(key.getClass());
+        if (adapter != null) return adapter.serialize(key);
         else if (key instanceof Enum<?> e) return e.name();
         return String.valueOf(key);
     }
@@ -205,7 +272,7 @@ public class PrimitiveYamlConfigSerializer<T extends ConfigData> implements Conf
         try (InputStream inputStream = Files.newInputStream(path)) {
             Object raw = this.yaml.load(inputStream);
             @SuppressWarnings("unchecked")
-            T result = (T) fromPlain(raw, this.configClass, instance);
+            T result = (T) this.fromPlain(raw, this.configClass, instance);
             return result;
         }
         catch (Exception e) {
@@ -214,7 +281,7 @@ public class PrimitiveYamlConfigSerializer<T extends ConfigData> implements Conf
     }
 
     @SuppressWarnings({"unchecked", "rawtypes"})
-    private static Object fromPlain(Object raw, Type type, Object existing) throws Exception {
+    private Object fromPlain(Object raw, Type type, Object existing) throws Exception {
         if (raw == null) return existing;
         Class<?> cls = rawClass(type);
 
@@ -222,6 +289,9 @@ public class PrimitiveYamlConfigSerializer<T extends ConfigData> implements Conf
             YamlSerializer target = existing instanceof YamlSerializer y ? y : (YamlSerializer) newInstance(cls);
             return target.deserialize(raw);
         }
+
+        YamlAdapter<Object> adapter = this.lookup(cls);
+        if (adapter != null) return adapter.deserialize(raw);
 
         Class<?> wrapped = wrap(cls);
 
@@ -237,12 +307,12 @@ public class PrimitiveYamlConfigSerializer<T extends ConfigData> implements Conf
             if (cls.isArray()) {
                 Class<?> comp = cls.getComponentType();
                 Object array = Array.newInstance(comp, list.size());
-                for (int i = 0; i < list.size(); i++) Array.set(array, i, fromPlain(list.get(i), comp, null));
+                for (int i = 0; i < list.size(); i++) Array.set(array, i, this.fromPlain(list.get(i), comp, null));
                 return array;
             }
             Type t = type instanceof ParameterizedType pt ? pt.getActualTypeArguments()[0] : Object.class;
             Collection<Object> result = Set.class.isAssignableFrom(cls) ? new LinkedHashSet<>() : new ArrayList<>();
-            for (Object object : list) result.add(fromPlain(object, t, null));
+            for (Object object : list) result.add(this.fromPlain(object, t, null));
             return result;
         }
 
@@ -255,7 +325,7 @@ public class PrimitiveYamlConfigSerializer<T extends ConfigData> implements Conf
                 }
                 Map<Object, Object> result = newMap(cls);
                 for (Map.Entry<?, ?> entry : map.entrySet()) {
-                    result.put(fromPlain(entry.getKey(), keyType, null), fromPlain(entry.getValue(), valType, null));
+                    result.put(this.fromPlain(entry.getKey(), keyType, null), fromPlain(entry.getValue(), valType, null));
                 }
                 return result;
             }
@@ -268,7 +338,7 @@ public class PrimitiveYamlConfigSerializer<T extends ConfigData> implements Conf
                     types[i] = comps[i].getType();
                     Field field = cls.getDeclaredField(comps[i].getName());
                     String key = lookupKey(map, field);
-                    Object object = key != null ? fromPlain(map.get(key), comps[i].getGenericType(), null) : null;
+                    Object object = key != null ? this.fromPlain(map.get(key), comps[i].getGenericType(), null) : null;
                     if (object == null && types[i].isPrimitive()) {
                         object = Array.get(Array.newInstance(types[i], 1), 0);
                     }
@@ -289,7 +359,7 @@ public class PrimitiveYamlConfigSerializer<T extends ConfigData> implements Conf
                 String key = lookupKey(map, field);
                 if (key == null) continue;
                 try {
-                    field.set(bean, fromPlain(map.get(key), field.getGenericType(), field.get(bean)));
+                    field.set(bean, this.fromPlain(map.get(key), field.getGenericType(), field.get(bean)));
                 }
                 catch (Exception e) {
                     logInvalidKey(key, e);
