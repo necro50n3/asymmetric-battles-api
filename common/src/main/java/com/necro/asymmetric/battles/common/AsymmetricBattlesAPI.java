@@ -2,11 +2,14 @@ package com.necro.asymmetric.battles.common;
 
 import com.cobblemon.mod.common.api.Priority;
 import com.cobblemon.mod.common.api.events.CobblemonEvents;
+import com.cobblemon.mod.common.battles.ActiveBattlePokemon;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
+import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.mojang.logging.LogUtils;
 import com.necro.asymmetric.battles.common.api.actor.HordeBattleActor;
 import com.necro.asymmetric.battles.common.config.AsymmetricConfig;
 import com.necro.asymmetric.battles.common.config.serializer.PrimitiveYamlConfigSerializer;
+import com.necro.asymmetric.battles.common.util.IBattleSpawn;
 import me.shedaniel.autoconfig.AutoConfig;
 import org.slf4j.Logger;
 
@@ -33,6 +36,14 @@ public class AsymmetricBattlesAPI {
             if (remaining.isEmpty()) return;
             int random = new Random().nextInt(remaining.size());
             hordeActor.setLeader(remaining.get(random));
+        });
+
+        CobblemonEvents.BATTLE_ENDED.subscribe(Priority.LOWEST, event -> {
+            for (ActiveBattlePokemon active : event.getBattle().getActivePokemon()) {
+                if (active.getBattlePokemon() == null || !active.isAlive()) continue;
+                PokemonEntity pokemon = active.getBattlePokemon().getEntity();
+                if (pokemon != null && ((IBattleSpawn) pokemon.getPokemon()).aba_isBattleSpawn()) pokemon.discard();
+            }
         });
     }
 }
