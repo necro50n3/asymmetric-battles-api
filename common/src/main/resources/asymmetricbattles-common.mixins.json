@@ -11,7 +11,6 @@
         "battle.HordeSwitchInstructionMixin",
         "battle.PokemonBattleMixin",
         "battle.RandomBattleAIMixin",
-        "battle.SwitchInstructionMixin",
         "battle.WinInstructionMixin",
         "entity.EmptyPokeBallEntityMixin",
         "entity.PokemonMixin",

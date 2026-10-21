@@ -114,6 +114,8 @@ class Battle {
     else if (this.gameType === "triples") this.activePerHalf = 3;
     else if (format.playerCount > 2 || this.gameType === "doubles") this.activePerHalf = 2;
     else this.activePerHalf = 1;
+    // ABA: Add delay flag to allow showdown injections before turn end
+    this.awaitTurnEnd = false;
     this.prng = options.prng || new import_prng.PRNG(options.seed || void 0);
     this.prngSeed = this.prng.startingSeed.slice();
     this.rated = options.rated || !!options.rated;
@@ -2548,6 +2550,21 @@ class Battle {
       this.queue.addChoice({ choice: "residual" });
       this.midTurn = true;
     }
+    let action;
+    while (action = this.queue.shift()) {
+      this.runAction(action);
+      if (this.requestState || this.ended)
+        return;
+    }
+    // ABA Added ability to delay the next turn until custom instruction has passed.
+    if (this.awaitTurnEnd) return;
+    this.nextTurn();
+    this.midTurn = false;
+    this.queue.clear();
+  }
+  delayedNextTurn() {
+    this.awaitTurnEnd = false;
+
     let action;
     while (action = this.queue.shift()) {
       this.runAction(action);

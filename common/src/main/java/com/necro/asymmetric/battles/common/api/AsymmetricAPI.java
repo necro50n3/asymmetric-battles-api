@@ -16,7 +16,6 @@ import com.necro.asymmetric.battles.common.api.spawning.BattleSpawnPool;
 import com.necro.asymmetric.battles.common.api.spawning.BattleSpawnablePosition;
 import com.necro.asymmetric.battles.common.network.AsymmetricNetworkMessages;
 import com.necro.asymmetric.battles.common.registry.SpawnPoolTypeRegistry;
-import com.necro.asymmetric.battles.common.util.MultiBattleUtils;
 import net.minecraft.core.BlockPos;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -92,7 +91,6 @@ public class AsymmetricAPI {
                 .stream().filter(LastBattleCriticalHitsEvolutionProgress.class::isInstance)
                 .forEach(EvolutionProgress::reset);
         });
-        MultiBattleUtils.add(actor.getUuid());
 
         List<String> messages = new ArrayList<>();
         messages.add(String.format(">eval " +
@@ -117,7 +115,8 @@ public class AsymmetricAPI {
                     "side.active[i] = null; " +
                     "battle.actions.switchIn(side.pokemon[i], i); " +
                 "} " +
-                "battle.sendUpdates();",
+                "battle.sendUpdates(); " +
+                "if (battle.awaitTurnEnd) battle.delayedNextTurn()",
             side - 1,
             actor.getPokemonList().size(),
             actor.getUuid(),
