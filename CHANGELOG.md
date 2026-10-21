@@ -1,0 +1,5 @@
+- Bumped minimum Cobblemon version to 1.8.2.
+- Fixed a couple exploits relating to battle spawns.
+- Readded default config values.
+- Added more config utilities for developers.
+- Pokemon that join mid-battle will now trigger their effects before the turn ends.

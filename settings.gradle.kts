@@ -13,4 +13,4 @@ listOf(
     "common",
     "neoforge",
     "fabric"
-).forEach { include(it)}
+).forEach { include(it) }
