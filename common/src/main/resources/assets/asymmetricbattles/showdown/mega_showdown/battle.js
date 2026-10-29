@@ -49,7 +49,7 @@ var import_cobblemon = require("./cobblemon/cobblemon");
  *
  * @license MIT
  */
-const splitRegex = /^\|split\|p([1234])\n(.*)\n(.*)|.+/gm;
+const splitRegex = /^\|split\|p([12345])\n(.*)\n(.*)|.+/gm;
 function extractChannelMessages(message, channelIds) {
   const channelIdSet = new Set(channelIds);
   const channelMessages = {

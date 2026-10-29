@@ -4,6 +4,7 @@
     "asymmetricbattles.battle.types.quadruples": "Quadruple Battle",
     "asymmetricbattles.battle.types.pentuples": "Pentuple Battle",
     "asymmetricbattles.battle.types.sextuples": "Sextuple Battle",
+    "asymmetricbattles.battle.types.raid": "Raid Battle",
     "asymmetricbattles.config.enable_pvp_challenges": "Enable PvP Challenges",
     "asymmetricbattles.config.enable_debug": "Enable Debugging",
     "cobblemon.battle.invalid_dummy": "Attempted to start a battle without at least one valid actor on one side.",

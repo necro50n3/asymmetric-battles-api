@@ -11,7 +11,8 @@ public class AsymmetricUtils {
         if (battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.QUADRUPLES.getName())) return true;
         else if (battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.PENTUPLES.getName())) return true;
         else if (battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.SEXTUPLES.getName())) return true;
-        else return battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.HORDE.getName());
+        else if (battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.HORDE.getName())) return true;
+        else return battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.RAID.getName());
     }
 
     public static boolean isAsymmetricBattle(BattleFormat battleFormat) {

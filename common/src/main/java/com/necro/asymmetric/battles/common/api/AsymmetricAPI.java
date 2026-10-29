@@ -93,30 +93,8 @@ public class AsymmetricAPI {
         });
 
         List<String> messages = new ArrayList<>();
-        messages.add(String.format(">eval " +
-                "const side = battle.sides[%1$d]; " +
-                "side.name = \"%3$s\"; " +
-                "side.initTeam(battle.getTeam({ \"team\": \"%4$s\" })); " +
-                "side.totalFainted = 0; " +
-
-                "for (let i = 0; i < side.pokemon.length; i++) { " +
-                    "battle.initPokemon(side.pokemon[i]); " +
-                "} " +
-
-                "for (let i = 0; i < Math.min(side.active.length, side.pokemon.length); i++) { " +
-                    "side.active[i] = side.pokemon[i]; " +
-                "} " +
-
-                "const requests = battle.getRequests(\"move\"); " +
-                "side.emitRequest(requests[%1$d]); " +
-                "side.chooseTeam(%2$d); " +
-
-                "for (let i = 0; i < Math.min(side.active.length, side.pokemon.length); i++) { " +
-                    "side.active[i] = null; " +
-                    "battle.actions.switchIn(side.pokemon[i], i); " +
-                "} " +
-                "battle.sendUpdates(); " +
-                "if (battle.awaitTurnEnd) battle.delayedNextTurn()",
+        messages.add(String.format(
+            ">insertactor %1$d %2$d %3$s %4$s",
             side - 1,
             actor.getPokemonList().size(),
             actor.getUuid(),

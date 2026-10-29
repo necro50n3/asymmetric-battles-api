@@ -14,6 +14,7 @@ public class AsymmetricBattleFormats {
     public static final BattleType PENTUPLES = BattleTypes.INSTANCE.makeBattleType("pentuples", Component.translatable("asymmetricbattles.battle.types.pentuples"), 1, 5);
     public static final BattleType SEXTUPLES = BattleTypes.INSTANCE.makeBattleType("sextuples", Component.translatable("asymmetricbattles.battle.types.sextuples"), 1, 6);
     public static final BattleType HORDE = BattleTypes.INSTANCE.makeBattleType("horde", Component.translatable("asymmetricbattles.battle.types.horde"), 1, 6);
+    public static final BattleType RAID = BattleTypes.INSTANCE.makeBattleType("raid", Component.translatable("asymmetricbattles.battle.types.horde"), 4, 1);
 
     public static final BattleFormat GEN_9_QUADRUPLES = new BattleFormat(
         "cobblemon",
@@ -39,6 +40,13 @@ public class AsymmetricBattleFormats {
     public static final BattleFormat GEN_9_HORDE = new BattleFormat(
         "cobblemon",
         HORDE,
+        new HashSet<>(Set.of(BattleRules.OBTAINABLE, BattleRules.PAST, BattleRules.UNOBTAINABLE)),
+        9,
+        -1
+    );
+    public static final BattleFormat GEN_9_RAID = new BattleFormat(
+        "cobblemon",
+        RAID,
         new HashSet<>(Set.of(BattleRules.OBTAINABLE, BattleRules.PAST, BattleRules.UNOBTAINABLE)),
         9,
         -1

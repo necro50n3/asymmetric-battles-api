@@ -18,7 +18,9 @@ public abstract class ShowdownLoader {
 
         Path showdown_sim = Path.of("./showdown/sim");
 
+        String indexJs = "assets/asymmetricbattles/showdown/index.js";
         String battleJs = "assets/asymmetricbattles/showdown/battle.js";
+        String battleStreamJs = "assets/asymmetricbattles/showdown/battle-stream.js";
         String sideJs = "assets/asymmetricbattles/showdown/side.js";
         String teamsJs = "assets/asymmetricbattles/showdown/teams.js";
         String pokemonJs = "assets/asymmetricbattles/showdown/pokemon.js";
@@ -28,12 +30,15 @@ public abstract class ShowdownLoader {
             pokemonJs = "assets/asymmetricbattles/showdown/mega_showdown/pokemon.js";
         }
         else if (this.isGenesisFormsLoaded()) {
+            indexJs = "assets/asymmetricbattles/showdown/genesisforms/index.js";
             sideJs = "assets/asymmetricbattles/showdown/genesisforms/side.js";
         }
 
         try {
             Files.createDirectories(showdown_sim);
+            if (!this.isMegaShowdownLoaded()) yoink(indexJs, showdown_sim.resolve("index.js"));
             yoink(battleJs, showdown_sim.resolve("battle.js"));
+            yoink(battleStreamJs, showdown_sim.resolve("battle-stream.js"));
             yoink(sideJs, showdown_sim.resolve("side.js"));
             yoink(teamsJs, showdown_sim.resolve("teams.js"));
             yoink(pokemonJs, showdown_sim.resolve("pokemon.js"));

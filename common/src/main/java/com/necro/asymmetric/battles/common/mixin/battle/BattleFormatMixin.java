@@ -17,5 +17,6 @@ public class BattleFormatMixin {
         else if (Set.of("pentuple_battle", "pentuple", "pentuples").contains(id)) cir.setReturnValue(AsymmetricBattleFormats.GEN_9_PENTUPLES);
         else if (Set.of("sextuple_battle", "sextuple", "sextuples").contains(id)) cir.setReturnValue(AsymmetricBattleFormats.GEN_9_SEXTUPLES);
         else if (Set.of("horde_battle", "horde").contains(id)) cir.setReturnValue(AsymmetricBattleFormats.GEN_9_HORDE);
+        else if (Set.of("raid_battle", "raid").contains(id)) cir.setReturnValue(AsymmetricBattleFormats.GEN_9_RAID);
     }
 }
