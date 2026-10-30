@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
 import com.cobblemon.mod.common.battles.runner.ShowdownService;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.evolution.progress.LastBattleCriticalHitsEvolutionProgress;
+import com.necro.asymmetric.battles.common.api.actor.DummyBattleActor;
 import com.necro.asymmetric.battles.common.api.spawning.BattleSpawnPool;
 import com.necro.asymmetric.battles.common.api.spawning.BattleSpawnablePosition;
 import com.necro.asymmetric.battles.common.network.AsymmetricNetworkMessages;
@@ -29,57 +30,92 @@ import java.util.function.Supplier;
 /**
  * Core runtime API for dynamically modifying active Cobblemon battles.
  * <p>
- * This class provides utility functions to hot-join or substitute a {@link BattleActor}
+ * This class provides utility functions to join or substitute a {@link BattleActor}
  * into an ongoing Multi Battle without restarting the battle engine.
- *
- * <h4>Multi Battle Slot Layout:</h4>
- * <ul>
- *   <li><b>Side 1 (Ally Team):</b>
- *     <ul>
- *       <li>{@code side = 1} (Showdown {@code p1}): Primary actor (Index 0).</li>
- *       <li>{@code side = 3} (Showdown {@code p3}): Ally actor (Index 1).</li>
- *     </ul>
- *   </li>
- *   <li><b>Side 2 (Opposing Team):</b>
- *     <ul>
- *       <li>{@code side = 2} (Showdown {@code p2}): Primary opponent (Index 0).</li>
- *       <li>{@code side = 4} (Showdown {@code p4}): Ally opponent (Index 1).</li>
- *     </ul>
- *   </li>
- * </ul>
- *
- * @see AsymmetricBattleBuilder#multiBattle
  */
 public class AsymmetricAPI {
     public static BasicSpawner SPAWNER;
 
     /**
-     * Dynamically injects a new {@link BattleActor} into an ongoing Multi Battle at the specified slot.
+     * Dynamically injects a new {@link BattleActor} into an ongoing Multi Battle at the specified side slot.
      * @param actor  The {@link BattleActor} joining the battle (Player, NPC, Wild, or Horde actor).
      * @param battle The active {@link PokemonBattle} instance.
-     * @param side   The battle side slot (1 to 4):
+     * @param slot   The battle side slot (1 to 4):
      *               <ul>
      *                 <li><b>Side 1 (Ally Team):</b>
      *                   <ul>
-     *                     <li>{@code side = 1} (Showdown {@code p1}): Primary actor (Index 0).</li>
-     *                     <li>{@code side = 3} (Showdown {@code p3}): Ally actor (Index 1).</li>
+     *                     <li>{@code slot = 1} (Showdown {@code p1}): Primary actor (Index 0).</li>
+     *                     <li>{@code slot = 3} (Showdown {@code p3}): Ally actor (Index 1).</li>
      *                   </ul>
      *                 </li>
      *                 <li><b>Side 2 (Opposing Team):</b>
      *                   <ul>
-     *                     <li>{@code side = 2} (Showdown {@code p2}): Primary opponent (Index 0).</li>
-     *                     <li>{@code side = 4} (Showdown {@code p4}): Ally opponent (Index 1).</li>
+     *                     <li>{@code slot = 2} (Showdown {@code p2}): Primary opponent (Index 0).</li>
+     *                     <li>{@code slot = 4} (Showdown {@code p4}): Ally opponent (Index 1).</li>
+     *                   </ul>
+     *                 </li>
+     *               </ul>
+     *
+     * @see AsymmetricBattleBuilder#multiBattle
+     */
+    public static void setMultiBattleActor(BattleActor actor, PokemonBattle battle, int slot) {
+        if (!battle.getFormat().getBattleType().getName().equalsIgnoreCase("multi")) return;
+        int index = slot == 1 || slot == 2 ? 0 : 1;
+        setBattleActor(actor, battle, slot, index);
+    }
+
+    /**
+     * Dynamically injects a new {@link BattleActor} into an ongoing Raid Battle at the specified slot.
+     * @param actor  The {@link BattleActor} joining the battle (Player, NPC, Trainer).
+     * @param battle The active {@link PokemonBattle} instance.
+     * @param slot   The battle side slot (1 to 4):
+     *               <ul>
+     *                 <li><b>Side 1 (Ally Team):</b>
+     *                   <ul>
+     *                     <li>{@code slot = 1} (Showdown {@code p2}): Raid participant (Index 0).</li>
+     *                     <li>{@code slot = 2} (Showdown {@code p3}): Raid participant (Index 1).</li>
+     *                     <li>{@code slot = 3} (Showdown {@code p4}): Raid participant (Index 2).</li>
+     *                     <li>{@code slot = 4} (Showdown {@code p5}): Raid participant (Index 3).</li>
+     *                   </ul>
+     *                 </li>
+     *                 <li><b>Side 2 (Opposing Team):</b>
+     *                   <ul>
+     *                     <li>{@code slot = N/A} (Showdown {@code p1}): Raid boss (Index 0).</li>
      *                   </ul>
      *                 </li>
      *               </ul>
      */
-    public static void setMultiBattleActor(BattleActor actor, PokemonBattle battle, int side) {
+    public static void setRaidBattleActor(BattleActor actor, PokemonBattle battle, int slot) {
+        if (!battle.getFormat().getBattleType().getName().equalsIgnoreCase("raid")) return;
+        setBattleActor(actor, battle, 1, slot);
+    }
+
+    /**
+     * Dynamically injects a new {@link BattleActor} into an ongoing Raid Battle at the next empty slot.
+     * @param actor  The {@link BattleActor} joining the battle (Player, NPC, Trainer).
+     * @param battle The active {@link PokemonBattle} instance.
+     *
+     * @see AsymmetricAPI#setRaidBattleActor(BattleActor, PokemonBattle, int)
+     */
+    public static void setRaidBattleActor(BattleActor actor, PokemonBattle battle) {
+        int index = -1;
+        BattleActor[] actors = battle.getSide1().getActors();
+        for (int i = 0; i < actors.length; i++) {
+            if (actors[i] instanceof DummyBattleActor) {
+                index = i;
+                break;
+            }
+        }
+
+        if (index == -1) return;
+        setRaidBattleActor(actor, battle, index);
+    }
+
+    private static void setBattleActor(BattleActor actor, PokemonBattle battle, int side, int slot) {
         if (battle.getEnded()) return;
-        else if (!battle.getFormat().getBattleType().getName().equalsIgnoreCase("multi")) return;
 
         BattleSide battleSide = side == 1 || side == 3 ? battle.getSide1() : battle.getSide2();
-        int index = side == 1 || side == 2 ? 0 : 1;
-        battleSide.getActors()[index] = actor;
+        battleSide.getActors()[slot] = actor;
         actor.setBattle(battle);
         actor.setShowdownId("p" + side);
         for (int i = 0; i < battle.getFormat().getBattleType().getSlotsPerActor(); i++) {
@@ -104,7 +140,7 @@ public class AsymmetricAPI {
         ShowdownService.Companion.getService().send(battle.getBattleId(), messages.toArray(new String[]{}));
         for (BattleActor iterActor : battle.getActors()) {
             if (!(iterActor instanceof PlayerBattleActor player)) return;
-            AsymmetricNetworkMessages.MULTI_BATTLE_ACTOR_UPDATE.accept(player.getEntity(), side, player.getSide() == battleSide, actor);
+            AsymmetricNetworkMessages.BATTLE_ACTOR_UPDATE.accept(player.getEntity(), side, slot, player.getSide() == battleSide, actor);
         }
     }
 

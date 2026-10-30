@@ -22,13 +22,13 @@ import java.util.ArrayList;
 import java.util.List;
 import java.util.UUID;
 
-public record MultiBattleActorUpdatePacket(int side, boolean isAlly, BattleInitializePacket.BattleActorDTO actor) implements CustomPacketPayload, ClientPacket {
+public record MultiBattleActorUpdatePacket(int side, int slot, boolean isAlly, BattleInitializePacket.BattleActorDTO actor) implements CustomPacketPayload, ClientPacket {
     public static final ResourceLocation ID = ResourceLocation.fromNamespaceAndPath(AsymmetricBattlesAPI.MODID, "multi_battle_actor_update");
     public static final Type<MultiBattleActorUpdatePacket> PACKET_TYPE = new Type<>(ID);
     public static final StreamCodec<RegistryFriendlyByteBuf, MultiBattleActorUpdatePacket> CODEC = StreamCodec.ofMember(MultiBattleActorUpdatePacket::write, MultiBattleActorUpdatePacket::read);
 
-    public MultiBattleActorUpdatePacket(int side, boolean isAlly, BattleActor actor) {
-        this(side, isAlly, new BattleInitializePacket.BattleActorDTO(
+    public MultiBattleActorUpdatePacket(int side, int slot, boolean isAlly, BattleActor actor) {
+        this(side, slot, isAlly, new BattleInitializePacket.BattleActorDTO(
             actor.getUuid(),
             actor.getName(),
             actor.getShowdownId(),
@@ -48,6 +48,7 @@ public record MultiBattleActorUpdatePacket(int side, boolean isAlly, BattleIniti
 
     public void write(RegistryFriendlyByteBuf buf) {
         buf.writeInt(this.side);
+        buf.writeInt(this.slot);
         buf.writeBoolean(this.isAlly);
         buf.writeUUID(this.actor.getUuid());
         ComponentSerialization.TRUSTED_CONTEXT_FREE_STREAM_CODEC.encode(buf, this.actor.getDisplayName());
@@ -62,6 +63,7 @@ public record MultiBattleActorUpdatePacket(int side, boolean isAlly, BattleIniti
 
     public static MultiBattleActorUpdatePacket read(RegistryFriendlyByteBuf buf) {
         int side = buf.readInt();
+        int slot = buf.readInt();
         boolean isAlly = buf.readBoolean();
 
         UUID uuid = buf.readUUID();
@@ -79,7 +81,7 @@ public record MultiBattleActorUpdatePacket(int side, boolean isAlly, BattleIniti
         ActorType type = ActorType.values()[NetExtensionsKt.readSizedInt(buf, IntSize.U_BYTE)];
 
         BattleInitializePacket.BattleActorDTO actor = new BattleInitializePacket.BattleActorDTO(uuid, component, showdownId, activePokemon, type);
-        return new MultiBattleActorUpdatePacket(side, isAlly, actor);
+        return new MultiBattleActorUpdatePacket(side, slot, isAlly, actor);
     }
 
     public void handle() {
@@ -93,8 +95,7 @@ public record MultiBattleActorUpdatePacket(int side, boolean isAlly, BattleIniti
         }
         boolean spectating = tempSpectating;
 
-        ClientBattleSide side = this.side == 1 || this.side == 3 ? battle.getSide1() : battle.getSide2();
-        int index = this.side == 1 || this.side == 2 ? 0 : 1;
+        ClientBattleSide side = this.side == 1 ? battle.getSide1() : battle.getSide2();
 
         ClientBattleActor actor = new ClientBattleActor(
             this.actor.getShowdownId(),
@@ -116,7 +117,7 @@ public record MultiBattleActorUpdatePacket(int side, boolean isAlly, BattleIniti
                 pokemon.getStatChanges()
             )
         )).toList());
-        side.getActors().set(index, actor);
+        side.getActors().set(this.slot, actor);
 
         actor.setSide(side);
         for (ActiveClientBattlePokemon pokemon : actor.getActivePokemon()) {

@@ -19,6 +19,6 @@ public class BattleMessageMixin {
 
     @Inject(method = "<clinit>", at = @At("RETURN"))
     private static void extendPNXMatcher(CallbackInfo ci) {
-        PNX_MATCHER = new Regex("p\\d[a-f]");
+        PNX_MATCHER = new Regex("p\\d[a-h]");
     }
 }

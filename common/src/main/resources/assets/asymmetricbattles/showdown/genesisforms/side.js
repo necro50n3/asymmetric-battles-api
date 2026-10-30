@@ -64,7 +64,8 @@ class Side {
     if (sideScripts)
       Object.assign(this, sideScripts);
     this.battle = battle;
-    this.id = ["p1", "p2", "p3", "p4"][sideNum];
+    // ABA: Added p5 - p8 id for raid battles
+    this.id = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8"][sideNum];
     this.n = sideNum;
     this.name = name;
     this.avatar = "";
@@ -147,8 +148,9 @@ class Side {
   canDynamaxNow() {
     if (this.battle.gen !== 9)
       return false;
-    if (this.battle.gameType === "multi")
-      return false;
+    // ABA: Add raid to canDynamaxNow condition
+    if (this.battle.gameType === "multi" && this.battle.turn % 2 !== [1, 1, 0, 0][this.n]) return false;
+    else if (this.battle.gameType === "raid" && this.battle.turn % 2 !== [1, 1, 1, 1, 0, 0, 0, 0][this.n]) return false;
     return !this.dynamaxUsed;
   }
   getChoice() {
@@ -228,8 +230,12 @@ class Side {
     return this.foe.allies(all);
   }
   activeTeam() {
-    if (this.battle.gameType !== "multi")
-      return this.active;
+    if (this.battle.gameType !== "multi") return this.active;
+    // ABA: Add raid to activeTeam
+    if (this.battle.gameType === "raid") return this.battle.sides[this.n % 2].active
+        .concat(this.battle.sides[this.n % 2 + 2].active)
+        .concat(this.battle.sides[this.n % 2 + 4].active)
+        .concat(this.battle.sides[this.n % 2 + 6].active);
     return this.battle.sides[this.n % 2].active.concat(this.battle.sides[this.n % 2 + 2].active);
   }
   hasAlly(pokemon) {
@@ -860,8 +866,8 @@ ${sideUpdate}`);
           let targetLoc;
           let event = "";
           while (true) {
-            // ABA: Increase regex range to 6.
-            if (/\s(?:-|\+)?[1-6]$/.test(data) && (0, import_dex.toID)(data) !== "conversion2") {
+            // ABA: Increase regex range to 8.
+            if (/\s(?:-|\+)?[1-8]$/.test(data) && (0, import_dex.toID)(data) !== "conversion2") {
               if (targetLoc !== void 0)
                 return error();
               targetLoc = parseInt(data.slice(-2));

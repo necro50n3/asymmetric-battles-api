@@ -23,8 +23,8 @@ public class AsymmetricNetworkMessagesFabric {
     }
 
     public static void init() {
-        AsymmetricNetworkMessages.MULTI_BATTLE_ACTOR_UPDATE = (player, side, isAlly,actor) ->
-            AsymmetricNetworkMessagesFabric.sendPacketToPlayer(player, new MultiBattleActorUpdatePacket(side, isAlly, actor));
+        AsymmetricNetworkMessages.BATTLE_ACTOR_UPDATE = (player, side, slot, isAlly, actor) ->
+            AsymmetricNetworkMessagesFabric.sendPacketToPlayer(player, new MultiBattleActorUpdatePacket(side, slot, isAlly, actor));
     }
 
     public static void sendPacketToServer(CustomPacketPayload packet) {

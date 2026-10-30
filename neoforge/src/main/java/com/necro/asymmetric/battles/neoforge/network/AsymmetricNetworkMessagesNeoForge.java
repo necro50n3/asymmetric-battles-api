@@ -25,8 +25,8 @@ public class AsymmetricNetworkMessagesNeoForge {
     }
 
     public static void init() {
-        AsymmetricNetworkMessages.MULTI_BATTLE_ACTOR_UPDATE = (player, side, isAlly, actor) ->
-            AsymmetricNetworkMessagesNeoForge.sendPacketToPlayer(player, new MultiBattleActorUpdatePacket(side, isAlly, actor));
+        AsymmetricNetworkMessages.BATTLE_ACTOR_UPDATE = (player, side, slot, isAlly, actor) ->
+            AsymmetricNetworkMessagesNeoForge.sendPacketToPlayer(player, new MultiBattleActorUpdatePacket(side, slot, isAlly, actor));
     }
 
     public static void sendPacketToServer(CustomPacketPayload packet) {

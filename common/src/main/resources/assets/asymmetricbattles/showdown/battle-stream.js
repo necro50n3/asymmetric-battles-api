@@ -120,7 +120,8 @@ ${data}`);
         break;
       case "player":
         const [slot, optionsText] = splitFirst(message, " ");
-        this.battle.setPlayer(slot, JSON.parse(optionsText));
+        try { this.battle.setPlayer(slot, JSON.parse(optionsText)); }
+        catch (e) { this.battle.add(e); }
         break;
       case "capture":
         this.battle.inputLog.push(`>capture ${message}`);
@@ -135,10 +136,16 @@ ${data}`);
       case "p2":
       case "p3":
       case "p4":
+      // ABA: Added p5 - p8 input case
+      case "p5":
+      case "p6":
+      case "p7":
+      case "p8":
         if (message === "undo") {
           this.battle.undoChoice(type);
         } else {
-          this.battle.choose(type, message);
+          try { this.battle.choose(type, message); }
+          catch (e) { this.battle.add(e); }
         }
         break;
       case "forcewin":
@@ -648,6 +655,8 @@ ${team}`);
         const [move, toSide] = splitFirst(message, " ");
         let p = this.battle.sides[1].active[0];
         p.side.lastSelectedMove = this.battle.toID(move);
+        const targetSide = parseInt(toSide);
+        const targetSlot = targetSide === 1 ? 1 : this.battle.random(0, this.battle.sides[1].foes().length);
         this.battle.actions.runMove(move, p, parseInt(toSide), null, null, true, false);
         break;
       }
@@ -707,6 +716,27 @@ function getPlayerStreams(stream) {
       write(data) {
         void stream.write(data.replace(/(^|\n)/g, `$1>p4 `));
       }
+    }),
+    // ABA: Added p5 - p8 stream
+    p5: new import_lib.Streams.ObjectReadWriteStream({
+      write(data) {
+        void stream.write(data.replace(/(^|\n)/g, `$1>p5 `));
+      }
+    }),
+    p6: new import_lib.Streams.ObjectReadWriteStream({
+      write(data) {
+        void stream.write(data.replace(/(^|\n)/g, `$1>p6 `));
+      }
+    }),
+    p7: new import_lib.Streams.ObjectReadWriteStream({
+      write(data) {
+        void stream.write(data.replace(/(^|\n)/g, `$1>p7 `));
+      }
+    }),
+    p8: new import_lib.Streams.ObjectReadWriteStream({
+      write(data) {
+        void stream.write(data.replace(/(^|\n)/g, `$1>p8 `));
+      }
     })
   };
   (async () => {
@@ -715,13 +745,18 @@ function getPlayerStreams(stream) {
 `);
       switch (type) {
         case "update":
-          const channelMessages = (0, import_battle.extractChannelMessages)(data, [-1, 0, 1, 2, 3, 4]);
+          const channelMessages = (0, import_battle.extractChannelMessages)(data, [-1, 0, 1, 2, 3, 4, 5, 6, 7, 8]);
           streams.omniscient.push(channelMessages[-1].join("\n"));
           streams.spectator.push(channelMessages[0].join("\n"));
           streams.p1.push(channelMessages[1].join("\n"));
           streams.p2.push(channelMessages[2].join("\n"));
           streams.p3.push(channelMessages[3].join("\n"));
           streams.p4.push(channelMessages[4].join("\n"));
+          // ABA: Added p5 - p8 stream to update
+          streams.p5.push(channelMessages[5].join("\n"));
+          streams.p6.push(channelMessages[6].join("\n"));
+          streams.p7.push(channelMessages[7].join("\n"));
+          streams.p8.push(channelMessages[8].join("\n"));
           break;
         case "sideupdate":
           const [side, sideData] = splitFirst(data, `

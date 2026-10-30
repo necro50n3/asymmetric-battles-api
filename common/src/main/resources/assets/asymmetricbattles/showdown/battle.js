@@ -49,7 +49,8 @@ var import_cobblemon = require("./cobblemon/cobblemon");
  *
  * @license MIT
  */
-const splitRegex = /^\|split\|p([12345])\n(.*)\n(.*)|.+/gm;
+// Added p5 - p8 to splitRegex and channel messages
+const splitRegex = /^\|split\|p([12345678])\n(.*)\n(.*)|.+/gm;
 function extractChannelMessages(message, channelIds) {
   const channelIdSet = new Set(channelIds);
   const channelMessages = {
@@ -58,7 +59,11 @@ function extractChannelMessages(message, channelIds) {
     1: [],
     2: [],
     3: [],
-    4: []
+    4: [],
+    5: [],
+    6: [],
+    7: [],
+    8: []
   };
   for (const [lineMatch, playerMatch, secretMessage, sharedMessage] of message.matchAll(splitRegex)) {
     const player = playerMatch ? parseInt(playerMatch) : 0;
@@ -110,7 +115,7 @@ class Battle {
     // ABA: Modify variable for new game types
     if (this.gameType === "sextuples" || this.gameType === "horde") this.activePerHalf = 6;
     else if (this.gameType === "pentuples") this.activePerHalf = 5;
-    else if (this.gameType === "quadruples") this.activePerHalf = 4;
+    else if (this.gameType === "quadruples" || this.gameType === "raid") this.activePerHalf = 4;
     else if (this.gameType === "triples") this.activePerHalf = 3;
     else if (format.playerCount > 2 || this.gameType === "doubles") this.activePerHalf = 2;
     else this.activePerHalf = 1;
@@ -193,7 +198,8 @@ class Battle {
           this.field.addPseudoWeather(rule);
       }
     }
-    const sides = ["p1", "p2", "p3", "p4"];
+    // ABA: Added p5 - p8 to sides
+    const sides = ["p1", "p2", "p3", "p4", "p5", "p6", "p7", "p8"];
     for (const side of sides) {
       if (options[side]) {
         this.setPlayer(side, options[side]);
@@ -217,6 +223,19 @@ class Battle {
   }
   get p4() {
     return this.sides[3];
+  }
+  // ABA: Added p5() to p8()
+  get p5() {
+    return this.sides[4];
+  }
+  get p6() {
+    return this.sides[5];
+  }
+  get p7() {
+    return this.sides[6];
+  }
+  get p8() {
+    return this.sides[7];
   }
   toString() {
     return `Battle: ${this.format}`;
@@ -1234,6 +1253,7 @@ class Battle {
     else if (this.gameType === "pentuples") return true;
     else if (this.gameType === "sextuples") return true;
     else if (this.gameType === "horde") return true;
+    else if (this.gameType === "raid") return true;
     return false;
   }
   swapPosition(pokemon, newPosition, attributes) {
@@ -1406,7 +1426,8 @@ class Battle {
       }
     }
     this.add("turn", this.turn);
-    if (this.gameType === "multi") {
+    // ABA: Add raid to dynamax check
+    if (this.gameType === "multi" || this.gameType === "raid") {
       for (const side of this.sides) {
         if (side.canDynamaxNow()) {
           if (this.turn === 1) {
@@ -1533,7 +1554,37 @@ class Battle {
       this.sides[3].allySide = this.sides[1];
       this.sides[2].sideConditions = this.sides[0].sideConditions;
       this.sides[3].sideConditions = this.sides[1].sideConditions;
-    } else {
+    }
+    // ABA: Set up sides for raids
+    else if (this.gameType === "raid") {
+      this.sides[0].foe = this.sides[7];
+      this.sides[2].foe = this.sides[5];
+      this.sides[4].foe = this.sides[3];
+      this.sides[6].foe = this.sides[1];
+
+      this.sides[7].foe = this.sides[0];
+      this.sides[5].foe = this.sides[2];
+      this.sides[3].foe = this.sides[4];
+      this.sides[1].foe = this.sides[6];
+
+      this.sides[0].allySide = this.sides[2];
+      this.sides[2].allySide = this.sides[4];
+      this.sides[4].allySide = this.sides[6];
+      this.sides[6].allySide = this.sides[0];
+
+      this.sides[1].allySide = this.sides[3];
+      this.sides[3].allySide = this.sides[5];
+      this.sides[5].allySide = this.sides[7];
+      this.sides[7].allySide = this.sides[1];
+
+      this.sides[2].sideConditions = this.sides[0].sideConditions;
+      this.sides[4].sideConditions = this.sides[0].sideConditions;
+      this.sides[6].sideConditions = this.sides[0].sideConditions;
+      this.sides[3].sideConditions = this.sides[1].sideConditions;
+      this.sides[5].sideConditions = this.sides[1].sideConditions;
+      this.sides[7].sideConditions = this.sides[1].sideConditions;
+    }
+    else {
       this.sides[1].foe = this.sides[0];
       this.sides[0].foe = this.sides[1];
       if (this.sides.length > 2) {
@@ -2200,6 +2251,11 @@ class Battle {
     if (this.gameType === "multi") {
       team1PokemonLeft += this.sides[2].pokemonLeft;
       team2PokemonLeft += this.sides[3].pokemonLeft;
+    }
+    // ABA: Add raid format to checkWin
+    else if (this.gameType === "raid") {
+      team1PokemonLeft += this.sides[2].pokemonLeft + this.sides[4].pokemonLeft + this.sides[6].pokemonLeft;
+      team2PokemonLeft += this.sides[3].pokemonLeft + this.sides[5].pokemonLeft + this.sides[7].pokemonLeft;
     }
     if (!team1PokemonLeft && !team2PokemonLeft && !team3PokemonLeft && !team4PokemonLeft) {
       this.win(faintData && this.gen > 4 ? faintData.target.side : null);
@@ -2888,6 +2944,7 @@ class Battle {
     this.send("update", this.log.slice(this.sentLogPos));
     this.sentLogPos = this.log.length;
     if (!this.sentEnd && this.ended) {
+      // ABA: Add p5 - p8 to logs
       const log = {
         winner: this.winner,
         seed: this.prngSeed,
@@ -2896,10 +2953,18 @@ class Battle {
         p2: this.sides[1].name,
         p3: this.sides[2] && this.sides[2].name,
         p4: this.sides[3] && this.sides[3].name,
+        p5: this.sides[4] && this.sides[4].name,
+        p6: this.sides[5] && this.sides[5].name,
+        p7: this.sides[6] && this.sides[6].name,
+        p8: this.sides[7] && this.sides[7].name,
         p1team: this.sides[0].team,
         p2team: this.sides[1].team,
         p3team: this.sides[2] && this.sides[2].team,
         p4team: this.sides[3] && this.sides[3].team,
+        p5team: this.sides[4] && this.sides[4].team,
+        p6team: this.sides[5] && this.sides[5].team,
+        p7team: this.sides[6] && this.sides[6].team,
+        p8team: this.sides[7] && this.sides[7].team,
         score: [this.sides[0].pokemonLeft, this.sides[1].pokemonLeft],
         inputLog: this.inputLog
       };
@@ -2914,6 +2979,31 @@ class Battle {
       } else {
         delete log.p4;
         delete log.p4team;
+      }
+      // ABA: Add p5 - p8 to log cleanup
+      if (this.sides[4]) {
+        log.score.push(this.sides[4].pokemonLeft);
+      } else {
+        delete log.p5;
+        delete log.p5team;
+      }
+      if (this.sides[5]) {
+        log.score.push(this.sides[5].pokemonLeft);
+      } else {
+        delete log.p6;
+        delete log.p6team;
+      }
+      if (this.sides[6]) {
+        log.score.push(this.sides[6].pokemonLeft);
+      } else {
+        delete log.p7;
+        delete log.p7team;
+      }
+      if (this.sides[7]) {
+        log.score.push(this.sides[7].pokemonLeft);
+      } else {
+        delete log.p8;
+        delete log.p8team;
       }
       this.send("end", JSON.stringify(log));
       this.sentEnd = true;
