@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
+import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -68,25 +69,26 @@ public class AsymmetricAPI {
      * Dynamically injects a new {@link BattleActor} into an ongoing Raid Battle at the specified slot.
      * @param actor  The {@link BattleActor} joining the battle (Player, NPC, Trainer).
      * @param battle The active {@link PokemonBattle} instance.
-     * @param slot   The battle side slot (1 to 4):
+     * @param slot   The battle side slot (1,3,5,7):
      *               <ul>
      *                 <li><b>Side 1 (Ally Team):</b>
      *                   <ul>
-     *                     <li>{@code slot = 1} (Showdown {@code p2}): Raid participant (Index 0).</li>
-     *                     <li>{@code slot = 2} (Showdown {@code p3}): Raid participant (Index 1).</li>
-     *                     <li>{@code slot = 3} (Showdown {@code p4}): Raid participant (Index 2).</li>
-     *                     <li>{@code slot = 4} (Showdown {@code p5}): Raid participant (Index 3).</li>
+     *                     <li>{@code slot = 1} (Showdown {@code p1}): Raid participant (Index 0).</li>
+     *                     <li>{@code slot = 3} (Showdown {@code p3}): Raid participant (Index 1).</li>
+     *                     <li>{@code slot = 5} (Showdown {@code p5}): Raid participant (Index 2).</li>
+     *                     <li>{@code slot = 7} (Showdown {@code p7}): Raid participant (Index 3).</li>
      *                   </ul>
      *                 </li>
      *                 <li><b>Side 2 (Opposing Team):</b>
      *                   <ul>
-     *                     <li>{@code slot = N/A} (Showdown {@code p1}): Raid boss (Index 0).</li>
+     *                     <li>{@code slot = 2} (Showdown {@code p2}): Raid boss (Index 0).</li>
      *                   </ul>
      *                 </li>
      *               </ul>
      */
     public static void setRaidBattleActor(BattleActor actor, PokemonBattle battle, int slot) {
         if (!battle.getFormat().getBattleType().getName().equalsIgnoreCase("raid")) return;
+        else if (!Set.of(1, 3, 5, 7).contains(slot)) return;
         setBattleActor(actor, battle, 1, slot);
     }
 
@@ -107,8 +109,9 @@ public class AsymmetricAPI {
             }
         }
 
-        if (index == -1) return;
-        setRaidBattleActor(actor, battle, index);
+        if (index == -1 || index > 3) return;
+        int slot = new int[]{1, 3, 5, 7}[index];
+        setRaidBattleActor(actor, battle, slot);
     }
 
     private static void setBattleActor(BattleActor actor, PokemonBattle battle, int side, int slot) {
