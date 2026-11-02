@@ -5,7 +5,6 @@ import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.api.battles.model.actor.EntityBackedBattleActor;
 import com.cobblemon.mod.common.battles.*;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
-import com.necro.asymmetric.battles.common.AsymmetricBattlesAPI;
 import com.necro.asymmetric.battles.common.util.AsymmetricUtils;
 import com.necro.asymmetric.battles.common.util.PokemonLocatorUtils;
 import kotlin.Pair;
@@ -150,8 +149,6 @@ public abstract class ActiveBattlePokemonMixin implements Targetable {
                 }
             }
         }
-
-        AsymmetricBattlesAPI.LOGGER.info("pnx={} counted={} base={} cand={} final={} fellBack={}", pnx, pokemonPerSide, basePos, candidatePos, finalPos, finalPos == basePos);
 
         cir.setReturnValue(finalPos);
     }
