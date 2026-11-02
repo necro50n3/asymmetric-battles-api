@@ -34,8 +34,7 @@ public class StatChangeRendererMixin {
     )
     private static int modifyStartingRightX(int startingRightX, @Local(argsOnly = true) int order) {
         ClientBattle battle = CobblemonClient.INSTANCE.getBattle();
-        if (battle == null) return startingRightX;
-        if (!AsymmetricUtils.isAsymmetricBattle(battle.getBattleFormat())) return startingRightX;
+        if (battle == null || !AsymmetricUtils.isAsymmetricOrMultiBattle(battle.getBattleFormat())) return startingRightX;
 
         int screenWidth = Minecraft.getInstance().getWindow().getGuiScaledWidth();
         return screenWidth - BattleOverlay.HORIZONTAL_INSET - BattleOverlay.TILE_WIDTH - 1 + order * 2;
@@ -49,8 +48,7 @@ public class StatChangeRendererMixin {
     )
     private static int modifyY(int y, @Local(argsOnly = true) int order) {
         ClientBattle battle = CobblemonClient.INSTANCE.getBattle();
-        if (battle == null) return y;
-        if (!AsymmetricUtils.isAsymmetricBattle(battle.getBattleFormat())) return y;
-        else return BattleOverlay.VERTICAL_INSET + order * 20;
+        if (battle == null || !AsymmetricUtils.isAsymmetricOrMultiBattle(battle.getBattleFormat())) return y;
+        return BattleOverlay.VERTICAL_INSET + order * 20;
     }
 }

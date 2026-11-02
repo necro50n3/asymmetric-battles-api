@@ -5,14 +5,16 @@ import com.cobblemon.mod.common.client.battle.ActiveClientBattlePokemon;
 import com.cobblemon.mod.common.client.battle.ClientBattle;
 import com.cobblemon.mod.common.client.battle.ClientBattleActor;
 import com.cobblemon.mod.common.client.battle.ClientBattleSide;
-import com.cobblemon.mod.common.pokemon.Pokemon;
+import com.cobblemon.mod.common.client.storage.ClientParty;
 import com.github.yajatkaul.mega_showdown.api.lilycobble.networking.battle.BattlePokemonState;
 import com.github.yajatkaul.mega_showdown.api.lilycobble.networking.battle.BattleSideState;
 import com.github.yajatkaul.mega_showdown.client.battle.hud.BattleHUD;
+import com.github.yajatkaul.mega_showdown.client.battle.storage.BattlePokemonMemory;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Minecraft;
 import org.spongepowered.asm.mixin.Mixin;
+import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.HashSet;
@@ -23,6 +25,11 @@ import java.util.stream.StreamSupport;
 
 @Mixin(BattleHUD.class)
 public class BattleHUDMixin {
+    @Shadow
+    private static BattlePokemonMemory getOrCreateMemory(ActiveClientBattlePokemon pokemon) {
+        throw new AssertionError();
+    }
+
     @WrapOperation(
         method = "tickLocalBattleInfo",
         at = @At(
@@ -50,7 +57,7 @@ public class BattleHUDMixin {
             target = "Lcom/github/yajatkaul/mega_showdown/api/lilycobble/networking/battle/BattleSideState;getPokemon()Ljava/util/List;"
         )
     )
-    private static List<BattlePokemonState> filterAlliesOnTickOnPacket(BattleSideState instance, Operation<List<BattlePokemonState>> original) {
+    private static List<BattlePokemonState> filterAlliesOnPacket(BattleSideState instance, Operation<List<BattlePokemonState>> original) {
         List<BattlePokemonState> all = original.call(instance);
         ClientBattle battle = CobblemonClient.INSTANCE.getBattle();
         if (Minecraft.getInstance().player == null || battle == null || !battle.getBattleFormat().getBattleType().getName().equalsIgnoreCase("raid")) return all;
@@ -61,9 +68,13 @@ public class BattleHUDMixin {
         ClientBattleActor actor = battle.getParticipatingActor(player);
 
         Set<UUID> valid = new HashSet<>();
-        if (isAlly) {
-            for (Pokemon pokemon : CobblemonClient.INSTANCE.getStorage().getParty()) {
-                if (pokemon != null) valid.add(pokemon.getUuid());
+        if (isAlly && actor != null) {
+            ClientBattleSide allySide = actor.getSide();
+            for (ActiveClientBattlePokemon pokemon : allySide.getActiveClientBattlePokemon()) {
+                if (pokemon == null || pokemon.getBattlePokemon() == null) continue;
+                ClientParty party = CobblemonClient.INSTANCE.getStorage().getParty();
+                if (party.getPosition(pokemon.getBattlePokemon().getUuid()) != -1) valid.add(pokemon.getBattlePokemon().getUuid());
+                else getOrCreateMemory(pokemon);
             }
         }
         else if (actor != null) {
