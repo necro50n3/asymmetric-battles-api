@@ -4,7 +4,8 @@
     "compatibilityLevel": "JAVA_21",
     "plugin": "com.necro.asymmetric.battles.neoforge.AsymmetricBattlesAPINeoForgeMixinPlugin",
     "mixins": [
-        "GraalShowdownUnbundlerMixin"
+        "GraalShowdownUnbundlerMixin",
+        "msd.BattleHUDMixin"
     ],
     "client": [
         "msd.StatChangeRendererMixin"

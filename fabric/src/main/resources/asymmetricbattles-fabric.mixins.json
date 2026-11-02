@@ -4,8 +4,8 @@
     "compatibilityLevel": "JAVA_21",
     "plugin": "com.necro.asymmetric.battles.fabric.AsymmetricBattlesAPIFabricMixinPlugin",
     "mixins": [
-        "GraalShowdownUnbundlerMixin"
-
+        "GraalShowdownUnbundlerMixin",
+        "msd.BattleHUDMixin"
     ],
     "client": [
         "msd.StatChangeRendererMixin"
