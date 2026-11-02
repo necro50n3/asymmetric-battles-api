@@ -3,14 +3,14 @@ package com.necro.asymmetric.battles.common.mixin.battle;
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.api.battles.model.actor.EntityBackedBattleActor;
-import com.cobblemon.mod.common.battles.ActiveBattlePokemon;
-import com.cobblemon.mod.common.battles.BattleFormat;
-import com.cobblemon.mod.common.battles.BattleSide;
-import com.cobblemon.mod.common.battles.Targetable;
+import com.cobblemon.mod.common.battles.*;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
+import com.necro.asymmetric.battles.common.AsymmetricBattlesAPI;
 import com.necro.asymmetric.battles.common.util.AsymmetricUtils;
 import com.necro.asymmetric.battles.common.util.PokemonLocatorUtils;
+import kotlin.Pair;
 import kotlin.collections.CollectionsKt;
+import net.minecraft.server.level.ServerLevel;
 import net.minecraft.world.entity.LivingEntity;
 import net.minecraft.world.level.ClipContext;
 import net.minecraft.world.level.Level;
@@ -45,8 +45,11 @@ public abstract class ActiveBattlePokemonMixin implements Targetable {
     @Shadow
     public abstract @NotNull PokemonBattle getBattle();
 
+    @Shadow
+    public abstract Vec3 getSendOutPosition();
+
     @Inject(method = "getLetter", at = @At("HEAD"), cancellable = true, remap = false, require = 1)
-    private void aba_getCorrectLetter(CallbackInfoReturnable<Character> cir) {
+    private void getCorrectLetter(CallbackInfoReturnable<Character> cir) {
         BattleActor actor = this.getActor();
         BattleSide side = this.getSide();
 
@@ -62,7 +65,7 @@ public abstract class ActiveBattlePokemonMixin implements Targetable {
     }
 
     @Inject(method = "getAdjacent", at = @At("HEAD"), cancellable = true, remap = false, require = 1)
-    private void aba_getAllAdjacent(CallbackInfoReturnable<List<Targetable>> cir) {
+    private void getAllAdjacent(CallbackInfoReturnable<List<Targetable>> cir) {
         if (!AsymmetricUtils.isAsymmetricBattle(this.getFormat())) return;
         cir.setReturnValue(CollectionsKt.filter(
             this.getAllActivePokemon(),
@@ -74,9 +77,24 @@ public abstract class ActiveBattlePokemonMixin implements Targetable {
         ));
     }
 
+    @Inject(method = "getPosition", at = @At("RETURN"), cancellable = true, remap = false)
+    private void getRaidPosition(CallbackInfoReturnable<Pair<ServerLevel, Vec3>> cir) {
+        if (cir.getReturnValue() != null) return;
+        else if (!this.getBattle().getFormat().getBattleType().getName().equalsIgnoreCase("raid")) return;
+        if (!(this.getActor() instanceof EntityBackedBattleActor<?> entityActor)) return;
+
+        LivingEntity entity = entityActor.getEntity();
+        if (entity == null) return;
+
+        Vec3 pos = this.getSendOutPosition();
+        if (pos == null) return;
+        cir.setReturnValue(new Pair<>((ServerLevel) entity.level(), pos));
+    }
+
     @Inject(method = "getSendOutPosition", at = @At("HEAD"), cancellable = true, remap = false)
     private void getSendOutPositionExtension(CallbackInfoReturnable<Vec3> cir) {
-        if (this.getFormat().getBattleType().getPokemonPerSide() == 1) return;
+        BattleType type = this.getFormat().getBattleType();
+        if (type.getPokemonPerSide() == 1 || type.getName().equalsIgnoreCase("raid")) return;
         int pokemonPerSide = (int) this.getSide().getActivePokemon().stream().filter(ActiveBattlePokemon::hasPokemon).count();
 
         String pnx = this.getPNX();
@@ -132,6 +150,9 @@ public abstract class ActiveBattlePokemonMixin implements Targetable {
                 }
             }
         }
+
+        AsymmetricBattlesAPI.LOGGER.info("pnx={} counted={} base={} cand={} final={} fellBack={}", pnx, pokemonPerSide, basePos, candidatePos, finalPos, finalPos == basePos);
+
         cir.setReturnValue(finalPos);
     }
 }

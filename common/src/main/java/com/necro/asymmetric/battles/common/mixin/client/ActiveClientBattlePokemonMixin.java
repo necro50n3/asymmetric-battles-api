@@ -29,7 +29,7 @@ public abstract class ActiveClientBattlePokemonMixin implements Targetable {
     public abstract @NotNull ClientBattleActor getActor();
 
     @Inject(method = "getLetter", at = @At("HEAD"), cancellable = true, remap = false, require = 1)
-    private void aba_getCorrectLetter(CallbackInfoReturnable<Character> cir) {
+    private void getCorrectLetter(CallbackInfoReturnable<Character> cir) {
         ClientBattleActor actor = this.getActor();
         ClientBattleSide side = this.getActor().getSide();
 
@@ -45,7 +45,7 @@ public abstract class ActiveClientBattlePokemonMixin implements Targetable {
     }
 
     @Inject(method = "getAdjacent", at = @At("HEAD"), cancellable = true, remap = false, require = 1)
-    private void aba_getAllAdjacent(CallbackInfoReturnable<List<Targetable>> cir) {
+    private void getAllAdjacent(CallbackInfoReturnable<List<Targetable>> cir) {
         if (!AsymmetricUtils.isAsymmetricBattle(this.getFormat())) return;
         cir.setReturnValue(CollectionsKt.filter(
             this.getAllActivePokemon(),
