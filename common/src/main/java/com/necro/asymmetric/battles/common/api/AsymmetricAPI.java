@@ -9,6 +9,7 @@ import com.cobblemon.mod.common.api.spawning.SpawnCause;
 import com.cobblemon.mod.common.api.spawning.spawner.BasicSpawner;
 import com.cobblemon.mod.common.battles.*;
 import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
+import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.battles.runner.ShowdownService;
 import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.pokemon.evolution.progress.LastBattleCriticalHitsEvolutionProgress;
@@ -25,7 +26,6 @@ import org.jetbrains.annotations.Nullable;
 import java.util.ArrayList;
 import java.util.List;
 import java.util.Map;
-import java.util.Set;
 import java.util.function.Supplier;
 
 /**
@@ -61,34 +61,34 @@ public class AsymmetricAPI {
      */
     public static void setMultiBattleActor(BattleActor actor, PokemonBattle battle, int slot) {
         if (!battle.getFormat().getBattleType().getName().equalsIgnoreCase("multi")) return;
+        int side = slot == 1 || slot == 3 ? 1 : 2;
         int index = slot == 1 || slot == 2 ? 0 : 1;
-        setBattleActor(actor, battle, slot, index);
+        setBattleActor(actor, battle, side, index);
     }
 
     /**
      * Dynamically injects a new {@link BattleActor} into an ongoing Raid Battle at the specified slot.
      * @param actor  The {@link BattleActor} joining the battle (Player, NPC, Trainer).
      * @param battle The active {@link PokemonBattle} instance.
-     * @param slot   The battle side slot (1,3,5,7):
+     * @param slot   The battle side slot (0 - 3):
      *               <ul>
      *                 <li><b>Side 1 (Ally Team):</b>
      *                   <ul>
-     *                     <li>{@code slot = 1} (Showdown {@code p1}): Raid participant (Index 0).</li>
-     *                     <li>{@code slot = 3} (Showdown {@code p3}): Raid participant (Index 1).</li>
-     *                     <li>{@code slot = 5} (Showdown {@code p5}): Raid participant (Index 2).</li>
-     *                     <li>{@code slot = 7} (Showdown {@code p7}): Raid participant (Index 3).</li>
+     *                     <li>{@code slot = 0} (Showdown {@code p1}): Raid participant (Index 0).</li>
+     *                     <li>{@code slot = 1} (Showdown {@code p3}): Raid participant (Index 1).</li>
+     *                     <li>{@code slot = 2} (Showdown {@code p5}): Raid participant (Index 2).</li>
+     *                     <li>{@code slot = 3} (Showdown {@code p7}): Raid participant (Index 3).</li>
      *                   </ul>
      *                 </li>
      *                 <li><b>Side 2 (Opposing Team):</b>
      *                   <ul>
-     *                     <li>{@code slot = 2} (Showdown {@code p2}): Raid boss (Index 0).</li>
+     *                     <li>(Showdown {@code p2}): Raid boss (Index 0).</li>
      *                   </ul>
      *                 </li>
      *               </ul>
      */
     public static void setRaidBattleActor(BattleActor actor, PokemonBattle battle, int slot) {
         if (!battle.getFormat().getBattleType().getName().equalsIgnoreCase("raid")) return;
-        else if (!Set.of(1, 3, 5, 7).contains(slot)) return;
         setBattleActor(actor, battle, 1, slot);
     }
 
@@ -110,19 +110,22 @@ public class AsymmetricAPI {
         }
 
         if (index == -1 || index > 3) return;
-        int slot = new int[]{1, 3, 5, 7}[index];
-        setRaidBattleActor(actor, battle, slot);
+        setRaidBattleActor(actor, battle, index);
     }
 
-    private static void setBattleActor(BattleActor actor, PokemonBattle battle, int side, int slot) {
+    private static void setBattleActor(BattleActor actor, PokemonBattle battle, int side, int index) {
         if (battle.getEnded()) return;
 
-        BattleSide battleSide = side == 1 || side == 3 ? battle.getSide1() : battle.getSide2();
-        battleSide.getActors()[slot] = actor;
+        BattleSide battleSide = side == 1 ? battle.getSide1() : battle.getSide2();
+        battleSide.getActors()[index] = actor;
+        int slot = showdownId(side, index);
         actor.setBattle(battle);
-        actor.setShowdownId("p" + side);
-        for (int i = 0; i < battle.getFormat().getBattleType().getSlotsPerActor(); i++) {
-            actor.getActivePokemon().add(new ActiveBattlePokemon(actor, actor.getPokemonList().get(i)));
+        actor.setShowdownId("p" + slot);
+        if (!actor.getPokemonList().isEmpty()) {
+            for (int i = 0; i < Math.min(actor.getPokemonList().size(), battle.getFormat().getBattleType().getSlotsPerActor()); i++) {
+                BattlePokemon pokemon = actor.getPokemonList().get(i);
+                actor.getActivePokemon().add(new ActiveBattlePokemon(actor, pokemon.getEntity() != null ? pokemon : null));
+            }
         }
         actor.getPokemonList().forEach(pokemon -> {
             if (pokemon.getEntity() != null) pokemon.getEntity().setBattleId(battle.getBattleId());
@@ -134,7 +137,7 @@ public class AsymmetricAPI {
         List<String> messages = new ArrayList<>();
         messages.add(String.format(
             ">insertactor %1$d %2$d %3$s %4$s",
-            side - 1,
+            slot - 1,
             actor.getPokemonList().size(),
             actor.getUuid(),
             BattleRegistry.INSTANCE.packTeam(actor.getPokemonList())
@@ -142,9 +145,13 @@ public class AsymmetricAPI {
 
         ShowdownService.Companion.getService().send(battle.getBattleId(), messages.toArray(new String[]{}));
         for (BattleActor iterActor : battle.getActors()) {
-            if (!(iterActor instanceof PlayerBattleActor player)) return;
-            AsymmetricNetworkMessages.BATTLE_ACTOR_UPDATE.accept(player.getEntity(), side, slot, player.getSide() == battleSide, actor);
+            if (!(iterActor instanceof PlayerBattleActor player)) continue;
+            AsymmetricNetworkMessages.BATTLE_ACTOR_UPDATE.accept(player.getEntity(), side, index, player.getSide() == battleSide, actor);
         }
+    }
+
+    private static int showdownId(int side, int index) {
+        return (side - 1) % 2 + 1 + index * 2;
     }
 
     public static @Nullable Pokemon getRandomBattleSpawn(@Nullable BattleSpawnPool pool, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel, Supplier<Pokemon> defaultSpawn) {

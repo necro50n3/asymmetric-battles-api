@@ -287,7 +287,8 @@ class Pokemon {
   }
   getSlot() {
     const positionOffset = Math.floor(this.side.n / 2) * this.side.active.length;
-    const positionLetter = "abcdef".charAt(this.position + positionOffset);
+    // ABA: Ensures that the position letter is always a valid letter for raids
+    const positionLetter = "abcdef".charAt(Math.max(0, this.position) + positionOffset);
     return this.side.id + positionLetter;
   }
   toString() {

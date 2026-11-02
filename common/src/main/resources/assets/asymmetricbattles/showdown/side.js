@@ -206,6 +206,14 @@ class Side {
     if (this.battle.gameType === "freeforall") {
       return this.battle.sides.filter((side) => side !== this).map((side) => side.pokemonLeft).reduce((a, b) => a + b);
     }
+    // ABA: Get foe pokemon left for all sides in raids
+    if (this.battle.gameType === "raid") {
+      const indexStart = (this.n + 1) % 2;
+      return this.battle.sides[indexStart].pokemonLeft
+          + this.battle.sides[indexStart + 2].pokemonLeft
+          + this.battle.sides[indexStart + 4].pokemonLeft
+          + this.battle.sides[indexStart + 6].pokemonLeft;
+    }
     if (this.foe.allySide)
       return this.foe.pokemonLeft + this.foe.allySide.pokemonLeft;
     return this.foe.pokemonLeft;
@@ -223,15 +231,17 @@ class Side {
     return this.foe.allies(all);
   }
   activeTeam() {
-    if (this.battle.gameType !== "multi") return this.active;
     // ABA: Add raid to activeTeam
     if (this.battle.gameType === "raid") return this.battle.sides[this.n % 2].active
         .concat(this.battle.sides[this.n % 2 + 2].active)
         .concat(this.battle.sides[this.n % 2 + 4].active)
         .concat(this.battle.sides[this.n % 2 + 6].active);
+    if (this.battle.gameType !== "multi") return this.active;
     return this.battle.sides[this.n % 2].active.concat(this.battle.sides[this.n % 2 + 2].active);
   }
   hasAlly(pokemon) {
+    // ABA: Ally check for raids
+    if (this.battle.gameType === "raid") return (pokemon.side.n % 2) === (this.n % 2);
     return pokemon.side === this || pokemon.side === this.allySide;
   }
   addSideCondition(status, source = null, sourceEffect = null) {

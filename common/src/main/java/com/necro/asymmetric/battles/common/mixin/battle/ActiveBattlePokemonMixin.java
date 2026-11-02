@@ -45,17 +45,33 @@ public abstract class ActiveBattlePokemonMixin implements Targetable {
     @Shadow
     public abstract @NotNull PokemonBattle getBattle();
 
-    @Override
-    public @NotNull List<Targetable> getAdjacent() {
-        if (AsymmetricUtils.isAsymmetricBattle(this.getFormat())) return CollectionsKt.filter(
+    @Inject(method = "getLetter", at = @At("HEAD"), cancellable = true, remap = false, require = 1)
+    private void aba_getCorrectLetter(CallbackInfoReturnable<Character> cir) {
+        BattleActor actor = this.getActor();
+        BattleSide side = this.getSide();
+
+        List<BattleActor> actors = List.of(side.getActors());
+        int actorIndex = actors.indexOf(actor);
+        if (actorIndex == -1) return;
+
+        int slotsPerActor = this.getFormat().getBattleType().getSlotsPerActor();
+        int activeIndex = Math.max(0, actor.getActivePokemon().indexOf((ActiveBattlePokemon) (Object) this));
+
+        int slotOffset = (actorIndex * slotsPerActor) + activeIndex;
+        cir.setReturnValue((char) ('a' + slotOffset));
+    }
+
+    @Inject(method = "getAdjacent", at = @At("HEAD"), cancellable = true, remap = false, require = 1)
+    private void aba_getAllAdjacent(CallbackInfoReturnable<List<Targetable>> cir) {
+        if (!AsymmetricUtils.isAsymmetricBattle(this.getFormat())) return;
+        cir.setReturnValue(CollectionsKt.filter(
             this.getAllActivePokemon(),
             pokemon -> {
                 if (pokemon == this) return false;
                 BattlePokemon battlePokemon = ((ActiveBattlePokemon) pokemon).getBattlePokemon();
                 return battlePokemon != null && battlePokemon.getHealth() > 0;
             }
-        );
-        else return Targetable.super.getAdjacent();
+        ));
     }
 
     @Inject(method = "getSendOutPosition", at = @At("HEAD"), cancellable = true, remap = false)

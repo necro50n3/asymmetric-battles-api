@@ -2261,6 +2261,20 @@ class Battle {
       this.win(faintData && this.gen > 4 ? faintData.target.side : null);
       return true;
     }
+
+    // ABA: Custom checkWin for raids
+    if (this.gameType === "raid") {
+      if (!team1PokemonLeft) {
+        this.win(this.sides[1]);
+        return true;
+      }
+      if (!team2PokemonLeft) {
+        this.win(this.sides[0]);
+        return true;
+      }
+      return false;
+    }
+
     for (const side of this.sides) {
       if (!side.foePokemonLeft()) {
         this.win(side);

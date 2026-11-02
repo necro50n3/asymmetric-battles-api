@@ -6,6 +6,7 @@ import com.cobblemon.mod.common.api.events.CobblemonEvents;
 import com.cobblemon.mod.common.api.events.battles.BattleEndedEvent;
 import com.cobblemon.mod.common.battles.ActiveBattlePokemon;
 import com.cobblemon.mod.common.battles.BattleRegistry;
+import com.cobblemon.mod.common.battles.ShowdownInterpreter;
 import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.platform.events.PlatformEvents;
@@ -14,6 +15,7 @@ import com.mojang.logging.LogUtils;
 import com.necro.asymmetric.battles.common.api.actor.HordeBattleActor;
 import com.necro.asymmetric.battles.common.config.AsymmetricConfig;
 import com.necro.asymmetric.battles.common.config.serializer.PrimitiveYamlConfigSerializer;
+import com.necro.asymmetric.battles.common.showdown.instruction.DynamicRequestInstruction;
 import com.necro.asymmetric.battles.common.util.IBattleSpawn;
 import me.shedaniel.autoconfig.AutoConfig;
 import org.slf4j.Logger;
@@ -46,6 +48,10 @@ public class AsymmetricBattlesAPI {
 
         CobblemonEvents.BATTLE_ENDED.subscribe(Priority.LOWEST, (Consumer<BattleEndedEvent>) event -> onBattleEnd(event.getBattle()));
         PlatformEvents.SERVER_PLAYER_LOGOUT.subscribe(Priority.HIGHEST, (Consumer<ServerPlayerEvent.Logout>) event -> onBattleEnd(BattleRegistry.getBattleByParticipatingPlayer(event.getPlayer())));
+
+        ShowdownInterpreter.registerUpdateInstructionParser("dynamicrequest", (battle, instruction, message, messageIterator) ->
+            new DynamicRequestInstruction(message)
+        );
     }
 
     private static void onBattleEnd(PokemonBattle battle) {
