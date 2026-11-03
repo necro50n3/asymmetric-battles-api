@@ -136,9 +136,8 @@ public class AsymmetricAPI {
 
         List<String> messages = new ArrayList<>();
         messages.add(String.format(
-            ">insertactor %1$d %2$d %3$s %4$s",
+            ">insertactor %1$d %2$s %3$s",
             slot - 1,
-            actor.getPokemonList().size(),
             actor.getUuid(),
             BattleRegistry.INSTANCE.packTeam(actor.getPokemonList())
         ));

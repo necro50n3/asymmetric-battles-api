@@ -203,7 +203,7 @@ ${team}`);
       case "version-origin":
         break;
       case "insertactor": {
-        const [toSide, partySize, actor, packedTeam] = splitFirst(message, " ", 3);
+        const [toSide, actor, packedTeam] = splitFirst(message, " ", 3);
         const sideIndex = parseInt(toSide);
         const insertSide = this.battle.sides[sideIndex];
         if (!insertSide) break;
@@ -286,7 +286,7 @@ ${team}`);
           for (let boost in p.boosts) {
             p.boosts[boost] = 0;
           }
-          if (!isSilent) this.battle.add('-clearboost', p);
+          if (isSilent === "false") this.battle.add('-clearboost', p);
         }
         break;
       }
@@ -539,7 +539,7 @@ ${team}`);
         const [stat, stages, toSide, isSilent] = splitFirst(message, " ", 3);
         var boosts = {};
         boosts[stat] = parseInt(stages);
-        if (isSilent) {
+        if (isSilent === "true") {
           for (let p of this.battle.sides[parseInt(toSide)].activeTeam()) {
             if (!p) continue;
             var boost = this.battle.runEvent('ChangeBoost', p, p, {name: 'Raid Energy'}, {...boosts});
@@ -553,7 +553,7 @@ ${team}`);
           }
         }
         else {
-          for (let p of this.battle.sides[parseInt(side)].activeTeam()) {
+          for (let p of this.battle.sides[parseInt(toSide)].activeTeam()) {
             if (!p) continue;
             this.battle.boost(boosts, p, null, '[from] Raid');
           }
@@ -594,12 +594,10 @@ ${team}`);
         const sourceTemp = {};
         const targetTemp = {};
         for (const id in sourceSideConditions) {
-          if (!sideConditions.includes(id)) continue;
           sourceTemp[id] = sourceSideConditions[id];
           delete sourceSideConditions[id];
         }
         for (const id in targetSideConditions) {
-          if (!sideConditions.includes(id)) continue;
           targetTemp[id] = targetSideConditions[id];
           delete targetSideConditions[id];
         }
