@@ -22,4 +22,54 @@ Asymmetric Battles API heavily modifies the showdown files and may cause incompa
 - Genesis Forms
 
 ## For Developers
-TODO
+<details>
+<summary><b style="font-size: 16px">Getting Started</b></summary>
+
+<pre><code>repositories {
+    maven {
+        name = "Cobbled Creators Maven"
+        url = "https://maven.cobbled-creators.org/releases/"
+    }
+}</code></pre>
+<details>
+<summary><b>Common</b></summary>
+<pre><code>dependencies {
+    modImplementation "com.necro.asymmetric.battles:asymmetricbattles-common:&lt;version&gt;"
+}</code></pre>
+</details>
+
+<details>
+<summary><b>Fabric</b></summary>
+<pre><code>dependencies {
+    modImplementation "com.necro.asymmetric.battles:asymmetricbattles-fabric:&lt;version&gt;"
+}</code></pre>
+</details>
+
+<details>
+<summary><b>NeoForge</b></summary>
+<pre><code>dependencies {
+    modImplementation "com.necro.asymmetric.battles:asymmetricbattles-neoforge:&lt;version&gt;"
+}</code></pre>
+</details>
+
+</details>
+ㅤ
+<details>
+<summary><b style="font-size: 16px">Custom Spawns</b></summary>
+
+A custom spawn listener can be registered using the BattleSpawnReloadListener, with a key word that defines the sub folder spawns can be registered in.
+See [Cobblemon Horde Enocunters](https://github.com/necro50n3/cobblemon-horde-encounters) for an example on how to implement this.
+
+A random spawn can be generated from the valid spawn pool using `AsymmetricAPI.getRandomBattleSpawn()`.
+
+</details>
+ㅤ
+<details>
+<summary><b style="font-size: 16px">Multi Battles</b></summary>
+
+A BattleActor can be dynamically injected into an existing Multi Battle or Raid Battle using `AsymmetricAPI.setMultiBattleActor()` and `AsymmetricAPI.setRaidBattleActor()` respectively.
+
+Additionally, a Multi Battle or Raid Battle can be started with insufficient actors on either side by using a `DummyActor`.
+It is important to note that P1 and P2 cannot be a `DummyActor` when starting a battle, but can be replaced mid-battle.
+
+</details>
