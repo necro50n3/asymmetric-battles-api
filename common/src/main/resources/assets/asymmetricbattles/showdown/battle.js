@@ -2319,11 +2319,15 @@ class Battle {
   // ABA: Extracted Pokemon initialiser
   initPokemon(pokemon) {
     let rawSpecies = null;
-    if (!rawSpecies)
-      return;
+    // ABA: Hardcode logic for Zacian and Zamazenta on base Cobblemon only.
+    if (pokemon.species.id === 'zacian' && pokemon.item === 'rustedsword') {
+      rawSpecies = this.dex.species.get('Zacian-Crowned');
+    } else if (pokemon.species.id === 'zamazenta' && pokemon.item === 'rustedshield') {
+      rawSpecies = this.dex.species.get('Zamazenta-Crowned');
+    }
+    if (!rawSpecies) return;
     const species = pokemon.setSpecies(rawSpecies);
-    if (!species)
-      return;
+    if (!species) return;
     pokemon.baseSpecies = rawSpecies;
     pokemon.details = species.name + (pokemon.level === 100 ? "" : ", L" + pokemon.level) + (pokemon.gender === "" ? "" : ", " + pokemon.gender) + (pokemon.set.shiny ? ", shiny" : "");
     pokemon.setAbility(species.abilities["0"], null, true);

@@ -346,10 +346,9 @@ ${team}`);
         for (let p of this.battle.sides[0].activeTeam()) {
           if (!p) continue;
           else if (p.volatiles['focusenergy']) continue;
-          else if (status && !p.volatiles[status.id]) {
-            p.volatiles[status.id] = { id: status.id, name: status.name, target: p };
-          }
-          this.battle.effectState.hasDragonType = p.hasType('Dragon');
+          else if (p.volatiles[status.id]) continue;
+
+          p.volatiles[status.id] = { id: status.id, name: status.name, target: p, hasDragonType = p.hasType('Dragon') };
           this.battle.add('-start', p, 'move: Dragon Cheer');
         }
         break;
@@ -441,8 +440,8 @@ ${team}`);
             source: pokemon,
             sourceSlot: pokemon.getSlot(),
             duration: condition.duration,
+            layers: 1
           };
-          this.battle.effectState.layers = 1;
         }
         else if (condition && conditionSide.sideConditions[condition.id]) {
           if (condition.id === 'spikes' && this.battle.effectState.layers < 3) this.battle.effectState.layers++;
