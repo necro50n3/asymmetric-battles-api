@@ -589,15 +589,37 @@ ${team}`);
         break;
       }
       case "swapsideconditions": {
+        const sideConditions = [
+          "mist",
+          "lightscreen",
+          "reflect",
+          "spikes",
+          "safeguard",
+          "tailwind",
+          "toxicspikes",
+          "stealthrock",
+          "waterpledge",
+          "firepledge",
+          "grasspledge",
+          "stickyweb",
+          "auroraveil",
+          "gmaxsteelsurge",
+          "gmaxcannonade",
+          "gmaxvinelash",
+          "gmaxwildfire"
+        ];
+
         const sourceSideConditions = this.battle.sides[0].sideConditions;
         const targetSideConditions = this.battle.sides[1].sideConditions;
         const sourceTemp = {};
         const targetTemp = {};
         for (const id in sourceSideConditions) {
+          if (!sideConditions.includes(id)) continue;
           sourceTemp[id] = sourceSideConditions[id];
           delete sourceSideConditions[id];
         }
         for (const id in targetSideConditions) {
+          if (!sideConditions.includes(id)) continue;
           targetTemp[id] = targetSideConditions[id];
           delete targetSideConditions[id];
         }
