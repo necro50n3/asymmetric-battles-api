@@ -13,15 +13,17 @@ import com.github.yajatkaul.mega_showdown.client.battle.storage.BattlePokemonMem
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import net.minecraft.client.Minecraft;
+import net.minecraft.client.gui.GuiGraphics;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
 import org.spongepowered.asm.mixin.injection.At;
+import org.spongepowered.asm.mixin.injection.Inject;
+import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
 import java.util.HashSet;
 import java.util.List;
 import java.util.Set;
 import java.util.UUID;
-import java.util.stream.StreamSupport;
 
 @Mixin(BattleHUD.class)
 public class BattleHUDMixin {
@@ -30,24 +32,11 @@ public class BattleHUDMixin {
         throw new AssertionError();
     }
 
-    @WrapOperation(
-        method = "tickLocalBattleInfo",
-        at = @At(
-            value = "INVOKE",
-            target = "Lcom/cobblemon/mod/common/client/battle/ClientBattleSide;getActiveClientBattlePokemon()Ljava/lang/Iterable;"
-        )
-    )
-    private static Iterable<ActiveClientBattlePokemon> filterAlliesOnTick(ClientBattleSide instance, Operation<Iterable<ActiveClientBattlePokemon>> original) {
-        Iterable<ActiveClientBattlePokemon> all = original.call(instance);
+    @Inject(method = "drawStatChanges", at = @At("HEAD"), cancellable = true)
+    private static void disableStatChangesForRaids(GuiGraphics context, ActiveClientBattlePokemon pokemon, boolean isLeft, int rank, boolean isCompact, CallbackInfo ci) {
         ClientBattle battle = CobblemonClient.INSTANCE.getBattle();
-        if (Minecraft.getInstance().player == null || battle == null || !battle.getBattleFormat().getBattleType().getName().equalsIgnoreCase("raid")) return all;
-        else if (battle.getSpectating()) return List.of();
-
-        UUID player = Minecraft.getInstance().player.getUUID();
-        boolean isAlly = instance.getActors().stream().anyMatch(actor -> actor.getUuid().equals(player));
-        if (!isAlly) return all;
-
-        return StreamSupport.stream(all.spliterator(), false).filter(pokemon -> pokemon.getActor().getUuid().equals(player)).toList();
+        if (battle == null) return;
+        if (battle.getBattleFormat().getBattleType().getName().equalsIgnoreCase("raid")) ci.cancel();
     }
 
     @WrapOperation(
