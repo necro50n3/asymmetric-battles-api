@@ -1,3 +1,1 @@
-- Updated compatibility for Cobblemon 1.8.4 (still works on 1.8.2+).
-- Added a ton of support and utility for raid battles.
-- Fixed a few issues with asymmetric multi battles.
+- Fixed one typo

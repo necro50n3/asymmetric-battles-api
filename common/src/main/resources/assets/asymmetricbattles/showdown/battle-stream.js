@@ -348,7 +348,7 @@ ${team}`);
           else if (p.volatiles['focusenergy']) continue;
           else if (p.volatiles[status.id]) continue;
 
-          p.volatiles[status.id] = { id: status.id, name: status.name, target: p, hasDragonType = p.hasType('Dragon') };
+          p.volatiles[status.id] = { id: status.id, name: status.name, target: p, hasDragonType: p.hasType('Dragon') };
           this.battle.add('-start', p, 'move: Dragon Cheer');
         }
         break;
