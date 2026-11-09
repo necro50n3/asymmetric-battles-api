@@ -239,6 +239,7 @@ ${team}`);
       }
       case "continueturn": {
         if (this.battle.awaitTurnEnd) this.battle.delayedNextTurn();
+        break;
       }
       case "sosupdate": {
         const [toSide, calledSOS] = splitFirst(message, " ");
