@@ -237,6 +237,9 @@ ${team}`);
         if (this.battle.awaitTurnEnd) this.battle.delayedNextTurn();
         break;
       }
+      case "continueturn": {
+        if (this.battle.awaitTurnEnd) this.battle.delayedNextTurn();
+      }
       case "sosupdate": {
         const [toSide, calledSOS] = splitFirst(message, " ");
         this.battle.sides[parseInt(toSide)].pokemon.forEach(p => p.addVolatile('wild'));
