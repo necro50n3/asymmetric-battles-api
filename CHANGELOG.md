@@ -1,1 +1,1 @@
-- Fixed one typo
+- Fixed battles hanging when an SOS call doesn't trigger or fails.
