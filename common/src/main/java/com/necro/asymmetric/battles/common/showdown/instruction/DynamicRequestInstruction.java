@@ -23,7 +23,7 @@ public record DynamicRequestInstruction(BattleMessage message) implements Interp
     public void invoke(@NotNull PokemonBattle battle) {
         Pair<BattleActor, ActiveBattlePokemon> pair = this.message.actorAndActivePokemon(0, battle);
         if (pair == null) return;
-        BattleActor actor = pair.component1();
+        BattleActor actor = pair.getFirst();
         for (BattleActor iterActor : battle.getActors()) {
             if (iterActor instanceof AIBattleActor ai && ai.getBattleAI() instanceof StrongBattleAI strongAi) {
                 ((StrongBattleAIAccessor) (Object) strongAi).getActiveTracker().initialize(ai.getSide());

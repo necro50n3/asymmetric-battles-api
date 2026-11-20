@@ -16,6 +16,7 @@ public abstract class ShowdownLoader {
     public void load() {
         AsymmetricBattlesAPI.LOGGER.info("Initiating showdown files");
 
+        Path showdown = Path.of("./showdown");
         Path showdown_sim = Path.of("./showdown/sim");
 
         String indexJs = "assets/asymmetricbattles/showdown/index.js";
@@ -37,7 +38,7 @@ public abstract class ShowdownLoader {
 
         try {
             Files.createDirectories(showdown_sim);
-            if (!this.isMegaShowdownLoaded()) yoink(indexJs, showdown_sim.resolve("index.js"));
+            if (!this.isMegaShowdownLoaded()) yoink(indexJs, showdown.resolve("index.js"));
             yoink(battleJs, showdown_sim.resolve("battle.js"));
             yoink(battleStreamJs, showdown_sim.resolve("battle-stream.js"));
             yoink(sideJs, showdown_sim.resolve("side.js"));
@@ -51,7 +52,10 @@ public abstract class ShowdownLoader {
 
     private void yoink(String resourcePath, Path targetPath) throws IOException {
         try (InputStream inputStream = getClass().getClassLoader().getResourceAsStream(resourcePath)) {
-            if (inputStream == null) return;
+            if (inputStream == null) {
+                AsymmetricBattlesAPI.LOGGER.error("Failed to load js override: {}", resourcePath);
+                return;
+            }
             Files.copy(inputStream, targetPath, StandardCopyOption.REPLACE_EXISTING);
         }
     }

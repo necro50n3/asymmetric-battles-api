@@ -1,1 +1,1 @@
-- Fixed battles hanging when an SOS call doesn't trigger or fails.
+- Fixed crash when installing the mod for the first time without Mega Showdown installed.
