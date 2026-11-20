@@ -8,12 +8,6 @@ loom {
 
 repositories {
     maven {
-        url = "https://www.cursemaven.com"
-        content {
-            includeGroup "curse.maven"
-        }
-    }
-    maven {
         name = "Cobbled Creators"
         url = "https://maven.cobbled-creators.org/releases/"
     }
@@ -22,7 +16,7 @@ repositories {
 dependencies {
     modImplementation "net.fabricmc:fabric-loader:$rootProject.fabric_loader_version"
     modImplementation "com.cobblemon:mod:$rootProject.cobblemon_version"
-    modApi "com.bedrockk:molang:1.1.20"
+    modImplementation "com.bedrockk:molang:1.1.21"
     modCompileOnly(modApi "me.shedaniel.cloth:cloth-config:$rootProject.cloth_config_version")
     modCompileOnly "com.terraformersmc:modmenu:11.0.3"
 
