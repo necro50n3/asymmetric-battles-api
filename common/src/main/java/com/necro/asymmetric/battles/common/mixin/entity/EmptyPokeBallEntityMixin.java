@@ -76,6 +76,18 @@ public abstract class EmptyPokeBallEntityMixin extends ThrowableItemProjectile {
             original.call(instance, component);
             return;
         }
+        assert this.getOwner() != null;
+        BattleActor throwerActor = battle.getActor(this.getOwner().getUUID());
+        if (throwerActor == null) {
+            original.call(instance, component);
+            return;
+        }
+        boolean canFitForcedAction = throwerActor.canFitForcedAction();
+        if (!canFitForcedAction) {
+            instance.sendSystemMessage(lang("capture.not_your_turn").withStyle(ChatFormatting.RED));
+            drop();
+            return;
+        }
         BattleActor hitActor = null;
         for (BattleActor actor : battle.getActors()) {
             if (actor.isForPokemon(pokemonEntity)) {
@@ -103,9 +115,6 @@ public abstract class EmptyPokeBallEntityMixin extends ThrowableItemProjectile {
             return pokemon.getBattlePokemon().getEffectedPokemon().getEntity() == pokemonEntity;
         }).toList();
         ActiveBattlePokemon hitBattlePokemon = activePokemon.getFirst();
-        assert this.getOwner() != null;
-        BattleActor throwerActor = battle.getActor(this.getOwner().getUUID());
-        assert throwerActor != null;
 
         BattleCaptureAction action = new BattleCaptureAction(battle, hitBattlePokemon, (EmptyPokeBallEntity) (Object) this);
         battle.getCaptureActions().add(action);

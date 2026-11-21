@@ -1,1 +1,1 @@
-- Fixed crash when installing the mod for the first time without Mega Showdown installed.
+- Fixed an issue with players being able to use Poke Balls mid-turn.
