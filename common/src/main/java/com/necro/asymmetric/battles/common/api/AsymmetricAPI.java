@@ -39,6 +39,7 @@ public class AsymmetricAPI {
 
     /**
      * Dynamically injects a new {@link BattleActor} into an ongoing Multi Battle at the specified side slot.
+     *
      * @param actor  The {@link BattleActor} joining the battle (Player, NPC, Wild, or Horde actor).
      * @param battle The active {@link PokemonBattle} instance.
      * @param slot   The battle side slot (1 to 4):
@@ -57,7 +58,7 @@ public class AsymmetricAPI {
      *                 </li>
      *               </ul>
      *
-     * @see AsymmetricBattleBuilder#multiBattle
+     * @see AsymmetricBattleBuilder#multiBattle(BattleParticipant, BattleParticipant, BattleParticipant, BattleParticipant, int)
      */
     public static void setMultiBattleActor(BattleActor actor, PokemonBattle battle, int slot) {
         if (!battle.getFormat().getBattleType().getName().equalsIgnoreCase("multi")) return;
@@ -68,6 +69,7 @@ public class AsymmetricAPI {
 
     /**
      * Dynamically injects a new {@link BattleActor} into an ongoing Raid Battle at the specified slot.
+     *
      * @param actor  The {@link BattleActor} joining the battle (Player, NPC, Trainer).
      * @param battle The active {@link PokemonBattle} instance.
      * @param slot   The battle side slot (0 - 3):
@@ -94,6 +96,7 @@ public class AsymmetricAPI {
 
     /**
      * Dynamically injects a new {@link BattleActor} into an ongoing Raid Battle at the next empty slot.
+     *
      * @param actor  The {@link BattleActor} joining the battle (Player, NPC, Trainer).
      * @param battle The active {@link PokemonBattle} instance.
      *
@@ -153,6 +156,20 @@ public class AsymmetricAPI {
         return (side - 1) % 2 + 1 + index * 2;
     }
 
+    /**
+     * Randomly spawns a Pokémon from a {@link BattleSpawnPool}.
+     *
+     * @param pool            The {@link BattleSpawnPool} to generate a spawn from mid-battle.
+     * @param player          The {@link ServerPlayer} triggering the battle spawn.
+     * @param level           The {@link ServerLevel} the battle is taking place in.
+     * @param blockPos        The {@link BlockPos} of the battle spawn.
+     * @param battle          The active {@link PokemonBattle} instance.
+     * @param rootProperties  The {@link PokemonProperties} of the base Pokémon all battle spawns are based on.
+     * @param baseLevel       The level of the base Pokémon.
+     * @param defaultSpawn    A {@link Supplier} of a {@link Pokemon} to spawn if no other spawns are available.
+     *
+     * @see BattleSpawnPool
+     */
     public static @Nullable Pokemon getRandomBattleSpawn(@Nullable BattleSpawnPool pool, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel, Supplier<Pokemon> defaultSpawn) {
         if (pool == null) return defaultSpawn.get();
         SpawnCause cause = new SpawnCause(SPAWNER, player);
@@ -161,14 +178,54 @@ public class AsymmetricAPI {
         return pokemon != null ? pokemon : defaultSpawn.get();
     }
 
+    /**
+     * Randomly spawns a Pokémon from a {@link BattleSpawnPool} with no default spawn.
+     *
+     * @param pool            The {@link BattleSpawnPool} to generate a spawn from mid-battle.
+     * @param player          The {@link ServerPlayer} triggering the battle spawn.
+     * @param level           The {@link ServerLevel} the battle is taking place in.
+     * @param blockPos        The {@link BlockPos} of the battle spawn.
+     * @param battle          The active {@link PokemonBattle} instance.
+     * @param rootProperties  The {@link PokemonProperties} of the base Pokémon all battle spawns are based on.
+     * @param baseLevel       The level of the base Pokémon.
+     *
+     * @see BattleSpawnPool
+     */
     public static @Nullable Pokemon getRandomBattleSpawn(@Nullable BattleSpawnPool pool, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel) {
         return getRandomBattleSpawn(pool, player, level, blockPos, battle, rootProperties, baseLevel, () -> null);
     }
 
+    /**
+     * Randomly spawns a Pokémon from a {@link BattleSpawnPool} type.
+     *
+     * @param type            The type of {@link BattleSpawnPool} to generate a spawn from mid-battle.
+     * @param player          The {@link ServerPlayer} triggering the battle spawn.
+     * @param level           The {@link ServerLevel} the battle is taking place in.
+     * @param blockPos        The {@link BlockPos} of the battle spawn.
+     * @param battle          The active {@link PokemonBattle} instance.
+     * @param rootProperties  The {@link PokemonProperties} of the base Pokémon all battle spawns are based on.
+     * @param baseLevel       The level of the base Pokémon.
+     * @param defaultSpawn    A {@link Supplier} of a {@link Pokemon} to spawn if no other spawns are available.
+     *
+     * @see BattleSpawnPool
+     */
     public static @Nullable Pokemon getRandomBattleSpawn(String type, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel, Supplier<Pokemon> defaultSpawn) {
         return getRandomBattleSpawn(SpawnPoolTypeRegistry.get(type, rootProperties), player, level, blockPos, battle, rootProperties, baseLevel, defaultSpawn);
     }
 
+    /**
+     * Randomly spawns a Pokémon from a {@link BattleSpawnPool} type with no default spawn.
+     *
+     * @param type            The type of {@link BattleSpawnPool} to generate a spawn from mid-battle.
+     * @param player          The {@link ServerPlayer} triggering the battle spawn.
+     * @param level           The {@link ServerLevel} the battle is taking place in.
+     * @param blockPos        The {@link BlockPos} of the battle spawn.
+     * @param battle          The active {@link PokemonBattle} instance.
+     * @param rootProperties  The {@link PokemonProperties} of the base Pokémon all battle spawns are based on.
+     * @param baseLevel       The level of the base Pokémon.
+     *
+     * @see BattleSpawnPool
+     */
     public static @Nullable Pokemon getRandomBattleSpawn(String type, ServerPlayer player, ServerLevel level, BlockPos blockPos, PokemonBattle battle, PokemonProperties rootProperties, int baseLevel) {
         return getRandomBattleSpawn(type, player, level, blockPos, battle, rootProperties, baseLevel, () -> null);
     }
