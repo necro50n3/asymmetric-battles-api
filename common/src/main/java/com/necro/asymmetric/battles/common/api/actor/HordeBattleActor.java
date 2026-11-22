@@ -12,6 +12,7 @@ import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.cobblemon.mod.common.entity.pokemon.PokemonEntity;
 import com.cobblemon.mod.common.net.messages.client.battle.BattleEndPacket;
 import com.necro.asymmetric.battles.common.api.BattleParticipant;
+import com.necro.asymmetric.battles.common.api.actor.multi.MultiAttackMultiPokemonBattleActor;
 import kotlin.Pair;
 import net.minecraft.network.chat.Component;
 import net.minecraft.network.chat.MutableComponent;
@@ -29,7 +30,7 @@ import java.util.UUID;
  * @see com.necro.asymmetric.battles.common.api.AsymmetricBattleFormats#GEN_9_HORDE
  * @see com.necro.asymmetric.battles.common.api.AsymmetricBattleBuilder#hordeBattle(BattleParticipant, BattleParticipant)
  */
-public class HordeBattleActor extends MultiPokemonBattleActor implements FleeableBattleActor, EntityBackedBattleActor<PokemonEntity>, MultiAttackBattleActor {
+public class HordeBattleActor extends MultiAttackMultiPokemonBattleActor implements FleeableBattleActor, EntityBackedBattleActor<PokemonEntity> {
     private BattlePokemon leader;
     private final float fleeDistance;
 
@@ -42,7 +43,7 @@ public class HordeBattleActor extends MultiPokemonBattleActor implements Fleeabl
      * @param fleeDistance Maximum distance challenger can move away before the horde flees.
      * @param battleAI     The AI decider for turn action selections across the horde.
      */
-    public HordeBattleActor(@NotNull UUID uuid, BattlePokemon leader, @NotNull List<? extends BattlePokemon> pokemonList, float fleeDistance, @NotNull BattleAI battleAI) {
+    public HordeBattleActor(@NotNull UUID uuid, BattlePokemon leader, @NotNull List<BattlePokemon> pokemonList, float fleeDistance, @NotNull BattleAI battleAI) {
         super(pokemonList, battleAI, uuid);
         this.leader = leader;
         this.fleeDistance = fleeDistance;
@@ -56,7 +57,7 @@ public class HordeBattleActor extends MultiPokemonBattleActor implements Fleeabl
      * @param pokemonList  The full list of battle Pokémon.
      * @param fleeDistance Maximum flee distance.
      */
-    public HordeBattleActor(@NotNull UUID uuid, BattlePokemon leader, @NotNull List<? extends BattlePokemon> pokemonList, float fleeDistance) {
+    public HordeBattleActor(@NotNull UUID uuid, BattlePokemon leader, @NotNull List<BattlePokemon> pokemonList, float fleeDistance) {
         this(uuid, leader, pokemonList, fleeDistance, new RandomBattleAI());
     }
 
@@ -68,7 +69,7 @@ public class HordeBattleActor extends MultiPokemonBattleActor implements Fleeabl
      * @param pokemonList The full list of battle Pokémon.
      * @param battleAI    The AI controller.
      */
-    public HordeBattleActor(@NotNull UUID uuid, BattlePokemon leader, @NotNull List<? extends BattlePokemon> pokemonList, @NotNull BattleAI battleAI) {
+    public HordeBattleActor(@NotNull UUID uuid, BattlePokemon leader, @NotNull List<BattlePokemon> pokemonList, @NotNull BattleAI battleAI) {
         this(uuid, leader, pokemonList, Cobblemon.config.getDefaultFleeDistance() * 2, battleAI);
     }
 
@@ -79,7 +80,7 @@ public class HordeBattleActor extends MultiPokemonBattleActor implements Fleeabl
      * @param leader      The leader battle Pokémon.
      * @param pokemonList The full list of battle Pokémon.
      */
-    public HordeBattleActor(@NotNull UUID uuid, BattlePokemon leader, @NotNull List<? extends BattlePokemon> pokemonList) {
+    public HordeBattleActor(@NotNull UUID uuid, BattlePokemon leader, @NotNull List<BattlePokemon> pokemonList) {
         this(uuid, leader, pokemonList, new RandomBattleAI());
     }
 
@@ -148,10 +149,5 @@ public class HordeBattleActor extends MultiPokemonBattleActor implements Fleeabl
     @Override
     public @Nullable Vec3 getInitialPos() {
         return this.leader.getEntity() != null ? this.leader.getEntity().position() : null;
-    }
-
-    @Override
-    public void onChoiceRequested() {
-        this.onMultiChoiceRequested();
     }
 }
