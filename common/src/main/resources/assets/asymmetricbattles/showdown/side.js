@@ -152,6 +152,8 @@ class Side {
     }
     return this.choice.actions.map((action) => {
       switch (action.choice) {
+        // ABA: Case for extra moves
+        case "extramove":
         case "move":
           let details = ``;
           if (action.targetLoc && this.active.length > 1)
@@ -376,13 +378,16 @@ ${sideUpdate}`);
       return this.choice.actions.length >= this.pickedTeamSize();
     }
     this.getChoiceIndex();
-    return this.choice.actions.length >= this.active.length;
+    // ABA: Check and filter extra moves
+    return this.choice.actions.filter(action => !action.isExtra).length >= this.active.length;
   }
-  chooseMove(moveText, targetLoc = 0, event = "") {
+  // ABA: Choose extra moves per turn for multi attacks
+  chooseMove(moveText, targetLoc = 0, event = "", isExtra = false) {
     if (this.requestState !== "move") {
       return this.emitChoiceError(`Can't move: You need a ${this.requestState} response`);
     }
-    const index = this.getChoiceIndex();
+  // ABA: Update choice index with isExtra check
+    const index = this.getChoiceIndex(false, isExtra);
     if (index >= this.active.length) {
       return this.emitChoiceError(`Can't move: You sent more choices than unfainted Pok\xE9mon.`);
     }
@@ -490,7 +495,9 @@ ${sideUpdate}`);
         choice: "move",
         pokemon,
         targetLoc: lockedMoveTargetLoc,
-        moveid: lockedMoveID
+        moveid: lockedMoveID,
+        // ABA: Label move as extra move
+        isExtra
       });
       return true;
     } else if (!moves.length && !zMove) {
@@ -588,7 +595,9 @@ ${sideUpdate}`);
       mega: mega || ultra,
       zmove: zMove,
       maxMove: maxMove ? maxMove.id : void 0,
-      terastallize: terastallize ? pokemon.teraType : void 0
+      terastallize: terastallize ? pokemon.teraType : void 0,
+      // ABA: Label move as extra move
+      isExtra
     });
     if (pokemon.maybeDisabled) {
       this.choice.cantUndo = this.choice.cantUndo || pokemon.isLastActive();
@@ -847,16 +856,20 @@ ${sideUpdate}`);
     this.clearChoice();
     // ABA: Trim choice strings of "default" selection
     const choiceStrings = input.startsWith("team ") ? [input] : input.split(",").filter(str => str.trim() !== "default" && str.trim() !== "");
-    if (choiceStrings.length > this.active.length) {
-      return this.emitChoiceError(
-        `Can't make choices: You sent choices for ${choiceStrings.length} Pok\xE9mon, but this is a ${this.battle.gameType} game!`
-      );
-    }
+    // ABA: Remove choice limit for multi attacks
+    // if (choiceStrings.length > this.active.length) {
+    //   return this.emitChoiceError(
+    //     `Can't make choices: You sent choices for ${choiceStrings.length} Pok\xE9mon, but this is a ${this.battle.gameType} game!`
+    //   );
+    // }
     for (const choiceString of choiceStrings) {
       let [choiceType, data] = import_lib.Utils.splitFirst(choiceString.trim(), " ");
       data = data.trim();
       switch (choiceType) {
+        // ABA: Add extra move command
+        case "extramove":
         case "move":
+          const isExtra = choiceType === "extramove";
           const original = data;
           const error = () => this.emitChoiceError(`Conflicting arguments for "move": ${original}`);
           let targetLoc;
@@ -868,6 +881,9 @@ ${sideUpdate}`);
                 return error();
               targetLoc = parseInt(data.slice(-2));
               data = data.slice(0, -2).trim();
+            } else if (isExtra) {
+              // ABA: Extra moves cannot trigger gimmicks
+              break;
             } else if (data.endsWith(" mega")) {
               if (event)
                 return error();
@@ -912,7 +928,8 @@ ${sideUpdate}`);
               break;
             }
           }
-          if (!this.chooseMove(data, targetLoc, event))
+          // ABA: Add isExtra check to chooseMove
+          if (!this.chooseMove(data, targetLoc, event, isExtra))
             return false;
           break;
         case "switch":
@@ -954,8 +971,11 @@ ${sideUpdate}`);
     }
     return !this.choice.error;
   }
-  getChoiceIndex(isPass) {
-    let index = this.choice.actions.length;
+  // ABA: Filter extra moves per turn for multi attacks
+  getChoiceIndex(isPass, isExtra = false) {
+    let index = this.choice.actions.filter(action => !action.isExtra).length;
+    if (isExtra) index--;
+
     if (!isPass) {
       switch (this.requestState) {
         case "move":

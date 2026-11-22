@@ -29,7 +29,7 @@ import java.util.UUID;
  * @see com.necro.asymmetric.battles.common.api.AsymmetricBattleFormats#GEN_9_HORDE
  * @see com.necro.asymmetric.battles.common.api.AsymmetricBattleBuilder#hordeBattle(BattleParticipant, BattleParticipant)
  */
-public class HordeBattleActor extends MultiPokemonBattleActor implements FleeableBattleActor, EntityBackedBattleActor<PokemonEntity> {
+public class HordeBattleActor extends MultiPokemonBattleActor implements FleeableBattleActor, EntityBackedBattleActor<PokemonEntity>, MultiAttackBattleActor {
     private BattlePokemon leader;
     private final float fleeDistance;
 
@@ -148,5 +148,10 @@ public class HordeBattleActor extends MultiPokemonBattleActor implements Fleeabl
     @Override
     public @Nullable Vec3 getInitialPos() {
         return this.leader.getEntity() != null ? this.leader.getEntity().position() : null;
+    }
+
+    @Override
+    public void onChoiceRequested() {
+        this.onMultiChoiceRequested();
     }
 }

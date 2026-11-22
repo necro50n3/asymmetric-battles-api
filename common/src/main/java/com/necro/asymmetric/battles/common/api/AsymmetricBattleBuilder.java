@@ -67,7 +67,7 @@ public class AsymmetricBattleBuilder {
      * @return A {@link BattleStartResult} containing the started battle or validation errors.
      * @see com.necro.asymmetric.battles.common.api.AsymmetricBattleFormats
      */
-    public static BattleStartResult battle(PlayerBattleActor p1, BattleActor p2, BattleFormat format, int adjustLevel) {
+    private static BattleStartResult battle(PlayerBattleActor p1, BattleActor p2, BattleFormat format, int adjustLevel) {
         List<PlayerPartyStore> battlePartyStores = new ArrayList<>();
         ErroredBattleStart errors = new ErroredBattleStart();
 
@@ -150,7 +150,7 @@ public class AsymmetricBattleBuilder {
      * @param adjustLevel The level to scale all player Pokémon to (e.g. 50), or {@code -1} for no adjustment.
      * @return A {@link BattleStartResult} containing the started battle or validation errors.
      */
-    public static BattleStartResult multiBattle(BattleActor p1, BattleActor p2, BattleActor p3, BattleActor p4, int adjustLevel) {
+    private static BattleStartResult multiBattle(BattleActor p1, BattleActor p2, BattleActor p3, BattleActor p4, int adjustLevel) {
         List<PlayerPartyStore> battlePartyStores = new ArrayList<>();
         ErroredBattleStart errors = new ErroredBattleStart();
 
@@ -197,7 +197,7 @@ public class AsymmetricBattleBuilder {
      * @param p2 The wild horde.
      * @return A {@link BattleStartResult} containing the started battle or validation errors.
      */
-    public static BattleStartResult hordeBattle(PlayerBattleActor p1, HordeBattleActor p2) {
+    private static BattleStartResult hordeBattle(PlayerBattleActor p1, HordeBattleActor p2) {
         BattleFormat battleFormat = AsymmetricBattleFormats.GEN_9_HORDE;
         ErroredBattleStart errors = new ErroredBattleStart();
 

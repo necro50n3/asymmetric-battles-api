@@ -4,6 +4,7 @@ import com.cobblemon.mod.common.Cobblemon;
 import com.cobblemon.mod.common.CobblemonMemories;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
 import com.cobblemon.mod.common.api.battles.model.ai.BattleAI;
+import com.cobblemon.mod.common.api.storage.party.PartyStore;
 import com.cobblemon.mod.common.battles.actor.PlayerBattleActor;
 import com.cobblemon.mod.common.battles.actor.PokemonBattleActor;
 import com.cobblemon.mod.common.battles.ai.RandomBattleAI;
@@ -15,6 +16,9 @@ import com.cobblemon.mod.common.pokemon.Pokemon;
 import com.cobblemon.mod.common.util.PlayerExtensionsKt;
 import com.necro.asymmetric.battles.common.api.actor.DummyBattleActor;
 import com.necro.asymmetric.battles.common.api.actor.HordeBattleActor;
+import com.necro.asymmetric.battles.common.api.actor.multi.MultiAttackNPCBattleActor;
+import com.necro.asymmetric.battles.common.api.actor.multi.MultiAttackPokemonBattleActor;
+import com.necro.asymmetric.battles.common.util.MultiAttackHelper;
 import kotlin.Unit;
 import net.minecraft.server.level.ServerLevel;
 import net.minecraft.server.level.ServerPlayer;
@@ -100,6 +104,7 @@ public interface BattleParticipant<T extends BattleActor> {
 
     /**
      * Creates a wild {@link PokemonBattleActor} participant from an in-world Pokémon entity.
+     * Will automatically convert the Pokémon to a {@link MultiAttackPokemonBattleActor} if valid.
      *
      * @param pokemonEntity The wild Pokémon entity.
      * @return A participant supplying a {@link PokemonBattleActor}.
@@ -110,6 +115,7 @@ public interface BattleParticipant<T extends BattleActor> {
 
     /**
      * Creates a wild {@link PokemonBattleActor} participant from a Pokémon instance.
+     * Will automatically convert the Pokémon to a {@link MultiAttackPokemonBattleActor} if valid.
      *
      * @param pokemon The Pokémon instance.
      * @return A participant supplying a {@link PokemonBattleActor}.
@@ -120,6 +126,7 @@ public interface BattleParticipant<T extends BattleActor> {
 
     /**
      * Creates a wild {@link PokemonBattleActor} participant from an in-world Pokémon entity.
+     * Will automatically convert the Pokémon to a {@link MultiAttackPokemonBattleActor} if valid.
      *
      * @param pokemonEntity The wild Pokémon entity.
      * @param battleAI      The AI controller determining move selections.
@@ -131,31 +138,45 @@ public interface BattleParticipant<T extends BattleActor> {
 
     /**
      * Creates a wild {@link PokemonBattleActor} participant from a Pokémon instance.
+     * Will automatically convert the Pokémon to a {@link MultiAttackPokemonBattleActor} if valid.
      *
      * @param pokemon  The Pokémon instance.
      * @param battleAI The AI controller determining move selections.
      * @return A participant supplying a {@link PokemonBattleActor}.
      */
     static BattleParticipant<PokemonBattleActor> wild(Pokemon pokemon, BattleAI battleAI) {
-        return () -> new PokemonBattleActor(
-            pokemon.getUuid(),
-            new BattlePokemon(pokemon, pokemon, p -> Unit.INSTANCE),
-            Cobblemon.config.getDefaultFleeDistance(),
-            battleAI
-        );
+        if (MultiAttackHelper.canMultiAttack(pokemon)) {
+            return () -> new MultiAttackPokemonBattleActor(
+                pokemon.getUuid(),
+                new BattlePokemon(pokemon, pokemon, p -> Unit.INSTANCE),
+                Cobblemon.config.getDefaultFleeDistance(),
+                battleAI
+            );
+        }
+        else {
+            return () -> new PokemonBattleActor(
+                pokemon.getUuid(),
+                new BattlePokemon(pokemon, pokemon, p -> Unit.INSTANCE),
+                Cobblemon.config.getDefaultFleeDistance(),
+                battleAI
+            );
+        }
     }
 
     /**
      * Creates an {@link NPCBattleActor} participant from a trainer NPC entity.
+     * Will automatically convert the NPC to a {@link MultiAttackNPCBattleActor} if valid.
      *
      * @param npc The NPC entity.
      * @return A participant supplying an {@link NPCBattleActor}.
      */
     static BattleParticipant<NPCBattleActor> npc(@NotNull NPCEntity npc) {
-        return () -> {
-            assert npc.getParty() != null && npc.getSkill() != null;
-            return new NPCBattleActor(npc, npc.getParty(), npc.getSkill());
-        };
+        assert npc.getParty() != null && npc.getSkill() != null;
+        PartyStore party = npc.getParty();
+        int skill = npc.getSkill();
+        boolean canMultiAttack = npc.getParty().toGappyList().stream().anyMatch(pokemon -> pokemon != null && MultiAttackHelper.canMultiAttack(pokemon));
+        if (canMultiAttack) return () -> new MultiAttackNPCBattleActor(npc, party, skill);
+        else return () -> new NPCBattleActor(npc, party, skill);
     }
 
     /**

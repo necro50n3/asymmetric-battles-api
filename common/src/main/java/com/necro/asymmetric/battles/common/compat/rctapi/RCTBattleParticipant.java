@@ -5,7 +5,10 @@ import com.cobblemon.mod.common.battles.pokemon.BattlePokemon;
 import com.gitlab.srcmc.rctapi.api.ai.RCTBattleAI;
 import com.gitlab.srcmc.rctapi.api.battle.BattleManager.TrainerEntityBattleActor;
 import com.gitlab.srcmc.rctapi.api.trainer.TrainerBag;
+import com.gitlab.srcmc.rctapi.api.util.Text;
 import com.necro.asymmetric.battles.common.api.BattleParticipant;
+import com.necro.asymmetric.battles.common.api.actor.multi.MultiAttackNPCBattleActor;
+import com.necro.asymmetric.battles.common.util.MultiAttackHelper;
 import net.minecraft.world.entity.LivingEntity;
 
 import java.util.List;
@@ -17,6 +20,7 @@ import java.util.UUID;
 public class RCTBattleParticipant {
     /**
      * Creates an RCT {@link TrainerEntityBattleActor} participant.
+     * Will automatically convert the Trainer to a {@link MultiAttackTrainerEntityBattleActor} if valid.
      *
      * @param name              The display name of the trainer.
      * @param entity            The trainer entity.
@@ -27,11 +31,32 @@ public class RCTBattleParticipant {
      * @return A participant supplying a {@link TrainerEntityBattleActor}.
      */
     public static BattleParticipant<TrainerEntityBattleActor> trainer(String name, LivingEntity entity, UUID uuid, List<BattlePokemon> pokemonList, TrainerBag bag, BattleAI artificialDecider) {
-        return () -> new TrainerEntityBattleActor(name, entity, uuid, pokemonList, bag, artificialDecider);
+        boolean canMultiAttack = pokemonList.stream().anyMatch(pokemon -> pokemon != null && MultiAttackHelper.canMultiAttack(pokemon.getEffectedPokemon()));
+        if (canMultiAttack) return () -> new MultiAttackTrainerEntityBattleActor(name, entity, uuid, pokemonList, bag, artificialDecider);
+        else return () -> new TrainerEntityBattleActor(name, entity, uuid, pokemonList, bag, artificialDecider);
     }
 
     /**
      * Creates an RCT {@link TrainerEntityBattleActor} participant.
+     * Will automatically convert the Trainer to a {@link MultiAttackTrainerEntityBattleActor} if valid.
+     *
+     * @param name              The display name of the trainer.
+     * @param entity            The trainer entity.
+     * @param uuid              The unique identifier of the trainer actor.
+     * @param pokemonList       The list of battle Pokémon in the trainer's party.
+     * @param bag               The item inventory bag available to the trainer during battle.
+     * @param artificialDecider The AI controller determining move selections.
+     * @return A participant supplying a {@link TrainerEntityBattleActor}.
+     */
+    public static BattleParticipant<TrainerEntityBattleActor> trainer(Text name, LivingEntity entity, UUID uuid, List<BattlePokemon> pokemonList, TrainerBag bag, BattleAI artificialDecider) {
+        boolean canMultiAttack = pokemonList.stream().anyMatch(pokemon -> pokemon != null && MultiAttackHelper.canMultiAttack(pokemon.getEffectedPokemon()));
+        if (canMultiAttack) return () -> new MultiAttackTrainerEntityBattleActor(name, entity, uuid, pokemonList, bag, artificialDecider);
+        else return () -> new TrainerEntityBattleActor(name, entity, uuid, pokemonList, bag, artificialDecider);
+    }
+
+    /**
+     * Creates an RCT {@link TrainerEntityBattleActor} participant.
+     * Will automatically convert the Trainer to a {@link MultiAttackTrainerEntityBattleActor} if valid.
      *
      * @param name              The display name of the trainer.
      * @param entity            The trainer entity.
@@ -46,6 +71,22 @@ public class RCTBattleParticipant {
 
     /**
      * Creates an RCT {@link TrainerEntityBattleActor} participant.
+     * Will automatically convert the Trainer to a {@link MultiAttackTrainerEntityBattleActor} if valid.
+     *
+     * @param name              The display name of the trainer.
+     * @param entity            The trainer entity.
+     * @param uuid              The unique identifier of the trainer actor.
+     * @param pokemonList       The list of battle Pokémon in the trainer's party.
+     * @param bag               The item inventory bag available to the trainer during battle.
+     * @return A participant supplying a {@link TrainerEntityBattleActor}.
+     */
+    public static BattleParticipant<TrainerEntityBattleActor> trainer(Text name, LivingEntity entity, UUID uuid, List<BattlePokemon> pokemonList, TrainerBag bag) {
+        return trainer(name, entity, uuid, pokemonList, bag, new RCTBattleAI());
+    }
+
+    /**
+     * Creates an RCT {@link TrainerEntityBattleActor} participant.
+     * Will automatically convert the Trainer to a {@link MultiAttackTrainerEntityBattleActor} if valid.
      *
      * @param name              The display name of the trainer.
      * @param entity            The trainer entity.
@@ -60,6 +101,22 @@ public class RCTBattleParticipant {
 
     /**
      * Creates an RCT {@link TrainerEntityBattleActor} participant.
+     * Will automatically convert the Trainer to a {@link MultiAttackTrainerEntityBattleActor} if valid.
+     *
+     * @param name              The display name of the trainer.
+     * @param entity            The trainer entity.
+     * @param uuid              The unique identifier of the trainer actor.
+     * @param pokemonList       The list of battle Pokémon in the trainer's party.
+     * @param artificialDecider The AI controller determining move selections.
+     * @return A participant supplying a {@link TrainerEntityBattleActor}.
+     */
+    public static BattleParticipant<TrainerEntityBattleActor> trainer(Text name, LivingEntity entity, UUID uuid, List<BattlePokemon> pokemonList, BattleAI artificialDecider) {
+        return trainer(name, entity, uuid, pokemonList, new TrainerBag(), artificialDecider);
+    }
+
+    /**
+     * Creates an RCT {@link TrainerEntityBattleActor} participant.
+     * Will automatically convert the Trainer to a {@link MultiAttackTrainerEntityBattleActor} if valid.
      *
      * @param name              The display name of the trainer.
      * @param entity            The trainer entity.
@@ -68,6 +125,20 @@ public class RCTBattleParticipant {
      * @return A participant supplying a {@link TrainerEntityBattleActor}.
      */
     public static BattleParticipant<TrainerEntityBattleActor> trainer(String name, LivingEntity entity, UUID uuid, List<BattlePokemon> pokemonList) {
+        return trainer(name, entity, uuid, pokemonList, new TrainerBag());
+    }
+
+    /**
+     * Creates an RCT {@link TrainerEntityBattleActor} participant.
+     * Will automatically convert the Trainer to a {@link MultiAttackTrainerEntityBattleActor} if valid.
+     *
+     * @param name              The display name of the trainer.
+     * @param entity            The trainer entity.
+     * @param uuid              The unique identifier of the trainer actor.
+     * @param pokemonList       The list of battle Pokémon in the trainer's party.
+     * @return A participant supplying a {@link TrainerEntityBattleActor}.
+     */
+    public static BattleParticipant<TrainerEntityBattleActor> trainer(Text name, LivingEntity entity, UUID uuid, List<BattlePokemon> pokemonList) {
         return trainer(name, entity, uuid, pokemonList, new TrainerBag());
     }
 }

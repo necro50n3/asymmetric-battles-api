@@ -1,33 +1,35 @@
 {
-    "required": true,
-    "package": "com.necro.asymmetric.battles.common.mixin",
-    "compatibilityLevel": "JAVA_21",
-    "mixins": [
-        "DebugMixin",
-        "battle.ActiveBattlePokemonMixin",
-        "battle.BattleBuilderMixin",
-        "battle.BattleFormatMixin",
-        "battle.BattleMessageMixin",
-        "battle.HordeSwitchInstructionMixin",
-        "battle.PokemonBattleMixin",
-        "battle.RandomBattleAIMixin",
-        "battle.StrongBattleAIAccessor",
-        "battle.WinInstructionMixin",
-        "entity.EmptyPokeBallEntityMixin",
-        "entity.PokemonMixin",
-        "entity.PokemonServerDelegateMixin",
-        "interaction.PlayerInteractOptionsMixin",
-        "interaction.RequestInteractionsHandlerMixin"
-    ],
-    "injectors": {
-        "defaultRequire": 1
-    },
-    "client": [
-        "client.ActiveClientBattlePokemonMixin",
-        "client.BattleGeneralActionSelectionMixin",
-        "client.BattleMoveSelectionMixin",
-        "client.BattleOverlayMixin",
-        "client.BattleTargetSelectionMixin",
-        "client.TargetTileMixin"
-    ]
+  "required": true,
+  "package": "com.necro.asymmetric.battles.common.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "mixins": [
+    "DebugMixin",
+    "battle.ActiveBattlePokemonMixin",
+    "battle.BattleActorMixin",
+    "battle.BattleBuilderMixin",
+    "battle.BattleFormatMixin",
+    "battle.BattleMessageMixin",
+    "battle.HordeSwitchInstructionMixin",
+    "battle.MoveActionResponseMixin",
+    "battle.PokemonBattleMixin",
+    "battle.RandomBattleAIMixin",
+    "battle.StrongBattleAIAccessor",
+    "battle.WinInstructionMixin",
+    "entity.EmptyPokeBallEntityMixin",
+    "entity.PokemonMixin",
+    "entity.PokemonServerDelegateMixin",
+    "interaction.PlayerInteractOptionsMixin",
+    "interaction.RequestInteractionsHandlerMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  },
+  "client": [
+    "client.ActiveClientBattlePokemonMixin",
+    "client.BattleGeneralActionSelectionMixin",
+    "client.BattleMoveSelectionMixin",
+    "client.BattleOverlayMixin",
+    "client.BattleTargetSelectionMixin",
+    "client.TargetTileMixin"
+  ]
 }
