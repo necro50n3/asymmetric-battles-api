@@ -106,6 +106,8 @@ public class MultiAttackHelper {
                 if (i == 0) showdownString = responses.get(running++).toShowdownString(active, moveset);
                 else {
                     assert moveset != null;
+                    // Stop early to prevent battle error. Should fix this to account for the Pokémon index at some point.
+                    if (running >= responses.size()) continue;
                     showdownString = ((IMultiAttacker) responses.get(running++)).aba_toMultiAttackShowdownString(active, moveset);
                 }
                 showdownMessages.add(showdownString);
