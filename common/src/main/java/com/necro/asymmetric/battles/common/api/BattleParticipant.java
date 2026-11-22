@@ -117,7 +117,7 @@ public interface BattleParticipant<T extends BattleActor> {
      * Creates a wild {@link PokemonBattleActor} participant from a Pokémon instance.
      * Will automatically convert the Pokémon to a {@link MultiAttackPokemonBattleActor} if valid.
      *
-     * @param pokemon The Pokémon instance.
+     * @param pokemon  The Pokémon instance.
      * @return A participant supplying a {@link PokemonBattleActor}.
      */
     static BattleParticipant<PokemonBattleActor> wild(Pokemon pokemon) {
@@ -133,7 +133,7 @@ public interface BattleParticipant<T extends BattleActor> {
      * @return A participant supplying a {@link PokemonBattleActor}.
      */
     static BattleParticipant<PokemonBattleActor> wild(PokemonEntity pokemonEntity, BattleAI battleAI) {
-        return wild(pokemonEntity.getPokemon(), battleAI);
+        return wild(pokemonEntity.getPokemon(), Cobblemon.config.getDefaultFleeDistance(), battleAI);
     }
 
     /**
@@ -145,21 +145,37 @@ public interface BattleParticipant<T extends BattleActor> {
      * @return A participant supplying a {@link PokemonBattleActor}.
      */
     static BattleParticipant<PokemonBattleActor> wild(Pokemon pokemon, BattleAI battleAI) {
+        return wild(pokemon, Cobblemon.config.getDefaultFleeDistance(), battleAI);
+    }
+
+    /**
+     * Creates a wild {@link PokemonBattleActor} participant from an in-world Pokémon entity.
+     * Will automatically convert the Pokémon to a {@link MultiAttackPokemonBattleActor} if valid.
+     *
+     * @param pokemonEntity The wild Pokémon entity.
+     * @param fleeDistance  The distance at which the Pokémon will flee.
+     * @param battleAI      The AI controller determining move selections.
+     * @return A participant supplying a {@link PokemonBattleActor}.
+     */
+    static BattleParticipant<PokemonBattleActor> wild(PokemonEntity pokemonEntity, float fleeDistance, BattleAI battleAI) {
+        return wild(pokemonEntity.getPokemon(), fleeDistance, battleAI);
+    }
+
+    /**
+     * Creates a wild {@link PokemonBattleActor} participant from a Pokémon instance.
+     * Will automatically convert the Pokémon to a {@link MultiAttackPokemonBattleActor} if valid.
+     *
+     * @param pokemon  The Pokémon instance.
+     * @param fleeDistance  The distance at which the Pokémon will flee.
+     * @param battleAI The AI controller determining move selections.
+     * @return A participant supplying a {@link PokemonBattleActor}.
+     */
+    static BattleParticipant<PokemonBattleActor> wild(Pokemon pokemon, float fleeDistance, BattleAI battleAI) {
         if (MultiAttackHelper.canMultiAttack(pokemon)) {
-            return () -> new MultiAttackPokemonBattleActor(
-                pokemon.getUuid(),
-                new BattlePokemon(pokemon, pokemon, p -> Unit.INSTANCE),
-                Cobblemon.config.getDefaultFleeDistance(),
-                battleAI
-            );
+            return () -> new MultiAttackPokemonBattleActor(pokemon.getUuid(), new BattlePokemon(pokemon, pokemon, p -> Unit.INSTANCE), fleeDistance, battleAI);
         }
         else {
-            return () -> new PokemonBattleActor(
-                pokemon.getUuid(),
-                new BattlePokemon(pokemon, pokemon, p -> Unit.INSTANCE),
-                Cobblemon.config.getDefaultFleeDistance(),
-                battleAI
-            );
+            return () -> new PokemonBattleActor(pokemon.getUuid(), new BattlePokemon(pokemon, pokemon, p -> Unit.INSTANCE), fleeDistance, battleAI);
         }
     }
 
