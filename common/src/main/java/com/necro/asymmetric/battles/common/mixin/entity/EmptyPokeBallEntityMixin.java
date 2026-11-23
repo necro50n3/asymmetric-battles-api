@@ -85,7 +85,6 @@ public abstract class EmptyPokeBallEntityMixin extends ThrowableItemProjectile {
         boolean canFitForcedAction = throwerActor.canFitForcedAction();
         if (!canFitForcedAction) {
             instance.sendSystemMessage(lang("capture.not_your_turn").withStyle(ChatFormatting.RED));
-            drop();
             return;
         }
         BattleActor hitActor = null;
