@@ -17,6 +17,7 @@ import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfoReturnable;
 
 import java.util.List;
+import java.util.Set;
 
 @Mixin(BattleMoveSelection.class)
 public abstract class BattleMoveSelectionMixin extends BattleActionSelection {
@@ -32,7 +33,7 @@ public abstract class BattleMoveSelectionMixin extends BattleActionSelection {
         BattleMoveSelection.MoveTile move = this.moveTiles.stream().filter(moveTile -> moveTile.isHovered(mouseX, mouseY)).findFirst().orElse(null);
         ClientBattle battle = CobblemonClient.INSTANCE.getBattle();
         if (move == null || battle == null) return;
-        if (!battle.getBattleFormat().getBattleType().getName().equals("multi")) return;
+        if (!Set.of("multi", "raid").contains(battle.getBattleFormat().getBattleType().getName())) return;
 
         int side1 = 0;
         for (ActiveClientBattlePokemon pokemon : battle.getSide1().getActiveClientBattlePokemon()) {
