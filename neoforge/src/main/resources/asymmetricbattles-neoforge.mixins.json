@@ -1,16 +1,17 @@
 {
-    "required": true,
-    "package": "com.necro.asymmetric.battles.neoforge.mixin",
-    "compatibilityLevel": "JAVA_21",
-    "plugin": "com.necro.asymmetric.battles.neoforge.AsymmetricBattlesAPINeoForgeMixinPlugin",
-    "mixins": [
-        "GraalShowdownUnbundlerMixin",
-        "msd.BattleHUDMixin"
-    ],
-    "client": [
-        "msd.StatChangeRendererMixin"
-    ],
-    "injectors": {
-        "defaultRequire": 1
-    }
+  "required": true,
+  "package": "com.necro.asymmetric.battles.neoforge.mixin",
+  "compatibilityLevel": "JAVA_21",
+  "plugin": "com.necro.asymmetric.battles.neoforge.AsymmetricBattlesAPINeoForgeMixinPlugin",
+  "mixins": [
+    "GraalShowdownUnbundlerMixin",
+    "msd.BattleHUDMixin",
+    "rctapi.BattleManagerMixin"
+  ],
+  "client": [
+    "msd.StatChangeRendererMixin"
+  ],
+  "injectors": {
+    "defaultRequire": 1
+  }
 }
