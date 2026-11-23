@@ -25,6 +25,7 @@ import org.jetbrains.annotations.Nullable;
 
 import java.util.ArrayList;
 import java.util.List;
+import java.util.Locale;
 import java.util.Map;
 import java.util.function.Supplier;
 
@@ -61,7 +62,8 @@ public class AsymmetricAPI {
      * @see AsymmetricBattleBuilder#multiBattle(BattleParticipant, BattleParticipant, BattleParticipant, BattleParticipant, int)
      */
     public static void setMultiBattleActor(BattleActor actor, PokemonBattle battle, int slot) {
-        if (!battle.getFormat().getBattleType().getName().equalsIgnoreCase("multi")) return;
+        String battleType = battle.getFormat().getBattleType().getName();
+        if (!battleType.equalsIgnoreCase("multi") && !battleType.toLowerCase(Locale.ROOT).startsWith("raid_")) return;
         int side = slot == 1 || slot == 3 ? 1 : 2;
         int index = slot == 1 || slot == 2 ? 0 : 1;
         setBattleActor(actor, battle, side, index);

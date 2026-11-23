@@ -293,7 +293,7 @@ class Format extends import_dex_data.BasicEffect {
     this.onBegin = data.onBegin || void 0;
     this.noLog = !!data.noLog;
     // ABA: Update player count for raids
-    if (this.gameType === "multi" || this.gameType === "freeforall") this.playerCount = 4;
+    if (this.gameType === "multi" || this.gameType.startsWith("raid_") || this.gameType === "freeforall") this.playerCount = 4;
     else if (this.gameType === "raid") this.playerCount = 8;
     else this.playerCount = 2;
   }

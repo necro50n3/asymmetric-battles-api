@@ -113,7 +113,13 @@ class Battle {
     this.field = new import_field.Field(this);
     this.sides = Array(format.playerCount).fill(null);
     // ABA: Modify variable for new game types
-    if (this.gameType === "sextuples" || this.gameType === "horde") this.activePerHalf = 6;
+    if (this.gameType === "raid_sextuples") this.activePerHalf = 12;
+    else if (this.gameType === "raid_pentuples") this.activePerHalf = 10;
+    else if (this.gameType === "raid_quadruples") this.activePerHalf = 8;
+    else if (this.gameType === "raid_triples") this.activePerHalf = 6;
+    else if (this.gameType === "raid_doubles") this.activePerHalf = 4;
+    else if (this.gameType === "raid_singles") this.activePerHalf = 2;
+    else if (this.gameType === "sextuples" || this.gameType === "horde") this.activePerHalf = 6;
     else if (this.gameType === "pentuples") this.activePerHalf = 5;
     else if (this.gameType === "quadruples" || this.gameType === "raid") this.activePerHalf = 4;
     else if (this.gameType === "triples") this.activePerHalf = 3;
@@ -1254,6 +1260,7 @@ class Battle {
     else if (this.gameType === "sextuples") return true;
     else if (this.gameType === "horde") return true;
     else if (this.gameType === "raid") return true;
+    else if (this.gameType.startsWith("raid_")) return true;
     return false;
   }
   swapPosition(pokemon, newPosition, attributes) {
@@ -1543,7 +1550,8 @@ class Battle {
       throw new Error(`Battle already started`);
     const format = this.format;
     this.started = true;
-    if (this.gameType === "multi") {
+    // ABA: Add support for custom raid multi battle formats
+    if (this.gameType === "multi" || this.gameType.startsWith("raid_")) {
       this.sides[1].foe = this.sides[2];
       this.sides[0].foe = this.sides[3];
       this.sides[2].foe = this.sides[1];
@@ -2248,7 +2256,8 @@ class Battle {
     let team2PokemonLeft = this.sides[1].pokemonLeft;
     const team3PokemonLeft = this.gameType === "freeforall" && this.sides[2].pokemonLeft;
     const team4PokemonLeft = this.gameType === "freeforall" && this.sides[3].pokemonLeft;
-    if (this.gameType === "multi") {
+    // ABA: Add support for custom raid multi battle formats
+    if (this.gameType === "multi" || this.gameType.startsWith("raid_")) {
       team1PokemonLeft += this.sides[2].pokemonLeft;
       team2PokemonLeft += this.sides[3].pokemonLeft;
     }

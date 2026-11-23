@@ -245,7 +245,7 @@ class Side {
         .concat(this.battle.sides[this.n % 2 + 2].active)
         .concat(this.battle.sides[this.n % 2 + 4].active)
         .concat(this.battle.sides[this.n % 2 + 6].active);
-    if (this.battle.gameType !== "multi") return this.active;
+    if (this.battle.gameType !== "multi" && !this.battle.gameType.startsWith("raid_")) return this.active;
     return this.battle.sides[this.n % 2].active.concat(this.battle.sides[this.n % 2 + 2].active);
   }
   hasAlly(pokemon) {

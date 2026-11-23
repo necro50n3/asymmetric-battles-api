@@ -18,5 +18,11 @@ public class BattleFormatMixin {
         else if (Set.of("sextuple_battle", "sextuple", "sextuples").contains(id)) cir.setReturnValue(AsymmetricBattleFormats.GEN_9_SEXTUPLES);
         else if (Set.of("horde_battle", "horde").contains(id)) cir.setReturnValue(AsymmetricBattleFormats.GEN_9_HORDE);
         else if (Set.of("raid_battle", "raid").contains(id)) cir.setReturnValue(AsymmetricBattleFormats.GEN_9_RAID);
+        else if (Set.of("raid_single_battle", "raid_single", "raid_singles").contains(id)) cir.setReturnValue(AsymmetricBattleFormats.GEN_9_RAID_SINGLES);
+        else if (Set.of("raid_double_battle", "raid_double", "raid_doubles").contains(id)) cir.setReturnValue(AsymmetricBattleFormats.GEN_9_RAID_DOUBLES);
+        else if (Set.of("raid_triple_battle", "raid_triple", "raid_triples").contains(id)) cir.setReturnValue(AsymmetricBattleFormats.GEN_9_RAID_TRIPLES);
+        else if (Set.of("raid_quadruple_battle", "raid_quadruple", "raid_quadruples").contains(id)) cir.setReturnValue(AsymmetricBattleFormats.GEN_9_RAID_QUADRUPLES);
+        else if (Set.of("raid_pentuple_battle", "raid_pentuple", "raid_pentuples").contains(id)) cir.setReturnValue(AsymmetricBattleFormats.GEN_9_RAID_PENTUPLES);
+        else if (Set.of("raid_sextuple_battle", "raid_sextuple", "raid_sextuples").contains(id)) cir.setReturnValue(AsymmetricBattleFormats.GEN_9_RAID_SEXTUPLES);
     }
 }

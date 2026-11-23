@@ -12,7 +12,14 @@ public class AsymmetricUtils {
         else if (battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.PENTUPLES.getName())) return true;
         else if (battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.SEXTUPLES.getName())) return true;
         else if (battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.HORDE.getName())) return true;
-        else return battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.RAID.getName());
+        else if (battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.RAID.getName())) return true;
+        else if (battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.RAID_SINGLES.getName())) return true;
+        else if (battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.RAID_DOUBLES.getName())) return true;
+        else if (battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.RAID_TRIPLES.getName())) return true;
+        else if (battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.RAID_QUADRUPLES.getName())) return true;
+        else if (battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.RAID_PENTUPLES.getName())) return true;
+        else if (battleType.getName().equalsIgnoreCase(AsymmetricBattleFormats.RAID_SEXTUPLES.getName())) return true;
+        else return false;
     }
 
     public static boolean isAsymmetricBattle(BattleFormat battleFormat) {

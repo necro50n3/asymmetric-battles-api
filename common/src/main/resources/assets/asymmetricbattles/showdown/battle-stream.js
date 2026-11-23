@@ -247,6 +247,10 @@ ${team}`);
         if (calledSOS === "true") this.battle.calledSOS = true;
         break;
       }
+      case "forcesos": {
+        this.battle.add("-forcesos", message);
+        break;
+      }
       case "raidstart": {
         this.battle.sides[1].pokemon.forEach(p => p.addVolatile('raidboss'));
         const [isDynamax, isTera] = splitFirst(message, " ").map(value => value === "true");
