@@ -33,7 +33,7 @@ public abstract class BattleMoveSelectionMixin extends BattleActionSelection {
         BattleMoveSelection.MoveTile move = this.moveTiles.stream().filter(moveTile -> moveTile.isHovered(mouseX, mouseY)).findFirst().orElse(null);
         ClientBattle battle = CobblemonClient.INSTANCE.getBattle();
         if (move == null || battle == null) return;
-        if (!Set.of("multi", "raid").contains(battle.getBattleFormat().getBattleType().getName())) return;
+        if (!Set.of("multi", "raid", "raid_singles").contains(battle.getBattleFormat().getBattleType().getName())) return;
 
         int side1 = 0;
         for (ActiveClientBattlePokemon pokemon : battle.getSide1().getActiveClientBattlePokemon()) {
