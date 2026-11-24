@@ -51,7 +51,7 @@ public abstract class BattleGeneralActionSelectionMixin {
 
         int tempActive = 0;
         for (ActiveClientBattlePokemon pokemon : battle.getSide2().getActiveClientBattlePokemon()) {
-            if (pokemon.getBattlePokemon() != null) tempActive++;
+            if (pokemon.getBattlePokemon() != null && pokemon.getBattlePokemon().getHpValue() > 0) tempActive++;
         }
         int active = tempActive;
 
