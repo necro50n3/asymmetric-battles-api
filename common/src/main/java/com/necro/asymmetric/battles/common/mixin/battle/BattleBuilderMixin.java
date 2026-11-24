@@ -8,7 +8,6 @@ import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
 import com.necro.asymmetric.battles.common.api.BattleParticipant;
 import org.spongepowered.asm.mixin.Mixin;
-import org.spongepowered.asm.mixin.Unique;
 import org.spongepowered.asm.mixin.injection.At;
 
 import java.util.Collection;
@@ -30,36 +29,19 @@ public class BattleBuilderMixin {
 //        cir.setReturnValue(AsymmetricBattleBuilder.multiBattle(BattleParticipant.player(player, leadingPokemon), BattleParticipant.wild(pokemonEntity)));
 //    }
 
-    @ModifyExpressionValue(
-        method = "pve*",
-        at = @At(
-            value = "NEW",
-            target = "Lcom/cobblemon/mod/common/battles/actor/PokemonBattleActor;"
-        )
-    )
+    @ModifyExpressionValue(method = "pve*", at = @At(value = "NEW", target = "Lcom/cobblemon/mod/common/battles/actor/PokemonBattleActor;"), remap = false)
     private PokemonBattleActor replaceWildActor(PokemonBattleActor original) {
         return BattleParticipant.wild(original.getEntity()).toActor();
     }
 
-    @ModifyExpressionValue(
-        method = "pvn*",
-        at = @At(
-            value = "NEW",
-            target = "Lcom/cobblemon/mod/common/entity/npc/NPCBattleActor;"
-        )
-    )
+    @ModifyExpressionValue(method = "pvn*", at = @At(value = "NEW", target = "Lcom/cobblemon/mod/common/entity/npc/NPCBattleActor;"), remap = false)
     private NPCBattleActor replaceNPCActor(NPCBattleActor original) {
         return BattleParticipant.npc(original.getNpc()).toActor();
     }
 
     @WrapOperation(method = { "pvp1v1*", "pvp2v2*", "pve*", "pvn*" }, at = @At(value = "INVOKE", target = "Ljava/util/Collection;add(Ljava/lang/Object;)Z"), remap = false)
     private static boolean cancelInsufficientPokemonError(Collection<BattleStartError> set, Object error, Operation<Boolean> original) {
-        if (aba_shouldCancel(error)) return false;
+        if (error instanceof InsufficientPokemonError) return false;
         return original.call(set, error);
-    }
-
-    @Unique
-    private static boolean aba_shouldCancel(Object error) {
-        return error instanceof InsufficientPokemonError;
     }
 }

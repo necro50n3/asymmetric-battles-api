@@ -5,6 +5,7 @@ import com.necro.asymmetric.battles.common.compat.ModCompat;
 import com.necro.asymmetric.battles.fabric.events.AsymmetricEvents;
 import com.necro.asymmetric.battles.fabric.network.AsymmetricNetworkMessagesFabric;
 import net.fabricmc.api.ModInitializer;
+import net.fabricmc.fabric.api.command.v2.CommandRegistrationCallback;
 import net.fabricmc.fabric.api.event.lifecycle.v1.ServerLifecycleEvents;
 import net.fabricmc.loader.api.FabricLoader;
 
@@ -19,6 +20,7 @@ public class AsymmetricBattlesAPIFabric implements ModInitializer {
         AsymmetricNetworkMessagesFabric.registerPayload();
 
         ServerLifecycleEvents.SERVER_STARTED.register(AsymmetricEvents::onServerStarted);
+        CommandRegistrationCallback.EVENT.register(AsymmetricEvents::onCommandRegistration);
     }
 
 }

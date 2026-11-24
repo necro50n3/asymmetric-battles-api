@@ -14,6 +14,12 @@ import java.io.BufferedReader;
 import java.io.InputStreamReader;
 import java.nio.charset.StandardCharsets;
 
+/**
+ * The implementation of a custom {@link BattleSpawnPool} data registry.
+ * This will need to be registered on both the Fabric side and NeoForge side with the {@code BattleSpawnReloadListener}.
+ * <p>
+ * Datapack entries will then be defined under {@code battle_spawns/<type>} and {@code global_battle_spawns/<type>}.
+ */
 public abstract class BattleSpawnReloadListenerImpl {
     protected final String type;
     protected final Gson gson;

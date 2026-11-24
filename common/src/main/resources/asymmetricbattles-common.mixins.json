@@ -18,6 +18,7 @@
     "entity.EmptyPokeBallEntityMixin",
     "entity.PokemonMixin",
     "entity.PokemonServerDelegateMixin",
+    "interaction.ChallengeManagerMixin",
     "interaction.PlayerInteractOptionsMixin",
     "interaction.RequestInteractionsHandlerMixin"
   ],
