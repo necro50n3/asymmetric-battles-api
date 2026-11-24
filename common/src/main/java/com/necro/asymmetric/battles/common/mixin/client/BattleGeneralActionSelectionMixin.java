@@ -47,7 +47,7 @@ public abstract class BattleGeneralActionSelectionMixin {
         ClientBattle battle = original.call(instance);
         if (battle == null) return null;
         List<ClientBattleActor> wildActors = battle.getSide2().getActors();
-        if (wildActors.isEmpty() || wildActors.stream().noneMatch(actor -> actor.getType() == ActorType.WILD)) return battle;
+        if (wildActors.isEmpty() || wildActors.stream().anyMatch(actor -> actor.getType() != ActorType.WILD)) return battle;
 
         int tempActive = 0;
         for (ActiveClientBattlePokemon pokemon : battle.getSide2().getActiveClientBattlePokemon()) {
