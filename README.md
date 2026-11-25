@@ -15,11 +15,13 @@ Asymmetric Battles API lifts core restrictions around Cobblemon's and Showdown's
 - Allows starting Double and Triple battles (and the new formats) with fewer than the required number of Pokémon.
 - Allows Multi Battles to start with only one actor on either side.
 - Allows actors to join Multi Battles after they have already started.
+- Allows Pokémon backed by an AI (Trainers, Wild Pokémon, etc) to attack multiple times per turn by giving it the `attacks_per_turn` aspect.
 
 ## Compatibilities
 Asymmetric Battles API heavily modifies the showdown files and may cause incompatibility issues with mods that do similar things, but includes built-in compatibility with a few popular mods.
 - Mega Showdown
 - Genesis Forms
+- RCT API
 
 ## For Developers
 <details>
