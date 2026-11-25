@@ -22,7 +22,7 @@ public abstract class MoveActionResponseMixin extends ShowdownActionResponse imp
         String pnx = this.targetPnx;
         int moveIndex = 0;
         for (int i = 0; i < showdownMoveSet.getMoves().size(); i++) {
-            if (showdownMoveSet.getMoves().get(i).getId().equals(moveName)) {
+            if (showdownMoveSet.getMoves().get(i).getId().equals(this.moveName)) {
                 moveIndex = i + 1;
                 break;
             }

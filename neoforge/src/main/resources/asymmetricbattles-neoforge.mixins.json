@@ -5,7 +5,7 @@
   "plugin": "com.necro.asymmetric.battles.neoforge.AsymmetricBattlesAPINeoForgeMixinPlugin",
   "mixins": [
     "GraalShowdownUnbundlerMixin",
-    "msd.BattleHUDMixin",
+    "msd.BattleActorStateMixin",
     "rctapi.BattleManagerMixin"
   ],
   "client": [
