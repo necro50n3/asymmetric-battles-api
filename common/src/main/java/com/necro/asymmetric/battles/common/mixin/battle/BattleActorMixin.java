@@ -2,11 +2,9 @@ package com.necro.asymmetric.battles.common.mixin.battle;
 
 import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
 import com.cobblemon.mod.common.api.battles.model.actor.BattleActor;
-import com.cobblemon.mod.common.battles.ActiveBattlePokemon;
 import com.cobblemon.mod.common.battles.ShowdownActionRequest;
 import com.cobblemon.mod.common.battles.ShowdownActionResponse;
 import com.necro.asymmetric.battles.common.api.actor.MultiAttackBattleActor;
-import com.necro.asymmetric.battles.common.util.MultiAttackHelper;
 import org.spongepowered.asm.mixin.Final;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.Shadow;
@@ -14,7 +12,6 @@ import org.spongepowered.asm.mixin.injection.At;
 import org.spongepowered.asm.mixin.injection.Inject;
 import org.spongepowered.asm.mixin.injection.callback.CallbackInfo;
 
-import java.util.ArrayList;
 import java.util.List;
 
 @Mixin(BattleActor.class)
@@ -33,17 +30,11 @@ public abstract class BattleActorMixin {
     @Shadow
     private boolean mustChoose;
 
-    @Shadow
-    public abstract List<ActiveBattlePokemon> getActivePokemon();
-
     @Inject(method = "setActionResponses", at = @At("HEAD"), remap = false, cancellable = true)
     private void setMultipleActionResponses(List<ShowdownActionResponse> responses, CallbackInfo ci) {
-        if (!(this instanceof MultiAttackBattleActor)) return;
-
+        if (!(this instanceof MultiAttackBattleActor actor)) return;
         if (this.request == null) return;
-        List<ShowdownActionResponse> originalPassActions = new ArrayList<>(expectingPassActions);
-
-        MultiAttackHelper.setResponses(this.request, this.getActivePokemon(), (BattleActor) (Object) this, responses, this.responses, this.expectingPassActions, originalPassActions);
+        actor.setMultiResponses((BattleActor) actor);
 
         this.mustChoose = false;
         this.battle.checkForInputDispatch();
@@ -53,9 +44,9 @@ public abstract class BattleActorMixin {
 
     @Inject(method = "writeShowdownResponse", at = @At("HEAD"), remap = false, cancellable = true)
     private void writeShowdownResponseInject(CallbackInfo ci) {
-        if (!(this instanceof MultiAttackBattleActor)) return;
+        if (!(this instanceof MultiAttackBattleActor actor)) return;
 
-        List<String> showdownMessages = MultiAttackHelper.writeResponses(this.request, this.getActivePokemon(), this.responses);
+        List<String> showdownMessages = actor.writeMultiResponses();
 
         this.responses.clear();
         this.request = null;
