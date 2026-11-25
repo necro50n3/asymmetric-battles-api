@@ -1,12 +1,15 @@
 package com.necro.asymmetric.battles.common.mixin.interaction;
 
+import com.cobblemon.mod.common.battles.TeamManager;
 import com.cobblemon.mod.common.net.messages.client.PlayerInteractOptionsPacket.Options;
 import com.cobblemon.mod.common.net.messages.client.PlayerInteractOptionsPacket.OptionStatus;
 import com.cobblemon.mod.common.net.serverhandling.RequestInteractionsHandler;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
+import com.llamalad7.mixinextras.sugar.Local;
 import com.necro.asymmetric.battles.common.AsymmetricBattlesAPI;
 import com.necro.asymmetric.battles.common.battle.AsymmetricOptions;
+import net.minecraft.server.level.ServerPlayer;
 import org.spongepowered.asm.mixin.Mixin;
 import org.spongepowered.asm.mixin.injection.At;
 
@@ -22,13 +25,17 @@ public class RequestInteractionsHandlerMixin {
         ),
         remap = false
     )
-    private boolean addAsymmetricBattleOptions(EnumMap<Options, OptionStatus> instance, Operation<Boolean> original) {
+    private boolean addAsymmetricBattleOptions(EnumMap<Options, OptionStatus> instance, Operation<Boolean> original, @Local(argsOnly = true) ServerPlayer player, @Local(argsOnly = true) ServerPlayer targetPlayerEntity) {
         if (instance.containsKey(Options.SINGLE_BATTLE) && AsymmetricBattlesAPI.CONFIG.ENABLE_PVP_CHALLENGES) {
             instance.put(Options.DOUBLE_BATTLE, OptionStatus.AVAILABLE);
             instance.put(Options.TRIPLE_BATTLE, OptionStatus.AVAILABLE);
             instance.put(AsymmetricOptions.QUADRUPLE_BATTLE, OptionStatus.AVAILABLE);
             instance.put(AsymmetricOptions.PENTUPLE_BATTLE, OptionStatus.AVAILABLE);
             instance.put(AsymmetricOptions.SEXTUPLE_BATTLE, OptionStatus.AVAILABLE);
+
+//            if (TeamManager.INSTANCE.getTeam(player) != null && TeamManager.INSTANCE.getTeam(targetPlayerEntity) != null) {
+//                instance.put(Options.ROYAL_BATTLE, OptionStatus.AVAILABLE);
+//            }
         }
         return original.call(instance);
     }
