@@ -1,6 +1,0 @@
-- Added support for Pokémon attacking multiple times per turn with an `attacks_per_turn` aspect. This is only supported for AI-based actors such as wild Pokémon and trainer NPCs.
-- Added support for player-initiated asymmetric multi battles.
-  - The solo player must use the `/multibattle team create` command to join the multi battle.
-- Fixed compatibility with Mega Showdown's Battle HUD for the raid battle format.
-- Fixed another issue when throwing Poke Balls mid-turn.
-- Fixed an issue with Multi Battles sometimes not showing the correct battle actions.
