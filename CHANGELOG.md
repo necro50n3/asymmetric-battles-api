@@ -1,0 +1,1 @@
+- Fixed issue with starting battles with NPCs.

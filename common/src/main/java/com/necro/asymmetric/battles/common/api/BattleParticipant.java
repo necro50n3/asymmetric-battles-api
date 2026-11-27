@@ -183,16 +183,40 @@ public interface BattleParticipant<T extends BattleActor> {
      * Creates an {@link NPCBattleActor} participant from a trainer NPC entity.
      * Will automatically convert the NPC to a {@link MultiAttackNPCBattleActor} if valid.
      *
-     * @param npc The NPC entity.
+     * @param npcEntity The NPC entity.
+     * @param players   The player(s) battling the NPC.
      * @return A participant supplying an {@link NPCBattleActor}.
      */
-    static BattleParticipant<NPCBattleActor> npc(@NotNull NPCEntity npc) {
-        assert npc.getParty() != null && npc.getSkill() != null;
-        PartyStore party = npc.getParty();
-        int skill = npc.getSkill();
-        boolean canMultiAttack = npc.getParty().toGappyList().stream().anyMatch(pokemon -> pokemon != null && MultiAttackHelper.canMultiAttack(pokemon));
-        if (canMultiAttack) return () -> new MultiAttackNPCBattleActor(npc, party, skill);
-        else return () -> new NPCBattleActor(npc, party, skill);
+    static BattleParticipant<NPCBattleActor> npc(@NotNull NPCEntity npcEntity, List<ServerPlayer> players) {
+        PartyStore party = npcEntity.getPartyForChallenge(players);
+        assert party != null;
+        int skill = npcEntity.getSkill() != null ? npcEntity.getSkill() : npcEntity.getNpc().getSkill();
+        boolean canMultiAttack = party.toGappyList().stream().anyMatch(pokemon -> pokemon != null && MultiAttackHelper.canMultiAttack(pokemon));
+        if (canMultiAttack) return () -> new MultiAttackNPCBattleActor(npcEntity, party, skill);
+        else return () -> new NPCBattleActor(npcEntity, party, skill);
+    }
+
+    /**
+     * Creates an {@link NPCBattleActor} participant from a trainer NPC entity.
+     * Will automatically convert the NPC to a {@link MultiAttackNPCBattleActor} if valid.
+     *
+     * @param npcEntity The NPC entity.
+     * @param player    The player battling the NPC.
+     * @return A participant supplying an {@link NPCBattleActor}.
+     */
+    static BattleParticipant<NPCBattleActor> npc(@NotNull NPCEntity npcEntity, ServerPlayer player) {
+        return npc(npcEntity, List.of(player));
+    }
+
+    /**
+     * Creates an {@link NPCBattleActor} participant from a trainer NPC entity.
+     * Will automatically convert the NPC to a {@link MultiAttackNPCBattleActor} if valid.
+     *
+     * @param npcEntity The NPC entity.
+     * @return A participant supplying an {@link NPCBattleActor}.
+     */
+    static BattleParticipant<NPCBattleActor> npc(@NotNull NPCEntity npcEntity) {
+        return npc(npcEntity, List.of());
     }
 
     /**
