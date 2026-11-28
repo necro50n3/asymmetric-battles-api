@@ -1,8 +1,10 @@
 package com.necro.asymmetric.battles.common.mixin.interaction;
 
-import com.cobblemon.mod.common.battles.TeamManager;
+import com.cobblemon.mod.common.api.battles.model.PokemonBattle;
+import com.cobblemon.mod.common.battles.BattleRegistry;
 import com.cobblemon.mod.common.net.messages.client.PlayerInteractOptionsPacket.Options;
 import com.cobblemon.mod.common.net.messages.client.PlayerInteractOptionsPacket.OptionStatus;
+import com.cobblemon.mod.common.net.messages.server.RequestPlayerInteractionsPacket;
 import com.cobblemon.mod.common.net.serverhandling.RequestInteractionsHandler;
 import com.llamalad7.mixinextras.injector.wrapoperation.Operation;
 import com.llamalad7.mixinextras.injector.wrapoperation.WrapOperation;
@@ -25,8 +27,10 @@ public class RequestInteractionsHandlerMixin {
         ),
         remap = false
     )
-    private boolean addAsymmetricBattleOptions(EnumMap<Options, OptionStatus> instance, Operation<Boolean> original, @Local(argsOnly = true) ServerPlayer player, @Local(argsOnly = true) ServerPlayer targetPlayerEntity) {
-        if (instance.containsKey(Options.SINGLE_BATTLE) && AsymmetricBattlesAPI.CONFIG.ENABLE_PVP_CHALLENGES) {
+    private boolean addAsymmetricBattleOptions(EnumMap<Options, OptionStatus> instance, Operation<Boolean> original, @Local(argsOnly = true) RequestPlayerInteractionsPacket packet, @Local(argsOnly = true) ServerPlayer player, @Local(argsOnly = true) ServerPlayer targetPlayerEntity) {
+        if (!AsymmetricBattlesAPI.CONFIG.ENABLE_PVP_CHALLENGES) return original.call(instance);
+
+        if (instance.containsKey(Options.SINGLE_BATTLE)) {
             instance.put(Options.DOUBLE_BATTLE, OptionStatus.AVAILABLE);
             instance.put(Options.TRIPLE_BATTLE, OptionStatus.AVAILABLE);
             instance.put(AsymmetricOptions.QUADRUPLE_BATTLE, OptionStatus.AVAILABLE);
@@ -37,6 +41,12 @@ public class RequestInteractionsHandlerMixin {
 //                instance.put(Options.ROYAL_BATTLE, OptionStatus.AVAILABLE);
 //            }
         }
+
+        PokemonBattle battle = BattleRegistry.getBattleByParticipatingPlayerId(packet.getTargetId());
+        if (AsymmetricBattlesAPI.CONFIG.ENABLE_BATTLE_JOIN && battle != null && battle.isPvW() && battle.getFormat().getBattleType().getName().equals("multi")) {
+            instance.put(AsymmetricOptions.JOIN_BATTLE, OptionStatus.AVAILABLE);
+        }
+
         return original.call(instance);
     }
 }

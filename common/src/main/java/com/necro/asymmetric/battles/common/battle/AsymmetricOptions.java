@@ -6,4 +6,6 @@ public class AsymmetricOptions {
     public static final Options QUADRUPLE_BATTLE = Options.valueOf("QUADRUPLE_BATTLE");
     public static final Options PENTUPLE_BATTLE = Options.valueOf("PENTUPLE_BATTLE");
     public static final Options SEXTUPLE_BATTLE = Options.valueOf("SEXTUPLE_BATTLE");
+
+    public static final Options JOIN_BATTLE = Options.valueOf("JOIN_BATTLE");
 }

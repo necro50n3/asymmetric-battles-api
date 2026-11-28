@@ -8,6 +8,8 @@ import me.shedaniel.cloth.clothconfig.shadowed.blue.endless.jankson.Comment;
 public class AsymmetricConfig implements ConfigData {
     @Comment("Whether Quadruple, Pentuple and Sextuple Battles are available in the Player Battle Challenge screen. This does not disable the battle formats themselves.")
     public boolean ENABLE_PVP_CHALLENGES = true;
+    @Comment("Whether players can join another player's wild battle.")
+    public boolean ENABLE_BATTLE_JOIN = true;
     @Comment("Log showdown inputs and outputs for debugging.")
     public boolean ENABLE_DEBUG = false;
 }

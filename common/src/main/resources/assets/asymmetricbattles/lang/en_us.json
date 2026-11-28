@@ -14,5 +14,18 @@
     "asymmetricbattles.config.enable_pvp_challenges": "Enable PvP Challenges",
     "asymmetricbattles.config.enable_debug": "Enable Debugging",
     "cobblemon.battle.invalid_dummy": "Attempted to start a battle without at least one valid actor on one side.",
-    "cobblemon.battle.pokeball_not_alone": "You can only capture wild Pokémon when it's alone!"
+    "cobblemon.battle.pokeball_not_alone": "You can only capture wild Pokémon when it's alone!",
+    "cobblemon.join.sent": "You requested to join %1$s's battle.",
+    "cobblemon.join.received": "%1$s requested to join your battle.",
+    "cobblemon.join.accept.sender": "%1$s accepted the join request!",
+    "cobblemon.join.accept.receiver": "You accepted %1$s's join request!",
+    "cobblemon.join.decline.sender": "%1$s declined your join request...",
+    "cobblemon.join.decline.receiver": "You declined %1$s's join request.",
+    "cobblemon.join.expired.sender": "Your join request to %1$s has timed out!",
+    "cobblemon.join.expired.receiver": "The join request from %1$s has timed out!",
+    "cobblemon.join.canceled.sender": "You canceled your join request to %1$s.",
+    "cobblemon.join.canceled.receiver": "%1$s canceled their join request...",
+    "cobblemon.join.error.insufficient_pokemon.self": "You don't have any Pokémon to battle with!",
+    "cobblemon.join.error.duplicate": "You already have a pending request sent to %1$s.",
+    "cobblemon.join.error.pending": "%1$s already has a pending request for you."
 }
